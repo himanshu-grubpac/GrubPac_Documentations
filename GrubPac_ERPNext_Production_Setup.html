@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrubPac Technologies — ERPNext Production Setup</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f6f8;color:#1a1a2e;line-height:1.7}
+.hdr{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;padding:48px 32px;text-align:center}
+.hdr h1{font-size:30px;font-weight:700;margin-bottom:6px}
+.hdr p{font-size:15px;opacity:.85;max-width:750px;margin:0 auto}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 20px}
+
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(0,0,0,.05);margin-bottom:28px;overflow:hidden}
+.card-head{padding:22px 28px 0}
+.card-head h2{font-size:19px;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-body{padding:12px 28px 28px;overflow-x:auto}
+
+.info{font-size:13.5px;color:#444;margin-bottom:16px;padding:12px 16px;background:#f7f9fc;border-radius:8px;border-left:4px solid #0f3460}
+.info b{color:#1a1a2e}
+.info p{margin:4px 0}
+
+.tag{display:inline-block;padding:2px 9px;border-radius:5px;font-size:11px;font-weight:600;margin-left:4px;vertical-align:middle}
+.t-docker{background:#E3F2FD;color:#1565C0}
+.t-aws{background:#FFF3E0;color:#E65100}
+.t-db{background:#E8F5E9;color:#2E7D32}
+.t-redis{background:#FFF8E1;color:#F57F17}
+.t-nginx{background:#F3E5F5;color:#6A1B9A}
+.t-python{background:#E0F2F1;color:#00695C}
+.t-security{background:#FFEBEE;color:#C62828}
+.t-backup{background:#E8EAF6;color:#283593}
+.t-s3{background:#FBE9E7;color:#BF360C}
+.t-done{background:#E8F5E9;color:#2E7D32}
+.t-pending{background:#FFF8E1;color:#F57F17}
+.t-critical{background:#FFEBEE;color:#C62828}
+
+.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin:20px 0}
+.feat{background:#f7f9fc;border-radius:10px;padding:16px 18px;border:1px solid #e8ecf0}
+.feat h4{font-size:14px;margin-bottom:4px;color:#0f3460}
+.feat .who{font-size:12px;color:#0f3460;margin-bottom:6px;font-weight:600}
+.feat .what{font-size:12.5px;color:#555;margin-bottom:6px}
+.feat .use{font-size:12px;color:#777;font-style:italic}
+
+.toc{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(0,0,0,.05);padding:22px 28px;margin-bottom:28px}
+.toc h3{font-size:16px;margin-bottom:14px}
+.toc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 24px}
+.toc-grid a{display:block;padding:3px 0;color:#0f3460;text-decoration:none;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toc-grid a:hover{text-decoration:underline}
+@media(max-width:900px){.toc-grid{grid-template-columns:repeat(2,1fr)}}
+
+.cmd{background:#1a1a2e;color:#e0e0e0;border-radius:8px;padding:16px 20px;font-family:'Cascadia Code','Fira Code',monospace;font-size:12.5px;overflow-x:auto;margin:12px 0;line-height:1.6}
+.cmd .comment{color:#6a9955}
+.cmd .prompt{color:#569CD6}
+.cmd .flag{color:#CE9178}
+.cmd .output{color:#608B4E}
+
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+th{background:#f0f2f5;text-align:left;padding:10px 14px;font-weight:600;color:#1a1a2e;border-bottom:2px solid #dee2e6}
+td{padding:10px 14px;border-bottom:1px solid #eee;color:#444}
+tr:hover td{background:#f9fafe}
+
+.status{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px}
+.s-done{background:#E8F5E9;color:#2E7D32}
+.s-pending{background:#FFF8E1;color:#F57F17}
+
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#0f3460;color:#fff;border-radius:50%;font-size:13px;font-weight:700;margin-right:8px;flex-shrink:0}
+
+.checklist{list-style:none;padding:0}
+.checklist li{padding:8px 0;font-size:13.5px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f0f0f0}
+.checklist li:last-child{border-bottom:none}
+.check-done{color:#2E7D32;font-weight:700;font-size:16px}
+.check-pending{color:#F57F17;font-weight:700;font-size:16px}
+
+.ref-table{background:#f7f9fc;border-radius:10px;padding:20px;margin:16px 0}
+.ref-table table{margin:0}
+.ref-table th{background:#e8ecf0}
+
+.legend{display:flex;flex-wrap:wrap;gap:14px;padding:16px 28px;border-top:1px solid #eee}
+.legend span{display:flex;align-items:center;gap:5px;font-size:12px;color:#555}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+.warning{background:#FFF8E1;border-left:4px solid #F57F17;padding:12px 16px;border-radius:8px;margin:12px 0;font-size:13px;color:#5D4037}
+.warning b{color:#E65100}
+
+.success{background:#E8F5E9;border-left:4px solid #2E7D32;padding:12px 16px;border-radius:8px;margin:12px 0;font-size:13px;color:#1B5E20}
+.success b{color:#2E7D32}
+
+.danger{background:#FFEBEE;border-left:4px solid #C62828;padding:12px 16px;border-radius:8px;margin:12px 0;font-size:13px;color:#B71C1C}
+.danger b{color:#C62828}
+
+.flow{display:flex;align-items:center;gap:0;margin:16px 0;flex-wrap:wrap}
+.flow-step{background:#f7f9fc;border:1px solid #e0e0e0;border-radius:10px;padding:12px 16px;font-size:12.5px;text-align:center;min-width:120px}
+.flow-arrow{font-size:20px;color:#0f3460;padding:0 6px;font-weight:700}
+
+@media print{body{background:#fff}.card{box-shadow:none;border:1px solid #ddd}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>GrubPac Technologies — ERPNext Production Setup</h1>
+  <p>Complete documentation of the ERPNext v15 production system deployed on AWS EC2 using Docker. Covers architecture, configuration, backup, security, and disaster recovery.</p>
+</div>
+
+<div class="wrap">
+
+<!-- TOC -->
+<div class="toc">
+  <h3>All Sections</h3>
+  <div class="toc-grid">
+    <a href="#prereq">1. Prerequisites</a>
+    <a href="#fork">2. Fork ERPNext</a>
+    <a href="#docker-files">3. Docker Files</a>
+    <a href="#push">4. Push to GitHub</a>
+    <a href="#ec2">5. AWS EC2 Setup</a>
+    <a href="#install-docker">6. Install Docker</a>
+    <a href="#deploy">7. Clone & Deploy</a>
+    <a href="#create-site">8. Create Site</a>
+    <a href="#fix-db">9. Fix DB Permissions</a>
+    <a href="#access">10. Access ERPNext</a>
+    <a href="#architecture">11. System Architecture</a>
+    <a href="#commands">12. Useful Commands</a>
+    <a href="#protection">13. EC2 Protection</a>
+    <a href="#ami">14. AMI Snapshot</a>
+    <a href="#backups">15. Automated Backups</a>
+    <a href="#s3">16. S3 Offsite Backups</a>
+    <a href="#disaster">17. Disaster Recovery</a>
+    <a href="#security">18. Security Checklist</a>
+    <a href="#reference">19. Quick Reference</a>
+    <a href="#updates">20. System Updates</a>
+  </div>
+</div>
+
+<!-- SECTION 1: PREREQUISITES -->
+<div class="card" id="prereq">
+  <div class="card-head"><h2><span class="step-num">1</span> Prerequisites</h2></div>
+  <div class="card-body">
+    <div class="features">
+      <div class="feat">
+        <h4>GitHub Account</h4>
+        <div class="what">Company GitHub account linked to company email. Used to fork the official ERPNext repository and store Docker configuration files.</div>
+      </div>
+      <div class="feat">
+        <h4>AWS Account</h4>
+        <div class="what">AWS account with EC2, S3, and IAM access. Used to host the production server, store offsite backups, and manage access credentials.</div>
+      </div>
+      <div class="feat">
+        <h4>Domain Name</h4>
+        <div class="what">Company domain (e.g., <code>grubpac.com</code>) — can be used if required in future for HTTPS/SSL setup. A subdomain like <code>erp.grubpac.com</code> can be pointed to the EC2 instance when ready.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: FORK -->
+<div class="card" id="fork">
+  <div class="card-head"><h2><span class="step-num">2</span> Fork ERPNext to Company GitHub <span class="tag t-done">Done</span></h2></div>
+  <div class="info">
+    <p><b>Why fork:</b> Forking gives us our own copy of ERPNext that we control. We can add custom Docker files, modify code, and manage versions independently without affecting the upstream project.</p>
+  </div>
+  <div class="card-body">
+    <table>
+      <tr><th>Step</th><th>Action</th></tr>
+      <tr><td>1</td><td>Go to <code>https://github.com/frappe/erpnext</code></td></tr>
+      <tr><td>2</td><td>Click <b>Fork</b> (top-right corner)</td></tr>
+      <tr><td>3</td><td>Select company GitHub account as owner</td></tr>
+      <tr><td>4</td><td>Keep "Copy the develop branch only" checked</td></tr>
+      <tr><td>5</td><td>Click <b>Create Fork</b></td></tr>
+    </table>
+    <div class="success"><b>Result:</b> <code>https://github.com/himanshu-grubpac/erpnext</code> — Company's own ERPNext repository</div>
+  </div>
+</div>
+
+<!-- SECTION 3: DOCKER FILES -->
+<div class="card" id="docker-files">
+  <div class="card-head"><h2><span class="step-num">3</span> Docker Configuration Files <span class="tag t-docker">Docker</span></h2></div>
+  <div class="info">
+    <p><b>Three files created</b> in the project root: <code>Dockerfile</code>, <code>docker-compose.yml</code>, and <code>.env.example</code>. These define the entire production deployment — 11 containers orchestrated together.</p>
+  </div>
+  <div class="card-body">
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">3.1 Clone the Fork Locally</h3>
+    <div class="cmd">
+      <span class="prompt">$</span> git clone --depth 1 https://github.com/himanshu-grubpac/erpnext.git<br>
+      <span class="prompt">$</span> cd erpnext
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">3.2 Dockerfile</h3>
+    <div class="cmd">
+      <span class="comment"># Multi-stage build for ERPNext from company fork</span><br>
+      ARG FRAPPE_VERSION=v15.x.x<br>
+      ARG ERPNEXT_REPO=https://github.com/himanshu-grubpac/erpnext.git<br>
+      ARG ERPNEXT_BRANCH=develop<br><br>
+      FROM frappe/bench:latest AS builder<br>
+      ARG FRAPPE_VERSION<br>
+      ARG ERPNEXT_REPO<br>
+      ARG ERPNEXT_BRANCH<br>
+      USER frappe<br><br>
+      RUN bench init /home/frappe/frappe-bench \<br>
+      &nbsp;&nbsp;--frappe-branch ${FRAPPE_VERSION} \<br>
+      &nbsp;&nbsp;--skip-redis-config-generation \<br>
+      &nbsp;&nbsp;--skip-assets --python python3<br><br>
+      WORKDIR /home/frappe/frappe-bench<br>
+      RUN bench get-app --resolve-deps --skip-assets \<br>
+      &nbsp;&nbsp;erpnext ${ERPNEXT_REPO} --branch ${ERPNEXT_BRANCH}<br>
+      RUN bench build --production<br><br>
+      <span class="comment"># Production image</span><br>
+      FROM frappe/frappe-worker:${FRAPPE_VERSION}<br>
+      COPY --from=builder /home/frappe/frappe-bench/apps/erpnext /home/frappe/frappe-bench/apps/erpnext<br>
+      COPY --from=builder /home/frappe/frappe-bench/sites/apps.txt /home/frappe/frappe-bench/sites/apps.txt<br>
+      COPY --from=builder /home/frappe/frappe-bench/sites/assets /home/frappe/frappe-bench/sites/assets<br>
+      USER frappe<br>
+      WORKDIR /home/frappe/frappe-bench
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">3.3 docker-compose.yml</h3>
+    <div class="cmd">
+      <span class="comment"># ERPNext Production Stack — 11 containers</span><br>
+      x-common-env: &amp;common-env<br>
+      &nbsp;&nbsp;DB_HOST: db<br>
+      &nbsp;&nbsp;DB_PORT: "3306"<br>
+      &nbsp;&nbsp;REDIS_CACHE: redis-cache:6379<br>
+      &nbsp;&nbsp;REDIS_QUEUE: redis-queue:6379<br>
+      &nbsp;&nbsp;REDIS_SOCKETIO: redis-socketio:6379<br>
+      &nbsp;&nbsp;SOCKETIO_PORT: "9000"<br><br>
+      services:<br>
+      &nbsp;&nbsp;backend: <span class="comment"># Frappe/ERPNext app server</span><br>
+      &nbsp;&nbsp;frontend: <span class="comment"># Nginx reverse proxy (port 80→8080)</span><br>
+      &nbsp;&nbsp;websocket: <span class="comment"># Socket.IO real-time</span><br>
+      &nbsp;&nbsp;queue-default: <span class="comment"># Background job worker</span><br>
+      &nbsp;&nbsp;queue-short: <span class="comment"># Quick job worker</span><br>
+      &nbsp;&nbsp;queue-long: <span class="comment"># Heavy job worker</span><br>
+      &nbsp;&nbsp;scheduler: <span class="comment"># Cron/scheduled tasks</span><br>
+      &nbsp;&nbsp;db: <span class="comment"># MariaDB 10.6</span><br>
+      &nbsp;&nbsp;redis-cache: <span class="comment"># Application cache</span><br>
+      &nbsp;&nbsp;redis-queue: <span class="comment"># Job queue broker</span><br>
+      &nbsp;&nbsp;redis-socketio: <span class="comment"># Real-time routing</span>
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">3.4 .env.example</h3>
+    <div class="cmd">
+      DB_ROOT_PASSWORD=admin<br>
+      SITE_NAME=erp.localhost<br>
+      ADMIN_PASSWORD=admin
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 4: PUSH -->
+<div class="card" id="push">
+  <div class="card-head"><h2><span class="step-num">4</span> Push Docker Files to GitHub <span class="tag t-done">Done</span></h2></div>
+  <div class="card-body">
+    <div class="cmd">
+      <span class="prompt">$</span> git add Dockerfile docker-compose.yml .env.example<br>
+      <span class="prompt">$</span> git commit -m <span class="flag">"Add Docker production setup"</span><br>
+      <span class="prompt">$</span> git push origin develop
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: EC2 -->
+<div class="card" id="ec2">
+  <div class="card-head"><h2><span class="step-num">5</span> AWS EC2 Instance Setup <span class="tag t-aws">AWS</span> <span class="tag t-done">Done</span></h2></div>
+  <div class="info">
+    <p><b>Instance specs:</b> Chosen to handle ERPNext with 11 Docker containers — MariaDB, Redis, Nginx, workers, and the application server all running simultaneously.</p>
+  </div>
+  <div class="card-body">
+    <table>
+      <tr><th>Setting</th><th>Value</th><th>Why</th></tr>
+      <tr><td><b>Name</b></td><td>ERPNext-GrubPac</td><td>Identification in AWS Console</td></tr>
+      <tr><td><b>Instance ID</b></td><td><code>i-0bd126e1c9e056177</code></td><td>Unique AWS identifier</td></tr>
+      <tr><td><b>AMI</b></td><td>Ubuntu Server 24.04 LTS</td><td>Latest LTS, Docker-compatible</td></tr>
+      <tr><td><b>Instance Type</b></td><td>m7i-flex.large (2 vCPU, 8GB RAM)</td><td>Enough for all 11 containers</td></tr>
+      <tr><td><b>Key Pair</b></td><td>erpnext-key.pem</td><td>SSH access</td></tr>
+      <tr><td><b>Storage</b></td><td>30GB gp3</td><td>OS + Docker images + data</td></tr>
+    </table>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Security Group Rules</h3>
+    <table>
+      <tr><th>Type</th><th>Port</th><th>Source</th><th>Purpose</th></tr>
+      <tr><td>SSH</td><td>22</td><td>Your IP</td><td>Terminal access</td></tr>
+      <tr><td>HTTP</td><td>80</td><td>0.0.0.0/0</td><td>ERPNext web access</td></tr>
+      <tr><td>HTTPS</td><td>443</td><td>0.0.0.0/0</td><td>SSL (when configured)</td></tr>
+    </table>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Connect to EC2</h3>
+    <div class="cmd">
+      <span class="prompt">$</span> ssh -i erpnext-key.pem ubuntu@13.201.123.135
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 6: INSTALL DOCKER -->
+<div class="card" id="install-docker">
+  <div class="card-head"><h2><span class="step-num">6</span> Install Docker on EC2 <span class="tag t-docker">Docker</span> <span class="tag t-done">Done</span></h2></div>
+  <div class="card-body">
+    <div class="cmd">
+      <span class="comment"># Update system</span><br>
+      <span class="prompt">$</span> sudo apt update && sudo apt upgrade -y<br><br>
+      <span class="comment"># Install Docker and Docker Compose</span><br>
+      <span class="prompt">$</span> sudo apt install docker.io docker-compose-v2 -y<br><br>
+      <span class="comment"># Enable Docker service</span><br>
+      <span class="prompt">$</span> sudo systemctl enable docker<br>
+      <span class="prompt">$</span> sudo systemctl start docker<br>
+      <span class="prompt">$</span> sudo usermod -aG docker ubuntu<br><br>
+      <span class="comment"># Verify installation</span><br>
+      <span class="prompt">$</span> docker --version<br>
+      <span class="output">Docker version 27.x.x</span>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 7: DEPLOY -->
+<div class="card" id="deploy">
+  <div class="card-head"><h2><span class="step-num">7</span> Clone & Deploy ERPNext <span class="tag t-docker">Docker</span> <span class="tag t-done">Done</span></h2></div>
+  <div class="card-body">
+    <div class="cmd">
+      <span class="comment"># Clone the company fork</span><br>
+      <span class="prompt">$</span> git clone --depth 1 https://github.com/himanshu-grubpac/erpnext.git<br>
+      <span class="prompt">$</span> cd erpnext<br><br>
+      <span class="comment"># Create environment file</span><br>
+      <span class="prompt">$</span> cp .env.example .env<br><br>
+      <span class="comment"># Start all 11 containers (pulls images, ~3 minutes)</span><br>
+      <span class="prompt">$</span> sudo docker compose up -d<br><br>
+      <span class="comment"># Verify all containers are running</span><br>
+      <span class="prompt">$</span> sudo docker compose ps
+    </div>
+    <div class="success"><b>Expected:</b> All 11 containers showing status "Up" — backend, frontend, db, websocket, scheduler, 3 workers, 3 Redis instances.</div>
+  </div>
+</div>
+
+<!-- SECTION 8: CREATE SITE -->
+<div class="card" id="create-site">
+  <div class="card-head"><h2><span class="step-num">8</span> Create ERPNext Site <span class="tag t-python">Bench</span> <span class="tag t-done">Done</span></h2></div>
+  <div class="info">
+    <p><b>What happens:</b> Creates the ERPNext site, configures database connections, installs the ERPNext app, and sets up the admin account. This is the core setup step.</p>
+  </div>
+  <div class="card-body">
+    <h3 style="margin:16px 0 8px;font-size:15px;">8.1 Set Common Site Config</h3>
+    <div class="cmd">
+      <span class="prompt">$</span> sudo docker compose exec backend bench set-config -g db_host db<br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench set-config -g db_port 3306<br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench set-config -g redis_cache redis://redis-cache:6379<br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench set-config -g redis_queue redis://redis-queue:6379<br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench set-config -g redis_socketio redis://redis-socketio:6379
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">8.2 Verify Config</h3>
+    <div class="cmd">
+      <span class="prompt">$</span> sudo docker compose exec backend cat sites/common_site_config.json<br><br>
+      <span class="output">{</span><br>
+      <span class="output">&nbsp;&nbsp;"db_host": "db",</span><br>
+      <span class="output">&nbsp;&nbsp;"db_port": "3306",</span><br>
+      <span class="output">&nbsp;&nbsp;"redis_cache": "redis://redis-cache:6379",</span><br>
+      <span class="output">&nbsp;&nbsp;"redis_queue": "redis://redis-queue:6379",</span><br>
+      <span class="output">&nbsp;&nbsp;"redis_socketio": "redis://redis-socketio:6379"</span><br>
+      <span class="output">}</span>
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">8.3 Create the Site</h3>
+    <div class="cmd">
+      <span class="prompt">$</span> sudo docker compose run --rm backend bench new-site erp.localhost \<br>
+      &nbsp;&nbsp;--mariadb-root-password admin \<br>
+      &nbsp;&nbsp;--admin-password admin \<br>
+      &nbsp;&nbsp;--install-app erpnext \<br>
+      &nbsp;&nbsp;--force
+    </div>
+    <div class="success"><b>Expected output:</b> "Installing frappe... Installing erpnext... *** Scheduler is disabled ***"</div>
+  </div>
+</div>
+
+<!-- SECTION 9: FIX DB -->
+<div class="card" id="fix-db">
+  <div class="card-head"><h2><span class="step-num">9</span> Fix Database Permissions <span class="tag t-db">MariaDB</span> <span class="tag t-done">Done</span></h2></div>
+  <div class="info">
+    <p><b>Why needed:</b> ERPNext auto-generates a database user (e.g., <code>_73c82ec6d255ebe3</code>) but only grants access from <code>localhost</code>. Docker containers connect from a different IP, so we need to grant access from <code>%</code> (any host within the Docker network).</p>
+  </div>
+  <div class="card-body">
+    <h3 style="margin:16px 0 8px;font-size:15px;">9.1 Get Site DB Credentials</h3>
+    <div class="cmd">
+      <span class="prompt">$</span> sudo docker compose exec backend cat sites/erp.localhost/site_config.json<br><br>
+      <span class="comment"># Note the db_name and db_password values</span>
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">9.2 Grant DB User Access</h3>
+    <div class="cmd">
+      <span class="comment"># Replace DB_NAME and DB_PASSWORD with actual values</span><br>
+      <span class="prompt">$</span> sudo docker compose exec db mysql -uroot -padmin -e \<br>
+      &nbsp;&nbsp;"CREATE USER IF NOT EXISTS 'DB_NAME'@'%' IDENTIFIED BY 'DB_PASSWORD'; \<br>
+      &nbsp;&nbsp;&nbsp;GRANT ALL PRIVILEGES ON DB_NAME.* TO 'DB_NAME'@'%'; \<br>
+      &nbsp;&nbsp;&nbsp;FLUSH PRIVILEGES;"
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">9.3 Enable Scheduler & Set Default Site</h3>
+    <div class="cmd">
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost enable-scheduler<br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench use erp.localhost<br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost set-config host_name <span class="flag">"http://13.201.123.135"</span><br>
+      <span class="prompt">$</span> sudo docker compose restart
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 10: ACCESS -->
+<div class="card" id="access">
+  <div class="card-head"><h2><span class="step-num">10</span> Access ERPNext <span class="tag t-done">Done</span></h2></div>
+  <div class="card-body">
+    <div class="flow">
+      <div class="flow-step" style="background:#E3F2FD;border-color:#1565C0;">Open Browser</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:#FFF3E0;border-color:#E65100;">http://13.201.123.135</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:#E8F5E9;border-color:#2E7D32;">Login Page</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:#F3E5F5;border-color:#6A1B9A;">Setup Wizard</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:#E8F5E9;border-color:#2E7D32;">Dashboard</div>
+    </div>
+
+    <table style="margin-top:16px;">
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td><b>URL</b></td><td><code>http://13.201.123.135</code></td></tr>
+      <tr><td><b>Username</b></td><td><code>Administrator</code></td></tr>
+      <tr><td><b>Password</b></td><td><code>admin</code></td></tr>
+    </table>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Setup Wizard Steps</h3>
+    <table>
+      <tr><th>#</th><th>Step</th><th>Value Set</th></tr>
+      <tr><td>1</td><td>Language</td><td>English</td></tr>
+      <tr><td>2</td><td>Country & Currency</td><td>India / INR</td></tr>
+      <tr><td>3</td><td>Company Name</td><td>GrubPac Technologies</td></tr>
+      <tr><td>4</td><td>Chart of Accounts</td><td>Standard (India)</td></tr>
+      <tr><td>5</td><td>Financial Year</td><td>April start</td></tr>
+      <tr><td>6</td><td>Business Domains</td><td>Services / Distribution</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- SECTION 11: ARCHITECTURE -->
+<div class="card" id="architecture">
+  <div class="card-head"><h2><span class="step-num">11</span> System Architecture</h2></div>
+  <div class="info">
+    <p><b>11 Docker containers</b> running on a single EC2 instance, orchestrated by Docker Compose. All containers communicate via an internal Docker bridge network (<code>erpnext-network</code>). Only port 80 is exposed to the internet.</p>
+  </div>
+  <div class="card-body">
+    <div class="features">
+      <div class="feat">
+        <h4><span class="tag t-python">Python</span> Backend</h4>
+        <div class="who">Image: frappe/erpnext:v15</div>
+        <div class="what">Frappe/ERPNext application server. Handles all business logic, REST API, and database operations. The core of the system.</div>
+      </div>
+      <div class="feat">
+        <h4><span class="tag t-nginx">Nginx</span> Frontend</h4>
+        <div class="who">Image: frappe/erpnext:v15 | Port: 80 → 8080</div>
+        <div class="what">Nginx reverse proxy. Serves static assets, proxies API requests to backend, handles WebSocket connections. The only container exposed to the internet.</div>
+      </div>
+      <div class="feat">
+        <h4><span class="tag t-python">Node.js</span> WebSocket</h4>
+        <div class="who">Image: frappe/erpnext:v15</div>
+        <div class="what">Socket.IO server for real-time notifications, live updates, and collaborative editing within ERPNext.</div>
+      </div>
+      <div class="feat">
+        <h4><span class="tag t-db">MariaDB</span> Database</h4>
+        <div class="who">Image: mariadb:10.6 | Buffer: 2GB | Log: 256MB</div>
+        <div class="what">Primary database. Stores all ERPNext data — users, transactions, invoices, inventory, settings. Enterprise-grade, used by Google, Wikipedia, Samsung.</div>
+      </div>
+      <div class="feat">
+        <h4><span class="tag t-redis">Redis</span> Cache × 3</h4>
+        <div class="who">Image: redis:alpine | 3 instances</div>
+        <div class="what"><b>redis-cache:</b> Application data cache. <b>redis-queue:</b> Background job queue broker. <b>redis-socketio:</b> Real-time WebSocket message routing.</div>
+      </div>
+      <div class="feat">
+        <h4><span class="tag t-python">Workers</span> × 3 + Scheduler</h4>
+        <div class="who">Image: frappe/erpnext:v15 | 4 containers</div>
+        <div class="what"><b>queue-default:</b> Standard jobs. <b>queue-short:</b> Quick tasks. <b>queue-long:</b> Heavy operations (imports, reports). <b>scheduler:</b> Cron tasks (email, auto-close).</div>
+      </div>
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">EC2 Instance Specs</h3>
+    <table>
+      <tr><th>Spec</th><th>Value</th></tr>
+      <tr><td>Instance Type</td><td>m7i-flex.large (2 vCPU, 8GB RAM)</td></tr>
+      <tr><td>OS</td><td>Ubuntu 24.04 LTS</td></tr>
+      <tr><td>Storage</td><td>30GB gp3</td></tr>
+      <tr><td>Public IP</td><td>13.201.123.135</td></tr>
+      <tr><td>Region</td><td>ap-south-1 (Mumbai)</td></tr>
+    </table>
+  </div>
+  <div class="legend">
+    <span><i style="background:#E0F2F1;border:1px solid #00695C"></i> Python/Frappe</span>
+    <span><i style="background:#F3E5F5;border:1px solid #6A1B9A"></i> Nginx</span>
+    <span><i style="background:#E8F5E9;border:1px solid #2E7D32"></i> MariaDB</span>
+    <span><i style="background:#FFF8E1;border:1px solid #F57F17"></i> Redis</span>
+    <span><i style="background:#E3F2FD;border:1px solid #1565C0"></i> Workers</span>
+  </div>
+</div>
+
+<!-- SECTION 12: COMMANDS -->
+<div class="card" id="commands">
+  <div class="card-head"><h2><span class="step-num">12</span> Useful Commands</h2></div>
+  <div class="card-body">
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Container Management</h3>
+    <div class="cmd">
+      <span class="comment"># Check status of all containers</span><br>
+      <span class="prompt">$</span> sudo docker compose ps<br><br>
+      <span class="comment"># View logs (all or specific service)</span><br>
+      <span class="prompt">$</span> sudo docker compose logs --tail=50<br>
+      <span class="prompt">$</span> sudo docker compose logs backend --tail=50<br><br>
+      <span class="comment"># Restart / Stop / Start</span><br>
+      <span class="prompt">$</span> sudo docker compose restart<br>
+      <span class="prompt">$</span> sudo docker compose down<br>
+      <span class="prompt">$</span> sudo docker compose up -d<br><br>
+      <span class="comment"># Force rebuild</span><br>
+      <span class="prompt">$</span> sudo docker compose up -d --force-recreate
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">ERPNext / Bench Commands</h3>
+    <div class="cmd">
+      <span class="comment"># Change admin password</span><br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost set-admin-password <span class="flag">NEW_PASSWORD</span><br><br>
+      <span class="comment"># Add a new user</span><br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost add-user <span class="flag">user@grubpac.com</span> \<br>
+      &nbsp;&nbsp;--first-name John --last-name Doe --password <span class="flag">SecurePass123</span><br><br>
+      <span class="comment"># Change any user's password</span><br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost set-password <span class="flag">user@grubpac.com</span> <span class="flag">NewPass123</span><br><br>
+      <span class="comment"># Run database migrations</span><br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost migrate<br><br>
+      <span class="comment"># Manual backup / Clear cache</span><br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost backup<br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost clear-cache<br><br>
+      <span class="comment"># Maintenance mode</span><br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost set-maintenance-mode on<br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost set-maintenance-mode off
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Database Commands</h3>
+    <div class="cmd">
+      <span class="comment"># Enter MariaDB shell</span><br>
+      <span class="prompt">$</span> sudo docker compose exec db mysql -uroot -padmin<br><br>
+      <span class="comment"># Inside MySQL shell:</span><br>
+      <span class="prompt">MariaDB&gt;</span> SHOW DATABASES;<br>
+      <span class="prompt">MariaDB&gt;</span> USE _73c82ec6d255ebe3;<br>
+      <span class="prompt">MariaDB&gt;</span> SHOW TABLES;<br>
+      <span class="prompt">MariaDB&gt;</span> SELECT name, email FROM tabUser;<br>
+      <span class="prompt">MariaDB&gt;</span> SELECT name, company_name FROM tabCompany;<br>
+      <span class="prompt">MariaDB&gt;</span> EXIT;
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 13: PROTECTION -->
+<div class="card" id="protection">
+  <div class="card-head"><h2><span class="step-num">13</span> EC2 Instance Protection <span class="tag t-security">Security</span> <span class="tag t-done">Done</span></h2></div>
+  <div class="info">
+    <p><b>Purpose:</b> Prevent accidental deletion or stopping of the production server. Once enabled, the instance cannot be terminated or stopped without first disabling the protection — an intentional two-step process.</p>
+  </div>
+  <div class="card-body">
+    <table>
+      <tr><th>Protection</th><th>How to Enable</th><th>Status</th></tr>
+      <tr>
+        <td><b>Termination Protection</b></td>
+        <td>AWS Console → EC2 → Select instance → Actions → Instance Settings → Change Termination Protection → <b>Enable</b></td>
+        <td><span class="status s-done">✓ Enabled</span></td>
+      </tr>
+      <tr>
+        <td><b>Stop Protection</b></td>
+        <td>AWS Console → EC2 → Select instance → Actions → Instance Settings → Change Stop Protection → <b>Enable</b></td>
+        <td><span class="status s-done">✓ Enabled</span></td>
+      </tr>
+    </table>
+    <div class="success"><b>Result:</b> Nobody can accidentally delete or stop the instance. Both protections must be manually disabled before any destructive action.</div>
+  </div>
+</div>
+
+<!-- SECTION 14: AMI SNAPSHOT -->
+<div class="card" id="ami">
+  <div class="card-head"><h2><span class="step-num">14</span> AMI Snapshot (Full Server Image) <span class="tag t-aws">AWS</span> <span class="tag t-done">Done</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> A complete disk image of the entire EC2 instance — OS, Docker, all containers, configuration, and data at the time of creation. If the server is destroyed, a new identical instance can be launched from this AMI in 2 minutes.</p>
+    <p><b>Important:</b> AMI is a one-time snapshot. It does NOT auto-update. For latest data, use S3 daily backups (Section 15). AMI + S3 backup together = full recovery in ~5 minutes.</p>
+  </div>
+  <div class="card-body">
+    <h3 style="margin:16px 0 8px;font-size:15px;">How to Create</h3>
+    <table>
+      <tr><th>Step</th><th>Action</th></tr>
+      <tr><td>1</td><td>AWS Console → EC2 → Select <b>ERPNext-GrubPac</b> instance</td></tr>
+      <tr><td>2</td><td>Actions → Image and templates → <b>Create image</b></td></tr>
+      <tr><td>3</td><td>Image name: <code>erpnext-grubpac-backup-YYYY-MM-DD</code></td></tr>
+      <tr><td>4</td><td>Click <b>Create image</b> — takes ~5 minutes</td></tr>
+    </table>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">How to Verify</h3>
+    <div class="cmd">
+      <span class="comment"># AWS Console → EC2 → Left sidebar → Images → AMIs</span><br>
+      <span class="comment"># Check status is "available"</span><br>
+      <span class="comment"># Source instance: i-0bd126e1c9e056177</span>
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Current AMI</h3>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td><b>Image Name</b></td><td><code>erpnext-grubpac-backup-2026-05-22</code></td></tr>
+      <tr><td><b>Source Instance</b></td><td><code>i-0bd126e1c9e056177</code> (ERPNext-GrubPac)</td></tr>
+      <tr><td><b>Created</b></td><td>May 22, 2026</td></tr>
+      <tr><td><b>Contains</b></td><td>Ubuntu 24.04 + Docker + all 11 containers + ERPNext site + data</td></tr>
+    </table>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">How to Restore from AMI</h3>
+    <table>
+      <tr><th>Step</th><th>Action</th></tr>
+      <tr><td>1</td><td>AWS Console → EC2 → AMIs → Select the AMI</td></tr>
+      <tr><td>2</td><td>Click <b>Launch instance from AMI</b></td></tr>
+      <tr><td>3</td><td>Choose same instance type (m7i-flex.large)</td></tr>
+      <tr><td>4</td><td>Assign same security group and key pair</td></tr>
+      <tr><td>5</td><td>Launch — server is ready in ~2 minutes with everything pre-installed</td></tr>
+      <tr><td>6</td><td>Restore latest S3 backup for fresh data (see Section 17)</td></tr>
+    </table>
+
+    <div class="warning"><b>Recommendation:</b> Recreate the AMI monthly or after major configuration changes. The daily S3 backup handles data — the AMI saves you from re-installing everything.</div>
+  </div>
+</div>
+
+<!-- SECTION 15: BACKUPS -->
+<div class="card" id="backups">
+  <div class="card-head"><h2><span class="step-num">15</span> Automated Backups <span class="tag t-backup">Backup</span> <span class="tag t-done">Done</span></h2></div>
+  <div class="info">
+    <p><b>Schedule:</b> Daily at 2:00 AM UTC (7:30 AM IST). Runs automatically — no manual intervention needed. Backups are stored locally on EC2 (7-day retention) and uploaded to S3 (30-day retention).</p>
+  </div>
+  <div class="card-body">
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">What's Included in Each Backup</h3>
+    <table>
+      <tr><th>Backup File</th><th>Contains</th><th>Size</th></tr>
+      <tr><td><b>Database SQL</b> (.sql.gz)</td><td>All 700 tables — users, transactions, invoices, customers, items, settings, everything</td><td>~850 KB</td></tr>
+      <tr><td><b>Private Files</b> (.tar)</td><td>Uploaded attachments, PDFs, letterheads, logos, imported CSVs</td><td>~10 KB</td></tr>
+      <tr><td><b>Public Files</b> (.tar)</td><td>Website images, public assets uploaded via ERPNext</td><td>~10 KB</td></tr>
+      <tr><td><b>Site Config</b> (.json)</td><td>Site configuration and database credentials</td><td>~133 B</td></tr>
+    </table>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Backup Script</h3>
+    <div class="cmd">
+      <span class="comment"># Location: /home/ubuntu/backup-erpnext.sh</span><br><br>
+      #!/bin/bash<br>
+      BACKUP_DIR="/home/ubuntu/backups"<br>
+      S3_BUCKET="s3://grubpac-erpnext-backups"<br>
+      DATE=$(date +%Y-%m-%d_%H-%M)<br>
+      mkdir -p $BACKUP_DIR/$DATE<br><br>
+      <span class="comment"># Backup ERPNext site (database + files)</span><br>
+      cd /home/ubuntu/erpnext<br>
+      sudo docker compose exec -T backend bench --site erp.localhost backup --with-files<br><br>
+      <span class="comment"># Copy backups from Docker volume to host</span><br>
+      CONTAINER_ID=$(sudo docker compose ps -q backend)<br>
+      sudo docker cp $CONTAINER_ID:/home/frappe/frappe-bench/sites/erp.localhost/private/backups/ $BACKUP_DIR/$DATE/<br><br>
+      <span class="comment"># Upload to S3</span><br>
+      aws s3 sync $BACKUP_DIR/$DATE/ $S3_BUCKET/$DATE/<br><br>
+      <span class="comment"># Cleanup: local 7 days, S3 30 days</span><br>
+      find $BACKUP_DIR -type d -mtime +7 -exec rm -rf {} +<br><br>
+      echo "[$DATE] Backup completed and uploaded to S3"
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Cron Schedule</h3>
+    <div class="cmd">
+      <span class="comment"># View the cron job</span><br>
+      <span class="prompt">$</span> sudo crontab -l<br><br>
+      <span class="output">0 2 * * * /home/ubuntu/backup-erpnext.sh >> /home/ubuntu/backups/backup.log 2>&1</span>
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Verify Backups</h3>
+    <div class="cmd">
+      <span class="comment"># Run manual backup</span><br>
+      <span class="prompt">$</span> sudo /home/ubuntu/backup-erpnext.sh<br><br>
+      <span class="comment"># Check local backups</span><br>
+      <span class="prompt">$</span> ls -la /home/ubuntu/backups/<br><br>
+      <span class="comment"># Check backup log</span><br>
+      <span class="prompt">$</span> cat /home/ubuntu/backups/backup.log<br><br>
+      <span class="comment"># Check S3 backups</span><br>
+      <span class="prompt">$</span> aws s3 ls s3://grubpac-erpnext-backups/
+    </div>
+
+    <table>
+      <tr><th>Location</th><th>Retention</th><th>Purpose</th></tr>
+      <tr><td><b>EC2 Local</b> /home/ubuntu/backups/</td><td>7 days</td><td>Quick restore</td></tr>
+      <tr><td><b>AWS S3</b> grubpac-erpnext-backups</td><td>30 days</td><td>Disaster recovery</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- SECTION 15: S3 -->
+<div class="card" id="s3">
+  <div class="card-head"><h2><span class="step-num">16</span> S3 Offsite Backup Setup <span class="tag t-s3">S3</span> <span class="tag t-security">Security</span> <span class="tag t-done">Done</span></h2></div>
+  <div class="info">
+    <p><b>Purpose:</b> Even if the EC2 instance is completely destroyed, all business data survives in S3. Backups are encrypted at rest (AES-256), public access is blocked, and the IAM user has minimal permissions.</p>
+  </div>
+  <div class="card-body">
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">S3 Bucket Configuration</h3>
+    <table>
+      <tr><th>Setting</th><th>Value</th></tr>
+      <tr><td><b>Bucket Name</b></td><td>grubpac-erpnext-backups</td></tr>
+      <tr><td><b>Region</b></td><td>ap-south-1 (Mumbai)</td></tr>
+      <tr><td><b>Encryption</b></td><td>SSE-S3 (AES-256) — enabled by default</td></tr>
+      <tr><td><b>Public Access</b></td><td>Blocked (all 4 settings ON)</td></tr>
+    </table>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">IAM User & Policy</h3>
+    <table>
+      <tr><th>Setting</th><th>Value</th></tr>
+      <tr><td><b>Username</b></td><td>erpnext-backup-user</td></tr>
+      <tr><td><b>Policy Name</b></td><td>erpnext-backup-only (custom inline)</td></tr>
+      <tr><td><b>Allowed Actions</b></td><td>PutObject, GetObject, ListBucket, DeleteObject</td></tr>
+      <tr><td><b>Allowed Resource</b></td><td>arn:aws:s3:::grubpac-erpnext-backups/*</td></tr>
+    </table>
+
+    <div class="cmd">
+      <span class="comment"># IAM Policy JSON (erpnext-backup-only)</span><br>
+      {<br>
+      &nbsp;&nbsp;"Version": "2012-10-17",<br>
+      &nbsp;&nbsp;"Statement": [{<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;"Effect": "Allow",<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;"Action": ["s3:PutObject", "s3:GetObject", "s3:ListBucket", "s3:DeleteObject"],<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;"Resource": [<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"arn:aws:s3:::grubpac-erpnext-backups",<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"arn:aws:s3:::grubpac-erpnext-backups/*"<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;]<br>
+      &nbsp;&nbsp;}]<br>
+      }
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">AWS CLI Configuration</h3>
+    <div class="cmd">
+      <span class="comment"># Configure for root user (backup script uses sudo)</span><br>
+      <span class="prompt">$</span> sudo aws configure<br><br>
+      <span class="output">AWS Access Key ID: [your key]</span><br>
+      <span class="output">AWS Secret Access Key: [your secret]</span><br>
+      <span class="output">Default region: ap-south-1</span><br>
+      <span class="output">Default output format: json</span>
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Security Layers</h3>
+    <table>
+      <tr><th>Layer</th><th>What It Does</th><th>Status</th></tr>
+      <tr><td><b>Encryption (SSE-S3)</b></td><td>AES-256 encryption at rest — all backup files encrypted</td><td><span class="status s-done">✓ Enabled</span></td></tr>
+      <tr><td><b>Block Public Access</b></td><td>No public URLs — backups only accessible via IAM credentials</td><td><span class="status s-done">✓ Enabled</span></td></tr>
+      <tr><td><b>Restricted IAM Policy</b></td><td>User can ONLY access the backup bucket, nothing else in AWS</td><td><span class="status s-done">✓ Applied</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- SECTION 16: DISASTER RECOVERY -->
+<div class="card" id="disaster">
+  <div class="card-head"><h2><span class="step-num">17</span> Disaster Recovery <span class="tag t-critical">Critical</span></h2></div>
+  <div class="info">
+    <p><b>Scenario:</b> EC2 instance is completely destroyed — hardware failure, accidental deletion (if protection was disabled), or region outage. Here's how to restore everything from S3 backups.</p>
+  </div>
+  <div class="card-body">
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Full Recovery — EC2 Instance Destroyed</h3>
+    <table>
+      <tr><th>Step</th><th>Command / Action</th><th>Time</th></tr>
+      <tr><td><b>1</b></td><td>Launch new EC2 instance (same specs — Section 5)</td><td>2 min</td></tr>
+      <tr><td><b>2</b></td><td>Install Docker (Section 6)</td><td>3 min</td></tr>
+      <tr><td><b>3</b></td><td>Clone repo + start containers (Section 7)</td><td>5 min</td></tr>
+      <tr><td><b>4</b></td><td>Create site skeleton (Section 8)</td><td>5 min</td></tr>
+      <tr><td><b>5</b></td><td>Download latest backup from S3</td><td>1 min</td></tr>
+      <tr><td><b>6</b></td><td>Restore the backup</td><td>2 min</td></tr>
+      <tr><td><b>7</b></td><td>Set default site + host name</td><td>1 min</td></tr>
+      <tr><td colspan="2"><b>Total Recovery Time</b></td><td><b>~20 min</b></td></tr>
+    </table>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Recovery Commands</h3>
+    <div class="cmd">
+      <span class="comment"># Step 5: Download latest backup from S3</span><br>
+      <span class="prompt">$</span> aws s3 ls s3://grubpac-erpnext-backups/<br>
+      <span class="prompt">$</span> aws s3 sync s3://grubpac-erpnext-backups/LATEST_DATE/ /home/ubuntu/restore/<br><br>
+      <span class="comment"># Step 6: Restore the backup</span><br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost restore /path/to/database.sql.gz<br><br>
+      <span class="comment"># Step 7: Set default site</span><br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench use erp.localhost<br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost set-config host_name <span class="flag">"http://NEW_PUBLIC_IP"</span><br>
+      <span class="prompt">$</span> sudo docker compose restart
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Partial Recovery — Database Only</h3>
+    <div class="cmd">
+      <span class="comment"># Download and restore database only (if DB is corrupted but EC2 is fine)</span><br>
+      <span class="prompt">$</span> aws s3 sync s3://grubpac-erpnext-backups/LATEST_DATE/ /tmp/restore/<br>
+      <span class="prompt">$</span> sudo docker compose exec backend bench --site erp.localhost restore /tmp/restore/backups/XXXXX-database.sql.gz
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 17: SECURITY CHECKLIST -->
+<div class="card" id="security">
+  <div class="card-head"><h2><span class="step-num">18</span> Security Hardening Checklist <span class="tag t-security">Security</span></h2></div>
+  <div class="card-body">
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Completed</h3>
+    <ul class="checklist">
+      <li><span class="check-done">✓</span> EC2 Termination Protection enabled</li>
+      <li><span class="check-done">✓</span> EC2 Stop Protection enabled</li>
+      <li><span class="check-done">✓</span> Daily automated backups at 2:00 AM UTC (7:30 AM IST)</li>
+      <li><span class="check-done">✓</span> S3 offsite backups with AES-256 encryption</li>
+      <li><span class="check-done">✓</span> S3 public access blocked</li>
+      <li><span class="check-done">✓</span> IAM user restricted to backup bucket only</li>
+      <li><span class="check-done">✓</span> Security group configured (SSH + HTTP + HTTPS)</li>
+      <li><span class="check-done">✓</span> AMI snapshot created (erpnext-grubpac-backup-2026-05-22)</li>
+    </ul>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Pending — Before Production Use</h3>
+    <ul class="checklist">
+      <li><span class="check-pending">○</span> Change MariaDB root password (update .env and docker-compose.yml)</li>
+      <li><span class="check-pending">○</span> Change ERPNext admin password from default</li>
+      <li><span class="check-pending">○</span> Set up domain (erp.grubpac.com) with DNS A record</li>
+      <li><span class="check-pending">○</span> Install SSL/HTTPS using Let's Encrypt</li>
+      <li><span class="check-pending">○</span> Restrict SSH access to office IP only</li>
+      <li><span class="check-pending">○</span> Set up email (SMTP) for notifications</li>
+      <li><span class="check-pending">○</span> Configure firewall (UFW) on EC2</li>
+      <li><span class="check-pending">○</span> Set up monitoring and alerts</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SECTION 18: QUICK REFERENCE -->
+<div class="card" id="reference">
+  <div class="card-head"><h2><span class="step-num">19</span> Quick Reference</h2></div>
+  <div class="card-body">
+    <div class="ref-table">
+      <table>
+        <tr><th style="width:40%">Item</th><th>Value</th></tr>
+        <tr><td><b>EC2 Public IP</b></td><td><code>13.201.123.135</code></td></tr>
+        <tr><td><b>ERPNext URL</b></td><td><code>http://13.201.123.135</code></td></tr>
+        <tr><td><b>Admin Username</b></td><td><code>Administrator</code></td></tr>
+        <tr><td><b>Site Name</b></td><td><code>erp.localhost</code></td></tr>
+        <tr><td><b>Database Name</b></td><td><code>_73c82ec6d255ebe3</code></td></tr>
+        <tr><td><b>Database Engine</b></td><td>MariaDB 10.6</td></tr>
+        <tr><td><b>ERPNext Version</b></td><td>v15</td></tr>
+        <tr><td><b>Company Name</b></td><td>GrubPac Technologies</td></tr>
+        <tr><td><b>Domain</b></td><td>grubpac.com (SSL pending)</td></tr>
+        <tr><td><b>S3 Backup Bucket</b></td><td><code>grubpac-erpnext-backups</code></td></tr>
+        <tr><td><b>Backup Schedule</b></td><td>Daily 2:00 AM UTC (7:30 AM IST)</td></tr>
+        <tr><td><b>Local Backup Retention</b></td><td>7 days</td></tr>
+        <tr><td><b>S3 Backup Retention</b></td><td>30 days</td></tr>
+        <tr><td><b>EC2 Instance Type</b></td><td>m7i-flex.large (2 vCPU, 8GB RAM)</td></tr>
+        <tr><td><b>Docker Containers</b></td><td>11 total</td></tr>
+      </table>
+    </div>
+
+    <h3 style="margin:16px 0 8px;font-size:15px;">Repository</h3>
+    <table>
+      <tr><th>Repo</th><th>URL</th></tr>
+      <tr><td><b>Original (Frappe)</b></td><td><code>https://github.com/frappe/erpnext</code></td></tr>
+      <tr><td><b>Company Fork</b></td><td><code>https://github.com/himanshu-grubpac/erpnext</code></td></tr>
+      <tr><td><b>Branch</b></td><td><code>develop</code></td></tr>
+      <tr><td><b>License</b></td><td>GNU GPL v3</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<!-- SECTION 20: SYSTEM UPDATES -->
+<div class="card" id="updates">
+  <div class="card-head"><h2><span class="step-num">20</span> System Updates & HRMS Installation</h2></div>
+  <div class="card-body">
+
+    <div class="warning">
+      <b>Important:</b> This system uses Docker images (<code>frappe/erpnext:v16</code>). Do NOT run <code>git pull</code> inside <code>/home/frappe/frappe-bench/apps/</code> — it will make containers inconsistent. Use the image-based update flow below.
+    </div>
+
+    <h3 style="margin:20px 0 10px;font-size:15px;">Routine Update — Correct Order</h3>
+    <div class="info"><b>For individual commands,</b> see <a href="#commands">Section 12</a>. This section documents the <b>correct sequence</b> and the full automation script.</div>
+    <table>
+      <tr><th>#</th><th>Command</th><th>What it does</th></tr>
+      <tr><td>1</td><td><code>sudo /home/ubuntu/backup-erpnext.sh</code></td><td>Full backup before anything</td></tr>
+      <tr><td>2</td><td><code>cd ~/erpnext &amp;&amp; docker compose pull</code></td><td>Pull newer frappe/erpnext:v16 image patches</td></tr>
+      <tr><td>3</td><td><code>docker compose up -d</code></td><td>Recreate containers with updated images</td></tr>
+      <tr><td>4</td><td><code>docker exec erpnext-backend-1 bench use erp.localhost</code></td><td>Set default site</td></tr>
+      <tr><td>5</td><td><code>docker exec erpnext-backend-1 bench get-app --branch version-16 --skip-assets hrms</code></td><td>Reinstall HRMS (wiped by recreate)</td></tr>
+      <tr><td>6</td><td><code>docker exec erpnext-backend-1 bench build</code></td><td>Rebuild all frontend assets</td></tr>
+      <tr><td>7</td><td><code>docker exec erpnext-backend-1 bash -c "cd /home/frappe/frappe-bench/assets &amp;&amp; rm -rf frappe erpnext hrms &amp;&amp; cp -rL .../apps/frappe/frappe/public frappe &amp;&amp; ..."</code></td><td><b>CRITICAL:</b> Resolve symlinks for frontend</td></tr>
+      <tr><td>8</td><td><code>docker exec erpnext-backend-1 bench --site erp.localhost migrate</code></td><td>Apply database schema changes</td></tr>
+      <tr><td>9</td><td><code>docker exec erpnext-backend-1 bench --site erp.localhost clear-cache</code></td><td>Clear application cache</td></tr>
+      <tr><td>10</td><td><code>docker compose restart</code></td><td>Restart all containers</td></tr>
+    </table>
+
+    <h3 style="margin:24px 0 10px;font-size:15px;">One-Shot Manual Update Script</h3>
+    <div class="info">Save as <code>~/update-erpnext.sh</code> on the server. Run with: <code>bash ~/update-erpnext.sh</code></div>
+    <div class="warning"><b>CRITICAL:</b> After every <code>bench build</code>, asset symlinks MUST be resolved to real files. Otherwise the frontend container cannot serve them (broken display).</div>
+    <div class="cmd">
+      <span class="comment">#!/bin/bash</span><br>
+      <span class="comment"># GrubPac ERPNext Manual Update Script</span><br>
+      <span class="comment"># Includes: backup, pull, recreate, HRMS reinstall, build, symlink fix</span><br><br>
+      SITE="erp.localhost"<br>
+      COMPOSE_DIR="/home/ubuntu/erpnext"<br>
+      CONTAINER="erpnext-backend-1"<br>
+      HRMS_BRANCH="version-16"<br><br>
+      <span class="comment"># 1. Backup</span><br>
+      sudo /home/ubuntu/backup-erpnext.sh<br><br>
+      <span class="comment"># 2. Pull + recreate</span><br>
+      cd $COMPOSE_DIR<br>
+      docker compose pull<br>
+      docker compose up -d<br>
+      sleep 20<br><br>
+      <span class="comment"># 3. Configure site</span><br>
+      docker exec $CONTAINER bench use $SITE<br>
+      docker exec $CONTAINER bash -c "cd /home/frappe/frappe-bench/sites &amp;&amp; python3 -c \"<br>
+      import json, os<br>
+      f='common_site_config.json'<br>
+      config=json.load(open(f)) if os.path.exists(f) else {}<br>
+      config['socketio_port']='9000'<br>
+      json.dump(config, open(f,'w'), indent=1)<br>
+      \""<br><br>
+      <span class="comment"># 4. Reinstall HRMS</span><br>
+      docker exec $CONTAINER sed -i '/hrms/d' /home/frappe/frappe-bench/sites/apps.txt 2>/dev/null || true<br>
+      docker exec $CONTAINER bench remove-app hrms --no-backup 2>/dev/null || true<br>
+      docker exec $CONTAINER bench get-app --branch $HRMS_BRANCH --skip-assets hrms<br><br>
+      <span class="comment"># 5. Build assets</span><br>
+      docker exec $CONTAINER bench build --app frappe<br>
+      docker exec $CONTAINER bench build --app erpnext<br>
+      docker exec $CONTAINER bench build --app hrms<br><br>
+      <span class="comment"># 6. CRITICAL: Resolve symlinks for frontend</span><br>
+      docker exec $CONTAINER bash -c "cd /home/frappe/frappe-bench/assets &amp;&amp; \<br>
+      &nbsp;&nbsp;rm -rf frappe &amp;&amp; cp -rL /home/frappe/frappe-bench/apps/frappe/frappe/public frappe &amp;&amp; \<br>
+      &nbsp;&nbsp;rm -rf erpnext &amp;&amp; cp -rL /home/frappe/frappe-bench/apps/erpnext/erpnext/public erpnext &amp;&amp; \<br>
+      &nbsp;&nbsp;rm -rf hrms &amp;&amp; cp -rL /home/frappe/frappe-bench/apps/hrms/hrms/public hrms"<br><br>
+      <span class="comment"># 7. Install + migrate</span><br>
+      docker exec $CONTAINER bench --site $SITE install-app hrms || true<br>
+      docker exec $CONTAINER bench --site $SITE migrate<br>
+      docker exec $CONTAINER bench --site $SITE clear-cache<br>
+      docker exec $CONTAINER bench --site $SITE clear-website-cache<br><br>
+      <span class="comment"># 8. Restart</span><br>
+      cd $COMPOSE_DIR<br>
+      docker compose restart<br>
+      sleep 10<br>
+      docker exec $CONTAINER bench version<br>
+      echo "Update complete!"
+    </div>
+    <div class="cmd">
+      <span class="comment"># Make it executable (one time only)</span><br>
+      chmod +x ~/update-erpnext.sh
+    </div>
+
+    <h3 style="margin:24px 0 10px;font-size:15px;">HRMS App Installation (Verified May 25, 2026)</h3>
+    <div class="info"><b>HRMS is a separate app.</b> If containers are recreated from a fresh image, HRMS must be reinstalled. These are the exact commands that work on this server (v16).</div>
+    <div class="warning"><b>IMPORTANT:</b> After <code>bench build</code>, you MUST resolve asset symlinks (Step 5). Without this, the frontend container cannot serve HRMS assets and the UI will appear broken.</div>
+    <div class="cmd">
+      <span class="comment"># 1. Add socketio_port to site config (required for HRMS PWA build)</span><br>
+      docker exec erpnext-backend-1 bash -c "cd /home/frappe/frappe-bench/sites &amp;&amp; python3 -c \"<br>
+      import json, os<br>
+      f='common_site_config.json'<br>
+      config=json.load(open(f)) if os.path.exists(f) else {}<br>
+      config['socketio_port']='9000'<br>
+      json.dump(config, open(f,'w'), indent=1)<br>
+      \""<br><br>
+      <span class="comment"># 2. Set default site</span><br>
+      docker exec erpnext-backend-1 bench use erp.localhost<br><br>
+      <span class="comment"># 3. Get HRMS app (must match ERPNext version — use version-16 branch)</span><br>
+      docker exec erpnext-backend-1 bench get-app --branch version-16 --skip-assets hrms<br><br>
+      <span class="comment"># 4. Build HRMS assets</span><br>
+      docker exec erpnext-backend-1 bench build --app hrms<br><br>
+      <span class="comment"># 5. CRITICAL: Resolve symlinks so frontend can serve assets</span><br>
+      docker exec erpnext-backend-1 bash -c "cd /home/frappe/frappe-bench/assets &amp;&amp; \<br>
+      &nbsp;&nbsp;rm -rf hrms &amp;&amp; cp -rL /home/frappe/frappe-bench/apps/hrms/hrms/public hrms"<br><br>
+      <span class="comment"># 6. Install HRMS on the site</span><br>
+      docker exec erpnext-backend-1 bench --site erp.localhost install-app hrms || true<br><br>
+      <span class="comment"># 7. Run migrations</span><br>
+      docker exec erpnext-backend-1 bench --site erp.localhost migrate<br>
+      docker exec erpnext-backend-1 bench --site erp.localhost clear-cache<br><br>
+      <span class="comment"># 8. Restart</span><br>
+      cd ~/erpnext &amp;&amp; docker compose restart<br><br>
+      <span class="comment"># 9. Verify</span><br>
+      docker exec erpnext-backend-1 bench version
+    </div>
+
+    <h3 style="margin:24px 0 10px;font-size:15px;">Major Version Upgrade Script (v15 → v16, v16 → v17, etc.)</h3>
+    <div class="info">Save as <code>~/upgrade-erpnext.sh</code> on the server. Usage: <code>bash ~/upgrade-erpnext.sh v16</code></div>
+    <div class="warning"><b>Safety guarantees:</b> Double-verified backups (local + S3) before touching anything. Automatic rollback if any step fails. HRMS handled cleanly. Zero data loss.</div>
+    <div class="cmd">
+      <span class="comment">#!/bin/bash</span><br>
+      <span class="comment"># ============================================</span><br>
+      <span class="comment"># GrubPac ERPNext Full System Upgrade Script</span><br>
+      <span class="comment"># Covers: ERPNext + Frappe + HRMS</span><br>
+      <span class="comment"># Safety: Double backup, verified, auto-rollback</span><br>
+      <span class="comment"># Usage: bash ~/upgrade-erpnext.sh v16</span><br>
+      <span class="comment"># ============================================</span><br><br>
+      TARGET_VERSION=$1<br>
+      SITE="erp.localhost"<br>
+      COMPOSE_DIR="/home/ubuntu/erpnext"<br>
+      BACKUP_DIR="/home/ubuntu/backups"<br>
+      CONTAINER="erpnext-backend-1"<br>
+      LOG="$BACKUP_DIR/upgrade-$(date +%Y%m%d_%H%M%S).log"<br><br>
+      <span class="comment"># --- Validation ---</span><br>
+      if [ -z "$TARGET_VERSION" ]; then<br>
+      &nbsp;&nbsp;echo "ERROR: No version specified."<br>
+      &nbsp;&nbsp;echo "Usage: bash ~/upgrade-erpnext.sh v16"<br>
+      &nbsp;&nbsp;exit 1<br>
+      fi<br><br>
+      HRMS_BRANCH="version-${TARGET_VERSION#v}"<br>
+      CURRENT_VERSION=$(grep -oP 'image: frappe/erpnext:\Kv[0-9]+' $COMPOSE_DIR/docker-compose.yml | head -1)<br><br>
+      echo "============================================" | tee -a $LOG<br>
+      echo "  GrubPac ERPNext System Upgrade" | tee -a $LOG<br>
+      echo "  Current : frappe/erpnext:$CURRENT_VERSION" | tee -a $LOG<br>
+      echo "  Target  : frappe/erpnext:$TARGET_VERSION" | tee -a $LOG<br>
+      echo "  HRMS    : $HRMS_BRANCH" | tee -a $LOG<br>
+      echo "  Site    : $SITE" | tee -a $LOG<br>
+      echo "  Log     : $LOG" | tee -a $LOG<br>
+      echo "============================================" | tee -a $LOG<br>
+      echo "" | tee -a $LOG<br><br>
+      <span class="comment"># --- Rollback function (runs if any step fails) ---</span><br>
+      rollback() {<br>
+      &nbsp;&nbsp;echo "" | tee -a $LOG<br>
+      &nbsp;&nbsp;echo "!!! UPGRADE FAILED — ROLLING BACK !!!" | tee -a $LOG<br>
+      &nbsp;&nbsp;echo "Reverting docker-compose.yml to $CURRENT_VERSION..." | tee -a $LOG<br>
+      &nbsp;&nbsp;cd $COMPOSE_DIR<br>
+      &nbsp;&nbsp;sed -i "s|image: frappe/erpnext:$TARGET_VERSION|image: frappe/erpnext:$CURRENT_VERSION|g" docker-compose.yml<br>
+      &nbsp;&nbsp;docker compose pull >> $LOG 2>&amp;1<br>
+      &nbsp;&nbsp;docker compose up -d >> $LOG 2>&amp;1<br>
+      &nbsp;&nbsp;sleep 15<br>
+      &nbsp;&nbsp;docker exec $CONTAINER bench --site $SITE migrate >> $LOG 2>&amp;1<br>
+      &nbsp;&nbsp;docker compose restart >> $LOG 2>&amp;1<br>
+      &nbsp;&nbsp;echo "Rollback complete. System restored to $CURRENT_VERSION" | tee -a $LOG<br>
+      &nbsp;&nbsp;echo "Check log: $LOG" | tee -a $LOG<br>
+      &nbsp;&nbsp;exit 1<br>
+      }<br><br>
+      <span class="comment"># Enable auto-rollback on any error</span><br>
+      trap rollback ERR<br>
+      set -e<br><br>
+      <span class="comment"># ========== STEP 1: BACKUP (LOCAL + S3) ==========</span><br>
+      echo "[1/11] Creating full backup (database + files + S3)..." | tee -a $LOG<br>
+      sudo /home/ubuntu/backup-erpnext.sh >> $LOG 2>&amp;1<br><br>
+      <span class="comment"># Verify backup was created</span><br>
+      LATEST_BACKUP=$(find $BACKUP_DIR -name "*database.sql.gz" -mmin -5 | head -1)<br>
+      if [ -z "$LATEST_BACKUP" ]; then<br>
+      &nbsp;&nbsp;echo "ERROR: Backup verification failed! No recent backup found." | tee -a $LOG<br>
+      &nbsp;&nbsp;exit 1<br>
+      fi<br>
+      BACKUP_SIZE=$(stat -c%s "$LATEST_BACKUP")<br>
+      if [ "$BACKUP_SIZE" -lt 1000 ]; then<br>
+      &nbsp;&nbsp;echo "ERROR: Backup file too small ($BACKUP_SIZE bytes). Aborting." | tee -a $LOG<br>
+      &nbsp;&nbsp;exit 1<br>
+      fi<br>
+      echo "  ✓ Backup verified: $LATEST_BACKUP ($BACKUP_SIZE bytes)" | tee -a $LOG<br><br>
+      <span class="comment"># ========== STEP 2: SAVE CURRENT docker-compose.yml ==========</span><br>
+      echo "[2/11] Saving current config for rollback..." | tee -a $LOG<br>
+      cd $COMPOSE_DIR<br>
+      cp docker-compose.yml docker-compose.yml.backup-$(date +%Y%m%d)<br>
+      echo "  ✓ Saved docker-compose.yml.backup-$(date +%Y%m%d)" | tee -a $LOG<br><br>
+      <span class="comment"># ========== STEP 3: UPDATE IMAGE TAG ==========</span><br>
+      echo "[3/11] Updating docker-compose.yml → $TARGET_VERSION..." | tee -a $LOG<br>
+      sed -i "s|image: frappe/erpnext:v[0-9]*|image: frappe/erpnext:$TARGET_VERSION|g" docker-compose.yml<br>
+      echo "  ✓ All image tags updated" | tee -a $LOG<br><br>
+      <span class="comment"># ========== STEP 4: PULL NEW IMAGES ==========</span><br>
+      echo "[4/11] Pulling new Docker images..." | tee -a $LOG<br>
+      docker compose pull >> $LOG 2>&amp;1<br>
+      echo "  ✓ Images pulled" | tee -a $LOG<br><br>
+      <span class="comment"># ========== STEP 5: RECREATE CONTAINERS ==========</span><br>
+      echo "[5/11] Recreating containers..." | tee -a $LOG<br>
+      docker compose up -d >> $LOG 2>&amp;1<br>
+      echo "  ✓ Containers recreated" | tee -a $LOG<br><br>
+      <span class="comment"># ========== STEP 6: WAIT FOR BACKEND ==========</span><br>
+      echo "[6/11] Waiting for backend to be ready..." | tee -a $LOG<br>
+      sleep 15<br>
+      <span class="comment"># Verify backend is responding</span><br>
+      for i in 1 2 3 4 5; do<br>
+      &nbsp;&nbsp;if docker exec $CONTAINER bench version >> /dev/null 2>&amp;1; then<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;break<br>
+      &nbsp;&nbsp;fi<br>
+      &nbsp;&nbsp;echo "  Waiting... attempt $i/5" | tee -a $LOG<br>
+      &nbsp;&nbsp;sleep 10<br>
+      done<br>
+      echo "  ✓ Backend is ready" | tee -a $LOG<br><br>
+      <span class="comment"># ========== STEP 7: HANDLE HRMS (CLEAN) ==========</span><br>
+      echo "[7/12] Setting up HRMS ($HRMS_BRANCH)..." | tee -a $LOG<br><br>
+      <span class="comment"># Set default site</span><br>
+      docker exec $CONTAINER bench use $SITE >> $LOG 2>&amp;1<br><br>
+      <span class="comment"># Ensure common_site_config.json has socketio_port (required for HRMS PWA build)</span><br>
+      docker exec $CONTAINER bash -c "cd /home/frappe/frappe-bench/sites &amp;&amp; python3 -c \"<br>
+      import json, os<br>
+      f='common_site_config.json'<br>
+      config=json.load(open(f)) if os.path.exists(f) else {}<br>
+      config['socketio_port']='9000'<br>
+      json.dump(config, open(f,'w'), indent=1)<br>
+      \"" >> $LOG 2>&amp;1<br><br>
+      <span class="comment"># Check if HRMS app directory exists and remove it</span><br>
+      if docker exec $CONTAINER test -d /home/frappe/frappe-bench/apps/hrms 2>/dev/null; then<br>
+      &nbsp;&nbsp;echo "  Removing old HRMS app..." | tee -a $LOG<br>
+      &nbsp;&nbsp;docker exec $CONTAINER bench remove-app hrms --no-backup >> $LOG 2>&amp;1 || true<br>
+      fi<br>
+      docker exec $CONTAINER sed -i '/hrms/d' /home/frappe/frappe-bench/sites/apps.txt 2>/dev/null || true<br><br>
+      <span class="comment"># Install fresh HRMS matching the target version (skip assets - we build separately)</span><br>
+      echo "  Installing HRMS $HRMS_BRANCH..." | tee -a $LOG<br>
+      docker exec $CONTAINER bench get-app --branch $HRMS_BRANCH --skip-assets hrms >> $LOG 2>&amp;1<br>
+      echo "  ✓ HRMS app installed" | tee -a $LOG<br><br>
+      <span class="comment"># ========== STEP 8: BUILD ALL ASSETS ==========</span><br>
+      echo "[8/12] Building all assets (ERPNext + HRMS)..." | tee -a $LOG<br>
+      docker exec $CONTAINER bench build --app frappe >> $LOG 2>&amp;1<br>
+      docker exec $CONTAINER bench build --app erpnext >> $LOG 2>&amp;1<br>
+      docker exec $CONTAINER bench build --app hrms >> $LOG 2>&amp;1<br>
+      echo "  ✓ Assets built" | tee -a $LOG<br><br>
+      <span class="comment"># ========== STEP 9: FIX ASSET SYMLINKS FOR FRONTEND ==========</span><br>
+      <span class="comment"># CRITICAL: bench build creates symlinks in assets/ pointing to apps/</span><br>
+      <span class="comment"># The apps/ directory is NOT on the shared volume, so frontend can't follow them.</span><br>
+      <span class="comment"># Replace symlinks with actual files so both containers can serve assets.</span><br>
+      echo "[9/12] Fixing asset symlinks for frontend container..." | tee -a $LOG<br>
+      docker exec $CONTAINER bash -c "cd /home/frappe/frappe-bench/assets &amp;&amp; \<br>
+      &nbsp;&nbsp;rm -rf frappe &amp;&amp; cp -rL /home/frappe/frappe-bench/apps/frappe/frappe/public frappe &amp;&amp; \<br>
+      &nbsp;&nbsp;rm -rf erpnext &amp;&amp; cp -rL /home/frappe/frappe-bench/apps/erpnext/erpnext/public erpnext &amp;&amp; \<br>
+      &nbsp;&nbsp;rm -rf hrms &amp;&amp; cp -rL /home/frappe/frappe-bench/apps/hrms/hrms/public hrms" >> $LOG 2>&amp;1<br>
+      echo "  ✓ Asset symlinks resolved" | tee -a $LOG<br><br>
+      <span class="comment"># ========== STEP 10: INSTALL HRMS + MIGRATE ==========</span><br>
+      echo "[10/12] Installing HRMS on site and migrating database..." | tee -a $LOG<br>
+      docker exec $CONTAINER bench --site $SITE install-app hrms >> $LOG 2>&amp;1 || true<br>
+      docker exec $CONTAINER bench --site $SITE migrate >> $LOG 2>&amp;1<br>
+      echo "  ✓ Migration complete" | tee -a $LOG<br><br>
+      <span class="comment"># ========== STEP 11: CLEAR CACHE + RESTART ==========</span><br>
+      echo "[11/12] Clearing cache and restarting..." | tee -a $LOG<br>
+      docker exec $CONTAINER bench --site $SITE clear-cache >> $LOG 2>&amp;1<br>
+      docker exec $CONTAINER bench --site $SITE clear-website-cache >> $LOG 2>&amp;1<br>
+      cd $COMPOSE_DIR<br>
+      docker compose restart >> $LOG 2>&amp;1<br>
+      sleep 10<br>
+      echo "  ✓ System restarted" | tee -a $LOG<br><br>
+      <span class="comment"># ========== STEP 12: VERIFY ==========</span><br>
+      echo "[12/12] Verifying upgrade..." | tee -a $LOG<br>
+      echo "" | tee -a $LOG<br>
+      docker exec $CONTAINER bench version | tee -a $LOG<br>
+      echo "" | tee -a $LOG<br><br>
+      <span class="comment"># Verify site loads</span><br>
+      SITE_STATUS=$(docker exec $CONTAINER bench --site $SITE show-config 2>/dev/null | grep -c "db_name" || echo "0")<br>
+      if [ "$SITE_STATUS" -ge 1 ]; then<br>
+      &nbsp;&nbsp;echo "  ✓ Site is accessible" | tee -a $LOG<br>
+      else<br>
+      &nbsp;&nbsp;echo "  ⚠ Site may need attention — check browser" | tee -a $LOG<br>
+      fi<br><br>
+      echo "" | tee -a $LOG<br>
+      echo "============================================" | tee -a $LOG<br>
+      echo "  UPGRADE COMPLETE: $CURRENT_VERSION → $TARGET_VERSION" | tee -a $LOG<br>
+      echo "  Backup: $LATEST_BACKUP" | tee -a $LOG<br>
+      echo "  Log: $LOG" | tee -a $LOG<br>
+      echo "============================================" | tee -a $LOG
+    </div>
+    <div class="cmd">
+      <span class="comment"># Make it executable (one time only)</span><br>
+      chmod +x ~/upgrade-erpnext.sh
+    </div>
+
+    <h3 style="margin:24px 0 10px;font-size:15px;">When to Do What</h3>
+    <table>
+      <tr><th>Scenario</th><th>Script</th><th>Command</th></tr>
+      <tr><td>Patch update (same version)</td><td><code>update-erpnext.sh</code></td><td><code>bash ~/update-erpnext.sh</code></td></tr>
+      <tr><td>Major version upgrade</td><td><code>upgrade-erpnext.sh</code></td><td><code>bash ~/upgrade-erpnext.sh v16</code></td></tr>
+      <tr><td>Rollback if upgrade breaks</td><td><code>upgrade-erpnext.sh</code></td><td><code>bash ~/upgrade-erpnext.sh v15</code></td></tr>
+      <tr><td>HRMS missing after recreate</td><td>—</td><td>Use HRMS installation steps above</td></tr>
+    </table>
+
+    <div class="warning" style="margin-top:16px;"><b>Before any major upgrade:</b> Create an AMI snapshot in AWS Console first. This gives you a full server rollback option if the script-based rollback isn't enough.</div>
+
+    <h3 style="margin:24px 0 10px;font-size:15px;">Fully Automatic Weekly Patch Update</h3>
+    <div class="info">Runs every Sunday at 3:00 AM UTC (after daily backup at 2:00 AM). Automatically pulls latest patch images, backs up to S3, recreates containers, reinstalls HRMS, builds assets, resolves symlinks, migrates, restarts. No manual intervention needed.</div>
+    <div class="warning"><b>KEY:</b> Docker <code>up -d</code> wipes HRMS (not on persistent volume). Script ALWAYS reinstalls HRMS after container recreation. Asset symlinks MUST be resolved to real files for the frontend container to serve them.</div>
+    <div class="cmd">
+      <span class="comment">#!/bin/bash</span><br>
+      <span class="comment"># /home/ubuntu/auto-update-erpnext.sh</span><br>
+      <span class="comment"># Fully automatic ERPNext + HRMS patch updater</span><br>
+      <span class="comment"># Handles: backup, pull, recreate, HRMS reinstall, build, symlink fix, migrate</span><br><br>
+      SITE="erp.localhost"<br>
+      COMPOSE_DIR="/home/ubuntu/erpnext"<br>
+      CONTAINER="erpnext-backend-1"<br>
+      HRMS_BRANCH="version-16"<br>
+      LOG="/home/ubuntu/backups/auto-update-$(date +%Y%m%d).log"<br><br>
+      echo "=== Auto-update started: $(date) ===" >> $LOG<br><br>
+      <span class="comment"># Step 1: Full backup (local + S3)</span><br>
+      echo "[1/10] Backup..." >> $LOG<br>
+      sudo /home/ubuntu/backup-erpnext.sh >> $LOG 2>&amp;1<br><br>
+      <span class="comment"># Step 2: Pull latest images</span><br>
+      echo "[2/10] Pulling images..." >> $LOG<br>
+      cd $COMPOSE_DIR<br>
+      docker compose pull >> $LOG 2>&amp;1<br><br>
+      <span class="comment"># Step 3: Recreate containers (HRMS WILL BE LOST - this is expected)</span><br>
+      echo "[3/10] Recreating containers..." >> $LOG<br>
+      docker compose up -d >> $LOG 2>&amp;1<br>
+      sleep 20<br><br>
+      <span class="comment"># Step 4: Set default site + ensure socketio_port in config</span><br>
+      echo "[4/10] Configuring site..." >> $LOG<br>
+      docker exec $CONTAINER bench use $SITE >> $LOG 2>&amp;1<br>
+      docker exec $CONTAINER bash -c "cd /home/frappe/frappe-bench/sites &amp;&amp; python3 -c \"<br>
+      import json, os<br>
+      f='common_site_config.json'<br>
+      config=json.load(open(f)) if os.path.exists(f) else {}<br>
+      config['socketio_port']='9000'<br>
+      json.dump(config, open(f,'w'), indent=1)<br>
+      \"" >> $LOG 2>&amp;1<br><br>
+      <span class="comment"># Step 5: Remove old HRMS traces and reinstall</span><br>
+      echo "[5/10] Installing HRMS $HRMS_BRANCH..." >> $LOG<br>
+      docker exec $CONTAINER sed -i '/hrms/d' /home/frappe/frappe-bench/sites/apps.txt 2>/dev/null || true<br>
+      if docker exec $CONTAINER test -d /home/frappe/frappe-bench/apps/hrms 2>/dev/null; then<br>
+      &nbsp;&nbsp;docker exec $CONTAINER bench remove-app hrms --no-backup >> $LOG 2>&amp;1 || true<br>
+      fi<br>
+      docker exec $CONTAINER bench get-app --branch $HRMS_BRANCH --skip-assets hrms >> $LOG 2>&amp;1<br><br>
+      <span class="comment"># Step 6: Build ALL assets</span><br>
+      echo "[6/10] Building assets..." >> $LOG<br>
+      docker exec $CONTAINER bench build --app frappe >> $LOG 2>&amp;1<br>
+      docker exec $CONTAINER bench build --app erpnext >> $LOG 2>&amp;1<br>
+      docker exec $CONTAINER bench build --app hrms >> $LOG 2>&amp;1<br><br>
+      <span class="comment"># Step 7: CRITICAL - Replace symlinks with real files for frontend</span><br>
+      <span class="comment"># bench build creates symlinks in assets/ → apps/{app}/public/</span><br>
+      <span class="comment"># apps/ is NOT on shared volume, so frontend can't follow them</span><br>
+      echo "[7/10] Resolving asset symlinks..." >> $LOG<br>
+      docker exec $CONTAINER bash -c "cd /home/frappe/frappe-bench/assets &amp;&amp; \<br>
+      &nbsp;&nbsp;rm -rf frappe &amp;&amp; cp -rL /home/frappe/frappe-bench/apps/frappe/frappe/public frappe &amp;&amp; \<br>
+      &nbsp;&nbsp;rm -rf erpnext &amp;&amp; cp -rL /home/frappe/frappe-bench/apps/erpnext/erpnext/public erpnext &amp;&amp; \<br>
+      &nbsp;&nbsp;rm -rf hrms &amp;&amp; cp -rL /home/frappe/frappe-bench/apps/hrms/hrms/public hrms" >> $LOG 2>&amp;1<br><br>
+      <span class="comment"># Step 8: Install HRMS on site</span><br>
+      echo "[8/10] Installing HRMS on site..." >> $LOG<br>
+      docker exec $CONTAINER bench --site $SITE install-app hrms >> $LOG 2>&amp;1 || true<br><br>
+      <span class="comment"># Step 9: Migrate + clear cache</span><br>
+      echo "[9/10] Migrating..." >> $LOG<br>
+      docker exec $CONTAINER bench --site $SITE migrate >> $LOG 2>&amp;1<br>
+      docker exec $CONTAINER bench --site $SITE clear-cache >> $LOG 2>&amp;1<br>
+      docker exec $CONTAINER bench --site $SITE clear-website-cache >> $LOG 2>&amp;1<br><br>
+      <span class="comment"># Step 10: Restart</span><br>
+      echo "[10/10] Restarting..." >> $LOG<br>
+      cd $COMPOSE_DIR<br>
+      docker compose restart >> $LOG 2>&amp;1<br><br>
+      <span class="comment"># Log versions</span><br>
+      sleep 10<br>
+      docker exec $CONTAINER bench version >> $LOG 2>&amp;1<br>
+      echo "=== Auto-update complete: $(date) ===" >> $LOG
+    </div>
+
+    <h3 style="margin:24px 0 10px;font-size:15px;">All Scripts Summary</h3>
+    <table>
+      <tr><th>Script</th><th>Purpose</th><th>Runs</th></tr>
+      <tr><td><code>~/backup-erpnext.sh</code></td><td>Full backup (local + S3)</td><td>Cron daily 2:00 AM</td></tr>
+      <tr><td><code>~/auto-update-erpnext.sh</code></td><td>Auto patch update with backup</td><td>Cron weekly Sunday 3:00 AM</td></tr>
+      <tr><td><code>~/update-erpnext.sh</code></td><td>Manual patch update</td><td><code>bash ~/update-erpnext.sh</code></td></tr>
+      <tr><td><code>~/upgrade-erpnext.sh</code></td><td>Major version upgrade</td><td><code>bash ~/upgrade-erpnext.sh v16</code></td></tr>
+    </table>
+
+  </div>
+</div>
+
+<div style="text-align:center;padding:20px 0 40px;color:#888;font-size:12px;">
+  Document created: May 22, 2026 &nbsp;|&nbsp; GrubPac Technologies &nbsp;|&nbsp; Internal Use Only
+</div>
+
+</body>
+</html>

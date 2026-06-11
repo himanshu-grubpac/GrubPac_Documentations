@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERPNext Enterprise Capability Assessment — GrubPac Technologies</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f6f8;color:#1a1a2e;line-height:1.7}
+.hdr{background:linear-gradient(135deg,#0a1628,#0f3460);color:#fff;padding:52px 32px;text-align:center;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.hdr h1{font-size:28px;font-weight:700;margin-bottom:8px;position:relative;letter-spacing:-0.5px}
+.hdr .subtitle{font-size:14px;opacity:.75;max-width:700px;margin:0 auto;position:relative}
+.hdr .badge{display:inline-block;background:rgba(255,255,255,.15);padding:4px 14px;border-radius:20px;font-size:11px;font-weight:600;margin-top:12px;letter-spacing:0.5px;position:relative}
+.page{display:flex;max-width:1300px;margin:0 auto;padding:0 20px}
+.sidebar{width:240px;flex-shrink:0;padding:24px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar nav{padding-right:16px}
+.sidebar a{display:block;padding:6px 12px;color:#555;text-decoration:none;font-size:12px;border-radius:6px;margin-bottom:2px;border-left:3px solid transparent;transition:all .2s}
+.sidebar a:hover{background:#e8ecf0;color:#0f3460}
+.sidebar .nav-section{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1px;padding:16px 12px 6px;margin-top:4px}
+.main{flex:1;padding:28px 0 40px 28px;min-width:0}
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(0,0,0,.05);margin-bottom:24px;overflow:hidden}
+.card-head{padding:22px 28px 0}
+.card-head h2{font-size:18px;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-head h3{font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:#0f3460}
+.card-body{padding:12px 28px 28px;overflow-x:auto}
+.card-body h4{font-size:14px;color:#0f3460;margin:16px 0 6px}
+.info{font-size:13px;color:#444;margin-bottom:16px;padding:12px 16px;background:#f7f9fc;border-radius:8px;border-left:4px solid #0f3460}
+.info b{color:#1a1a2e}
+.info p{margin:4px 0}
+.callout-green{background:#E8F5E9;border-left:4px solid #2E7D32;padding:12px 16px;border-radius:8px;margin:12px 0;font-size:13px;color:#1B5E20}
+.callout-blue{background:#E3F2FD;border-left:4px solid #1565C0;padding:12px 16px;border-radius:8px;margin:12px 0;font-size:13px;color:#0D47A1}
+.callout-amber{background:#FFF8E1;border-left:4px solid #F57F17;padding:12px 16px;border-radius:8px;margin:12px 0;font-size:13px;color:#5D4037}
+.callout-red{background:#FFEBEE;border-left:4px solid #C62828;padding:12px 16px;border-radius:8px;margin:12px 0;font-size:13px;color:#B71C1C}
+.tag{display:inline-block;padding:2px 9px;border-radius:5px;font-size:10.5px;font-weight:700;vertical-align:middle;letter-spacing:0.3px}
+.t-high{background:#E8F5E9;color:#2E7D32}.t-med{background:#E3F2FD;color:#1565C0}.t-low{background:#FFF8E1;color:#F57F17}.t-opt{background:#ECEFF1;color:#546E7A}
+.t-yes{background:#E8F5E9;color:#2E7D32}.t-partial{background:#FFF8E1;color:#F57F17}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px}
+th{background:#f0f2f5;text-align:left;padding:10px 12px;font-weight:600;color:#1a1a2e;border-bottom:2px solid #dee2e6;white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid #eee;color:#444;vertical-align:top}
+tr:hover td{background:#f9fafe}
+.mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+.mod-card{background:#f7f9fc;border-radius:10px;padding:16px 18px;border:1px solid #e8ecf0}
+.mod-card h4{font-size:13.5px;margin-bottom:6px;color:#0f3460}
+.mod-card .desc{font-size:12.5px;color:#555;margin-bottom:8px}
+.feat-list{list-style:none;padding:0;margin:8px 0}
+.feat-list li{padding:5px 0;font-size:12.5px;color:#444;display:flex;align-items:flex-start;gap:6px;border-bottom:1px solid #f0f0f0}
+.feat-list li:last-child{border-bottom:none}
+.feat-list .icon{color:#0f3460;font-weight:700;flex-shrink:0}
+.decision-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:16px 0}
+.decision-card{border-radius:10px;padding:18px;text-align:center}
+.decision-card h4{font-size:14px;margin-bottom:4px}
+.decision-card p{font-size:12px;opacity:.8}
+.d-yes{background:#E8F5E9;border:2px solid #2E7D32;color:#1B5E20}
+.d-maybe{background:#E3F2FD;border:2px solid #1565C0;color:#0D47A1}
+.d-future{background:#F3E5F5;border:2px solid #6A1B9A;color:#4A148C}
+.d-no{background:#FFEBEE;border:2px solid #C62828;color:#B71C1C}
+@media(max-width:900px){.page{flex-direction:column}.sidebar{width:100%;height:auto;position:static}.main{padding:16px 0}.mod-grid{grid-template-columns:1fr}}
+@media print{body{background:#fff;font-size:11px}.card{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid}.sidebar{display:none}.main{padding:0}.hdr{padding:24px;background:#0f3460!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}table{font-size:10px}.mod-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>ERPNext Enterprise Capability Assessment</h1>
+  <div class="subtitle">Evaluating ERPNext modules, workflows, and enterprise architecture for GrubPac Technologies — IoT-enabled smart box platform with OEM hardware procurement, customer deployment, field service operations, and subscription revenue.</div>
+  <div class="badge">CONFIDENTIAL — INTERNAL USE ONLY — MAY 2026</div>
+</div>
+<div class="page">
+<aside class="sidebar"><nav>
+  <div class="nav-section">Overview</div>
+  <a href="#summary">Executive Summary</a>
+  <a href="#matrix">Module Matrix</a>
+  <div class="nav-section">Core Modules</div>
+  <a href="#m-asset">Asset Management</a>
+  <a href="#m-inventory">Inventory</a>
+  <a href="#m-warehouse">Warehouse</a>
+  <a href="#m-purchase">Purchase</a>
+  <a href="#m-quality">Quality</a>
+  <a href="#m-crm">CRM</a>
+  <a href="#m-sales">Sales</a>
+  <a href="#m-helpdesk">Helpdesk / Support</a>
+  <a href="#m-maintenance">Maintenance</a>
+  <a href="#m-subcontract">Subcontracting</a>
+  <div class="nav-section">Enterprise Ops</div>
+  <a href="#m-hr">HR</a>
+  <a href="#m-payroll">Payroll</a>
+  <a href="#m-accounting">Accounting</a>
+  <a href="#m-finance">Finance</a>
+  <a href="#m-project">Projects</a>
+  <div class="nav-section">Platform</div>
+  <a href="#m-workflow">Workflow Engine</a>
+  <a href="#m-rbac">RBAC</a>
+  <a href="#m-notify">Notifications</a>
+  <a href="#m-report">Reporting</a>
+  <a href="#m-api">REST APIs</a>
+  <a href="#m-docmgmt">Document Mgmt</a>
+  <a href="#m-audit">Audit Logs</a>
+  <a href="#m-scheduler">Scheduler</a>
+  <a href="#m-portal">Portal</a>
+  <a href="#m-user">User Management</a>
+  <a href="#m-comms">Communication</a>
+  <a href="#m-regional">Regional/Tax</a>
+  <a href="#m-import">Data Import/Export</a>
+  <a href="#m-mfg">Manufacturing</a>
+  <a href="#m-docarch">Document Architecture</a>
+  <div class="nav-section">Architecture</div>
+  <a href="#arch">Architecture Deep Dive</a>
+  <a href="#reuse">Reusable Patterns</a>
+  <a href="#recommendation">Recommendation</a>
+</nav></aside>
+<div class="main">
+
+<!-- SECTION 1 -->
+<div class="card" id="summary">
+  <div class="card-head"><h2>1. Executive Summary</h2></div>
+  <div class="card-body">
+    <div class="mod-grid">
+      <div class="mod-card">
+        <h4>What is ERPNext?</h4>
+        <div class="desc">ERPNext is an open-source ERP system built on the Frappe Framework. The core covers accounting, inventory, purchasing, sales, project management, asset tracking, and manufacturing. Some modules like HR/Payroll and advanced Helpdesk have been split into separate Frappe apps that need to be installed alongside ERPNext. Widely adopted across small and mid-size businesses globally.</div>
+      </div>
+      <div class="mod-card">
+        <h4>What is Frappe Framework?</h4>
+        <div class="desc">Frappe is the full-stack Python web framework that ERPNext runs on. The key idea: every business entity (invoice, asset, ticket) is a "DocType" — a structured document. When you define a DocType, Frappe generates the database table, REST API, form UI, list view, and permission layer automatically. It also includes a workflow engine, background job scheduler, email integration, and a basic front-end. Think of it as Django + admin panel + workflow engine in one package.</div>
+      </div>
+    </div>
+    <div class="mod-card" style="border-color:#2E7D32">
+      <h4 style="color:#2E7D32">Where ERPNext Fits</h4>
+      <div class="desc">Asset lifecycle tracking (every box from procurement to retirement), inventory management (boxes, battery packs, solar panels, compressor units, camera modules, accessories), OEM purchase workflows with multi-currency, quality inspection on incoming shipments, customer CRM and sales pipeline, helpdesk and support tickets, maintenance scheduling, accounting with regional tax compliance, approval workflows, role-based access control, reporting dashboards, and audit logging. HR/Payroll available as a separate Frappe app on the same instance.</div>
+    </div>
+    <div class="callout-green"><b>Recommendation:</b> Use ERPNext for internal enterprise operations — procurement, inventory, assets, sales, accounting. Install the HRMS app for HR/Payroll when needed. The Frappe architectural patterns (DocTypes, workflows, RBAC) are worth studying for any future custom enterprise platform.</div>
+  </div>
+</div>
+
+<!-- SECTION 2: MATRIX -->
+<div class="card" id="matrix">
+  <div class="card-head"><h2>2. Module Capability Matrix</h2></div>
+  <div class="info"><p>Assessment of ERPNext modules, Frappe framework features, and related Frappe apps against GrubPac's OEM hardware business requirements. Items marked "Separate App" need to be installed alongside ERPNext on the same Frappe instance.</p></div>
+  <div class="card-body">
+    <table>
+      <tr><th>Module</th><th>In ERPNext</th><th>Useful</th><th>Priority</th><th>Practical Use Case</th><th>Notes</th></tr>
+      <tr><td><b>Asset Management</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Track every smart box unit from procurement to retirement</td><td>Core module — full lifecycle</td></tr>
+      <tr><td><b>Inventory</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Box units, batteries, compressors, solar panels, accessories</td><td>Multi-item, multi-warehouse</td></tr>
+      <tr><td><b>Warehouse</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Main store, service center, deployment staging</td><td>Stock transfers supported</td></tr>
+      <tr><td><b>Purchase</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>OEM vendor POs, shipment tracking, approvals</td><td>Multi-supplier, multi-currency</td></tr>
+      <tr><td><b>Quality</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Incoming QA — compressor, temp zones, battery, solar</td><td>Template-based inspections</td></tr>
+      <tr><td><b>CRM</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Enterprise clients, fleet operators, channel partners</td><td>Core CRM in ERPNext; advanced CRM is separate app</td></tr>
+      <tr><td><b>Sales</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Quotations, contracts, subscriptions, renewals</td><td>Basic subscription support</td></tr>
+      <tr><td><b>Helpdesk</b></td><td><span class="tag t-partial">Partial</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Support tickets, SLA tracking, escalations</td><td>Basic Issue in core; full Helpdesk is separate app</td></tr>
+      <tr><td><b>Maintenance</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Compressor service, battery swaps, scheduled maintenance</td><td>Linked to asset records</td></tr>
+      <tr><td><b>Subcontracting</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>OEM vendor manufacturing + receiving</td><td>Vendor shipment tracking</td></tr>
+      <tr><td><b>HR</b></td><td><span class="tag t-partial">Separate App</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Employee records, attendance, leave, recruitment</td><td>Requires installing Frappe HRMS app</td></tr>
+      <tr><td><b>Payroll</b></td><td><span class="tag t-partial">Separate App</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Salary processing, reimbursements</td><td>Part of Frappe HRMS app</td></tr>
+      <tr><td><b>Accounting</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Invoicing, expenses, taxation, GL entries</td><td>Chart of accounts included</td></tr>
+      <tr><td><b>Finance</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Payments, budgets, financial reporting</td><td>Multi-currency, bank recon</td></tr>
+      <tr><td><b>Projects</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Deployment rollouts, engineering initiatives</td><td>Gantt, tasks, timesheets</td></tr>
+      <tr><td><b>Workflow Engine</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Procurement approvals, replacement approvals</td><td>Visual workflow builder</td></tr>
+      <tr><td><b>RBAC</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Admin, warehouse, support, finance, ops roles</td><td>Field-level permissions</td></tr>
+      <tr><td><b>Notifications</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Low stock, approvals, SLA breaches</td><td>Email + in-app + webhooks</td></tr>
+      <tr><td><b>Reporting</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>KPIs, stock visibility, support metrics</td><td>Custom report builder</td></tr>
+      <tr><td><b>REST APIs</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Integration with external systems, billing</td><td>Auto-generated for all DocTypes</td></tr>
+      <tr><td><b>Document Mgmt</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Contracts, QA reports, shipment docs</td><td>Attach files to any record</td></tr>
+      <tr><td><b>Audit Logs</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Compliance, traceability, change tracking</td><td>Every field change logged</td></tr>
+      <tr><td><b>Scheduler</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Auto reminders, recurring reports</td><td>Cron-like background jobs</td></tr>
+      <tr><td><b>Portal</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-partial">Partial</span></td><td><span class="tag t-low">Low</span></td><td>Customer self-service for tickets</td><td>Basic portal capabilities</td></tr>
+      <tr><td><b>User Mgmt</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Team accounts, access control</td><td>LDAP/OAuth supported</td></tr>
+      <tr><td><b>Communication</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Email threads on tickets, POs, invoices</td><td>Built-in email client</td></tr>
+      <tr><td><b>Regional/Tax</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Regional tax compliance</td><td>Multiple country tax templates available</td></tr>
+      <tr><td><b>Data Import</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-med">Medium</span></td><td>Bulk device import, customer lists</td><td>CSV/XLSX support</td></tr>
+      <tr><td><b>Manufacturing</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-partial">Partial</span></td><td><span class="tag t-opt">Optional</span></td><td>Future in-house assembly if needed</td><td>Not current priority</td></tr>
+      <tr><td><b>Doc Architecture</b></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-high">High</span></td><td>Design pattern for all business entities</td><td>Major architectural concept</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: DETAILED MODULE ANALYSIS ===== -->
+
+<!-- ASSET MANAGEMENT -->
+<div class="card" id="m-asset">
+  <div class="card-head"><h3>Asset Management <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Track physical assets from procurement to retirement with complete lifecycle history, depreciation, warranty, and maintenance records.</p>
+      <p><b>How ERPNext provides it:</b> Asset DocType with purchase date, location, custodian, warranty, depreciation schedule, status, and linked maintenance. Supports serial numbers and batch tracking.</p>
+    </div>
+    <h4>How GrubPac Uses This</h4>
+    <p style="font-size:13px;color:#444;margin-bottom:12px">Track every GrubPac smart box as a serialized asset through its entire lifecycle:</p>
+    <pre class="mermaid">
+flowchart LR
+    A["OEM Vendor\nProcurement"] --> B["Shipment\nReceiving"]
+    B --> C["QA\nInspection"]
+    C --> D["Inventory\nStock"]
+    D --> E["Deployment\nCustomer Site"]
+    E --> F["Maintenance\nService"]
+    F --> G["Replacement\nor Retirement"]
+    style A fill:#FFF3E0,stroke:#E65100
+    style C fill:#E8F5E9,stroke:#2E7D32
+    style E fill:#E3F2FD,stroke:#1565C0
+    style G fill:#FFEBEE,stroke:#C62828
+    </pre>
+    <h4>Example Workflow</h4>
+    <ul class="feat-list">
+      <li><span class="icon">→</span> Box GP-2026-001 arrives from OEM vendor → Purchase Receipt created</li>
+      <li><span class="icon">→</span> QA inspects compressor, temperature zones, solar panel, battery, 4G/IoT → Quality Inspection logged</li>
+      <li><span class="icon">→</span> Box passes QA → Asset record created with serial number, warranty dates, firmware version</li>
+      <li><span class="icon">→</span> Deployed to customer site → Asset Movement logged</li>
+      <li><span class="icon">→</span> 6 months later: battery pack replacement → Maintenance Visit created</li>
+      <li><span class="icon">→</span> 3 years later: unit retired → Asset scrapped, replacement dispatched</li>
+    </ul>
+    <div class="callout-green"><b>Recommendation:</b> This is the most important module for GrubPac. Every smart box unit should be a tracked asset with full history — procurement date, QA results, customer deployment, maintenance records, and eventual retirement.</div>
+  </div>
+</div>
+
+<!-- INVENTORY -->
+<div class="card" id="m-inventory">
+  <div class="card-head"><h3>Inventory Management <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Track stock levels, movements, serial numbers, and batch numbers across multiple warehouses with real-time visibility.</p>
+      <p><b>How ERPNext provides it:</b> Item master with variants, serial number tracking, batch tracking, reorder levels, stock reconciliation, and real-time stock ledger.</p>
+    </div>
+    <h4>GrubPac Inventory Items</h4>
+    <table>
+      <tr><th>Item Category</th><th>Tracking</th><th>Example</th></tr>
+      <tr><td><b>Complete GrubPac Units</b></td><td>Serial Number</td><td>GP-2026-001, GP-2026-002</td></tr>
+      <tr><td><b>Replacement / Refurbished Units</b></td><td>Serial Number</td><td>Units ready for customer swap-outs</td></tr>
+      <tr><td><b>GrubPower Battery Packs</b></td><td>Batch</td><td>LFP Graphene battery packs, batch BPK-2026-Q1</td></tr>
+      <tr><td><b>GIVS Compressor Units</b></td><td>Serial Number</td><td>Inverter VRF compressor + evaporator assembly</td></tr>
+      <tr><td><b>GrubSolar Panels</b></td><td>Batch</td><td>Ultra-slim composite solar panels</td></tr>
+      <tr><td><b>GrubMedia Display Panels</b></td><td>Serial Number</td><td>UltraSlim LED panels for advertisement</td></tr>
+      <tr><td><b>BoxCam 360 Modules</b></td><td>Serial Number</td><td>4G/IoT camera modules</td></tr>
+      <tr><td><b>Accessories &amp; Consumables</b></td><td>Batch</td><td>Mounting kits, insulation shelves, plasma ionizer cartridges, cables</td></tr>
+    </table>
+    <div class="callout-green"><b>Recommendation:</b> Use serial number tracking for complete units, compressors, cameras, and display panels (each is unique). Batch tracking for batteries, solar panels, and consumables. Set reorder levels so the system alerts when stock runs low.</div>
+  </div>
+</div>
+
+<!-- WAREHOUSE -->
+<div class="card" id="m-warehouse">
+  <div class="card-head"><h3>Warehouse Management <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Multi-location stock management with transfers, bin tracking, and warehouse-wise stock visibility.</p>
+      <p><b>How ERPNext provides it:</b> Warehouse hierarchy (Company → Region → Location), Stock Entry for transfers, Material Request for internal requisitions.</p>
+    </div>
+    <h4>GrubPac Warehouse Structure</h4>
+    <table>
+      <tr><th>Warehouse</th><th>Purpose</th><th>Stock Type</th></tr>
+      <tr><td><b>Main Store</b></td><td>Primary receiving from OEM</td><td>New units, bulk accessories</td></tr>
+      <tr><td><b>QA Holding</b></td><td>Units awaiting inspection</td><td>Uninspected inbound stock</td></tr>
+      <tr><td><b>Ready for Deployment</b></td><td>QA-passed, deployment-ready</td><td>Tested, configured units</td></tr>
+      <tr><td><b>Service Center</b></td><td>Repairs, maintenance stock</td><td>Spare parts, swap units</td></tr>
+      <tr><td><b>Field / Deployed</b></td><td>Deployed at customer sites</td><td>Active units (tracked as assets)</td></tr>
+    </table>
+    <div class="callout-green"><b>Recommendation:</b> Set up the warehouse hierarchy during initial configuration. Stock transfers between locations create automatic audit trail entries.</div>
+  </div>
+</div>
+
+<!-- PURCHASE -->
+<div class="card" id="m-purchase">
+  <div class="card-head"><h3>Purchase Management <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> End-to-end procurement from supplier management to purchase orders, receipts, and invoice matching.</p>
+      <p><b>How ERPNext provides it:</b> Supplier master, Material Request → Purchase Order → Purchase Receipt → Purchase Invoice chain with approval workflows and multi-currency support.</p>
+    </div>
+    <h4>GrubPac Procurement Flow</h4>
+    <pre class="mermaid">
+flowchart LR
+    A["Operations requests\n500 GrubPac units"] --> B["Purchase Order\nto OEM vendor"]
+    B --> C["Vendor ships\ntracking provided"]
+    C --> D["Purchase Receipt\nat Main Store"]
+    D --> E["QA Inspection\ntriggered"]
+    E --> F["Purchase Invoice\nmatched and paid"]
+    style B fill:#E3F2FD,stroke:#1565C0
+    style D fill:#E8F5E9,stroke:#2E7D32
+    style F fill:#FFF8E1,stroke:#F57F17
+    </pre>
+    <div class="callout-green"><b>Recommendation:</b> Set up OEM vendors with multi-currency POs. Configure approval workflows for orders above a certain threshold. Supplier scorecards help track vendor reliability over time.</div>
+  </div>
+</div>
+
+<!-- QUALITY -->
+<div class="card" id="m-quality">
+  <div class="card-head"><h3>Quality Management <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Inspection templates, quality checks on incoming goods, pass/fail criteria, and defect logging.</p>
+      <p><b>How ERPNext provides it:</b> Quality Inspection DocType linked to Purchase Receipt. Template-based inspections with numeric and boolean criteria. Auto-blocks stock movement on failure.</p>
+    </div>
+    <h4>GrubPac Unit Incoming QA Checklist</h4>
+    <table>
+      <tr><th>Test</th><th>Criteria</th><th>Type</th></tr>
+      <tr><td><b>Compressor Function</b></td><td>GIVS compressor runs, reaches target temp within spec time</td><td>Numeric</td></tr>
+      <tr><td><b>Temperature Zones</b></td><td>Both zones hold set temps independently (hot/cold)</td><td>Numeric</td></tr>
+      <tr><td><b>Battery Health</b></td><td>GrubPower packs hold charge &gt;95% of rated capacity</td><td>Numeric</td></tr>
+      <tr><td><b>Solar Panel Output</b></td><td>GrubSolar panel generates expected wattage under test light</td><td>Numeric</td></tr>
+      <tr><td><b>4G/IoT Connectivity</b></td><td>Connects to network, IoT data transmits correctly</td><td>Boolean</td></tr>
+      <tr><td><b>BoxCam 360</b></td><td>Camera module functional, image clear</td><td>Boolean</td></tr>
+      <tr><td><b>Physical Inspection</b></td><td>No dents, scratches, loose parts, insulation intact</td><td>Boolean</td></tr>
+      <tr><td><b>Firmware Version</b></td><td>Running latest approved firmware</td><td>Text match</td></tr>
+    </table>
+    <div class="callout-green"><b>Recommendation:</b> Create QA inspection templates for each product type (complete GrubPac unit, standalone battery pack, compressor unit). When an item fails inspection, it gets blocked from moving into the Ready warehouse until the issue is resolved.</div>
+  </div>
+</div>
+
+<!-- CRM -->
+<div class="card" id="m-crm">
+  <div class="card-head"><h3>CRM <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Customer relationship management — lead tracking, opportunity pipeline, customer records, territory management.</p>
+      <p><b>How ERPNext provides it:</b> Lead → Opportunity → Quotation → Sales Order pipeline. Customer master with contacts, addresses, credit limits, and territory assignment. Note: Frappe is also developing a separate, more advanced CRM app (Frappe CRM) with better pipeline UI, but the core ERPNext CRM is functional for GrubPac's needs since the customer base is enterprise (fleet operators, cold chain, hospitality) rather than high-volume inbound consumer leads.</p>
+    </div>
+    <h4>GrubPac Customer Types</h4>
+    <table>
+      <tr><th>Type</th><th>Example</th><th>CRM Use</th></tr>
+      <tr><td><b>Enterprise / Government</b></td><td>Fleet operators, public sector programs, field operations</td><td>Long sales cycle, compliance documentation, multi-site</td></tr>
+      <tr><td><b>Food &amp; Cold Chain</b></td><td>Delivery fleets, cloud kitchens, pharma logistics</td><td>Volume orders, recurring replacement, subscription</td></tr>
+      <tr><td><b>Logistics &amp; Hospitality</b></td><td>Catering companies, hotel chains, event logistics</td><td>Seasonal demand, multi-site deployments</td></tr>
+      <tr><td><b>Channel Partners</b></td><td>Regional distributors, resellers</td><td>Partner pipeline, volume discounts, commissions</td></tr>
+    </table>
+<div class="callout-green"><b>Recommendation:</b> The core CRM works for GrubPac's current sales model — a mix of direct enterprise sales and channel partners. Territory management is useful for splitting regional markets.</div>
+  </div>
+</div>
+
+<!-- SALES -->
+<div class="card" id="m-sales">
+  <div class="card-head"><h3>Sales Management <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Quotation → Sales Order → Delivery Note → Sales Invoice chain with pricing rules, discounts, and subscription billing.</p>
+      <p><b>How ERPNext provides it:</b> Full sales workflow with multi-currency, tax templates, and delivery tracking. ERPNext has a basic Subscription DocType that auto-generates invoices on a schedule — it works for simple recurring billing but is not a full subscription platform. For complex billing (usage-based, tiered pricing, dunning), you would need external tools.</p>
+    </div>
+    <h4>GrubPac Sales Scenarios</h4>
+    <ul class="feat-list">
+      <li><span class="icon">→</span> <b>Hardware sale:</b> Quotation for 200 GrubPac units to fleet operator → Sales Order → Delivery → Invoice</li>
+      <li><span class="icon">→</span> <b>Subscription:</b> Monthly cloud dashboard, firmware updates, IoT monitoring per unit</li>
+      <li><span class="icon">→</span> <b>GrubMedia revenue:</b> Ad monetization via LED display panel — track per-unit ad revenue</li>
+      <li><span class="icon">→</span> <b>AMC contract:</b> Annual maintenance contract with compressor and battery service SLAs</li>
+      <li><span class="icon">→</span> <b>Renewal:</b> Auto-generated renewal quotations before contract expiry</li>
+    </ul>
+    <div class="callout-green"><b>Recommendation:</b> Good fit for hardware sales and basic recurring invoicing (per-unit subscription for cloud/monitoring). The subscription feature handles simple per-device monthly billing. For complex pricing (usage-based, GrubMedia ad revenue splits), consider integrating with a dedicated billing tool via API later.</div>
+  </div>
+</div>
+
+<!-- HELPDESK -->
+<div class="card" id="m-helpdesk">
+  <div class="card-head"><h3>Helpdesk / Support <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Customer support ticket system with SLA management, priority escalation, and customer communication.</p>
+      <p><b>How ERPNext provides it:</b> ERPNext core includes a basic <b>Issue</b> DocType with priority levels and customer linking. For full helpdesk features (SLA timers, assignment rules, auto-escalation, customer portal), you need the separate <b>Frappe Helpdesk</b> app. The core Issue DocType is enough to start; the dedicated app is better for serious support operations.</p>
+    </div>
+    <h4>Support Workflow</h4>
+    <pre class="mermaid">
+flowchart LR
+    A["Customer reports\ntemperature issue"] --> B["Ticket created\nSLA timer starts"]
+    B --> C["L1 Support\nremote diagnosis"]
+    C -->|"Resolved"| D["Ticket closed\nresolution logged"]
+    C -->|"Hardware issue"| E["Replacement\napproval workflow"]
+    E --> F["Swap unit\nfrom service center"]
+    F --> G["Field visit\nreplace and return"]
+    style B fill:#E3F2FD,stroke:#1565C0
+    style E fill:#FFF8E1,stroke:#F57F17
+    style D fill:#E8F5E9,stroke:#2E7D32
+    </pre>
+    <div class="callout-blue"><b>Recommendation:</b> Start with the core Issue DocType for basic ticket tracking. If SLA enforcement and auto-escalation become important, install the Frappe Helpdesk app. Either way, link tickets to specific GrubPac unit serial numbers for per-device support history.</div>
+  </div>
+</div>
+
+<!-- MAINTENANCE -->
+<div class="card" id="m-maintenance">
+  <div class="card-head"><h3>Maintenance Management <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Scheduled and unscheduled maintenance tracking, repair history, and service operations.</p>
+      <p><b>How ERPNext provides it:</b> Maintenance Schedule (planned recurring), Maintenance Visit (actual service records), linked to Asset. Tracks technician, parts used, time spent.</p>
+    </div>
+    <h4>GrubPac Maintenance Types</h4>
+    <table>
+      <tr><th>Type</th><th>Frequency</th><th>Example</th></tr>
+      <tr><td><b>Preventive</b></td><td>Quarterly</td><td>Compressor service, battery health check, solar panel cleaning, firmware update</td></tr>
+      <tr><td><b>Corrective</b></td><td>As needed</td><td>Compressor replacement, battery swap, display panel repair</td></tr>
+      <tr><td><b>Emergency</b></td><td>Immediate</td><td>Complete cooling failure, unit damage, electrical fault</td></tr>
+    </table>
+    <div class="callout-green"><b>Recommendation:</b> Set up maintenance schedules for deployed units. The system can auto-generate service tasks on a recurring basis. Tracking parts consumed per visit helps calculate per-unit maintenance cost over time.</div>
+  </div>
+</div>
+
+<!-- SUBCONTRACTING -->
+<div class="card" id="m-subcontract">
+  <div class="card-head"><h3>Subcontracting <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Manage outsourced manufacturing — track materials sent to vendor, finished goods received, quality inspection on receipt.</p>
+      <p><b>How ERPNext provides it:</b> Subcontracting Order linked to Purchase Order. Track order → vendor builds → shipment → receiving → QA acceptance.</p>
+      <p><b>GrubPac use:</b> OEM manufacturing workflow — vendor builds GrubPac smart delivery boxes to spec.</p>
+    </div>
+    <div class="callout-blue"><b>Recommendation:</b> The standard Purchase module handles most OEM vendor interactions. Subcontracting adds more structure if you need to track raw materials sent to vendors and finished goods received back — evaluate whether that level of detail is needed for your OEM relationships.</div>
+  </div>
+</div>
+
+<!-- HR -->
+<div class="card" id="m-hr">
+  <div class="card-head"><h3>Human Resources <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Employee lifecycle — onboarding, attendance, leave management, training, appraisals, offboarding.</p>
+      <p><b>How ERPNext provides it:</b> HR is no longer part of ERPNext core. Since v14, it lives in a separate app called <b>Frappe HRMS</b> (frappe/hrms). It installs on the same Frappe instance and integrates with ERPNext accounting. Includes Employee master, Leave Application, Attendance, Training, and Appraisals.</p>
+      <p><b>GrubPac use:</b> Manage engineering, operations, support, and sales teams. Track attendance, leave balances, recruitment pipeline.</p>
+    </div>
+    <div class="callout-amber"><b>Note:</b> Requires installing the HRMS app separately (<code>bench get-app hrms</code>). Worth setting up once the team is large enough that spreadsheet-based HR becomes a pain — roughly 15-20+ people.</div>
+  </div>
+</div>
+
+<!-- PAYROLL -->
+<div class="card" id="m-payroll">
+  <div class="card-head"><h3>Payroll <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Salary structure, payroll processing, tax deductions, reimbursements, payslip generation.</p>
+      <p><b>How ERPNext provides it:</b> Payroll is part of the same <b>Frappe HRMS</b> app — not ERPNext core. Includes Salary Structure, Payroll Entry for batch processing, Salary Slip generation, and auto-posting journal entries to ERPNext accounting.</p>
+      <p><b>GrubPac use:</b> Process monthly salaries, manage reimbursement claims. Regional payroll compliance varies — some countries have mature support, others may need configuration.</p>
+    </div>
+    <div class="callout-amber"><b>Note:</b> Comes with the HRMS app. Payroll compliance varies by region — some have mature built-in support, others may need custom setup or third-party integration.</div>
+  </div>
+</div>
+
+<!-- ACCOUNTING -->
+<div class="card" id="m-accounting">
+  <div class="card-head"><h3>Accounting <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Double-entry accounting with chart of accounts, journal entries, invoicing, expense claims, tax management.</p>
+      <p><b>How ERPNext provides it:</b> Full GL accounting, Purchase/Sales Invoice auto-posting, Payment Entry, Bank Reconciliation, Financial Statements (P&amp;L, Balance Sheet, Cash Flow).</p>
+      <p><b>GrubPac use:</b> Track all revenue (hardware + subscriptions + AMC), expenses (OEM purchases, operations), regional tax compliance.</p>
+    </div>
+    <div class="callout-green"><b>Recommendation:</b> This replaces the need for separate accounting software. Purchase and sales transactions automatically create GL entries, so you don't double-enter data. Needs a proper Chart of Accounts setup upfront — worth spending time on this during initial configuration.</div>
+  </div>
+</div>
+
+<!-- FINANCE -->
+<div class="card" id="m-finance">
+  <div class="card-head"><h3>Finance <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Payment processing, budgeting, cost centers, financial reporting and analysis.</p>
+      <p><b>How ERPNext provides it:</b> Payment Entry, Budget against cost center/project, Bank Reconciliation, multi-currency with exchange rate management.</p>
+      <p><b>GrubPac use:</b> Track payments to OEM vendors, customer receipts in local currencies, budget allocation per department.</p>
+    </div>
+    <div class="callout-blue"><b>Recommendation:</b> Set up alongside Accounting. Multi-currency handling is essential since OEM vendors and customers operate in different currencies.</div>
+  </div>
+</div>
+
+<!-- PROJECTS -->
+<div class="card" id="m-project">
+  <div class="card-head"><h3>Project Management <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Project tracking with tasks, milestones, Gantt charts, timesheets, and cost tracking.</p>
+      <p><b>How ERPNext provides it:</b> Project DocType with tasks, dependencies, progress tracking, Gantt view. Timesheet logging per employee.</p>
+      <p><b>GrubPac use:</b> Track large deployment rollouts (e.g., "500-unit deployment for enterprise client"), engineering initiatives, internal development.</p>
+    </div>
+    <div class="callout-blue"><b>Recommendation:</b> Useful for tracking large deployment rollouts with multiple tasks and milestones. Probably overkill for day-to-day operations.</div>
+  </div>
+</div>
+
+<!-- WORKFLOW -->
+<div class="card" id="m-workflow">
+  <div class="card-head"><h3>Workflow Engine <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Visual state-machine builder for approval chains, document lifecycle, and business process enforcement.</p>
+      <p><b>How ERPNext provides it:</b> Workflow DocType — define states, transitions, allowed roles per transition, mandatory conditions, and auto-actions. Applied to any DocType.</p>
+    </div>
+    <h4>GrubPac Approval Workflows</h4>
+    <table>
+      <tr><th>Workflow</th><th>Trigger</th><th>Approvers</th></tr>
+      <tr><td><b>Procurement Approval</b></td><td>Purchase Order &gt; $5,000</td><td>Ops Manager → Finance → Director</td></tr>
+      <tr><td><b>Replacement Approval</b></td><td>Warranty replacement request</td><td>Support Lead → Ops Manager</td></tr>
+      <tr><td><b>Customer Discount</b></td><td>Discount &gt; 10% on quotation</td><td>Sales Manager → Director</td></tr>
+      <tr><td><b>Leave Approval</b></td><td>Employee leave request</td><td>Reporting Manager → HR</td></tr>
+      <tr><td><b>Expense Claim</b></td><td>Reimbursement request</td><td>Manager → Finance</td></tr>
+    </table>
+    <div class="callout-green"><b>Recommendation:</b> One of the more powerful features. Set up workflows for procurement and replacement approvals first — these have the most immediate business value. Add more workflows as processes mature.</div>
+  </div>
+</div>
+
+<!-- RBAC -->
+<div class="card" id="m-rbac">
+  <div class="card-head"><h3>Role-Based Access Control <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Granular permissions — who can read, write, create, delete, submit, or amend each document type. Down to field-level.</p>
+      <p><b>How ERPNext provides it:</b> Role → Permission Rule → DocType mapping. User Permissions for data-level restrictions. Role profiles for quick assignment.</p>
+    </div>
+    <h4>GrubPac Role Structure</h4>
+    <table>
+      <tr><th>Role</th><th>Access</th><th>Restrictions</th></tr>
+      <tr><td><b>Admin</b></td><td>Full system access</td><td>None</td></tr>
+      <tr><td><b>Warehouse Staff</b></td><td>Stock Entry, Purchase Receipt, QA</td><td>No finance, no HR</td></tr>
+      <tr><td><b>Support Agent</b></td><td>Tickets, Assets (read), Customer</td><td>No procurement, no finance</td></tr>
+      <tr><td><b>Finance</b></td><td>Invoices, Payments, Accounting</td><td>No stock operations</td></tr>
+      <tr><td><b>Operations</b></td><td>Assets, Maintenance, Deployment</td><td>No finance, no HR</td></tr>
+      <tr><td><b>Management</b></td><td>Reports, Dashboards, Approvals</td><td>Read-heavy, approve access</td></tr>
+    </table>
+    <div class="callout-green"><b>Recommendation:</b> Configure roles and permissions during initial setup. Start with the 6 roles above and refine as the team identifies what access each department actually needs.</div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div class="card" id="m-notify">
+  <div class="card-head"><h3>Notification System <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Event-driven alerts via email, in-app notifications, and webhooks when specific conditions are met.</p>
+      <p><b>How ERPNext provides it:</b> Notification DocType — define trigger event, recipient, channel (email/Slack/webhook), and message template.</p>
+      <p><b>GrubPac alerts:</b> Low stock warnings, pending approval reminders, SLA breach escalations, maintenance due, contract expiry alerts.</p>
+    </div>
+    <div class="callout-blue"><b>Recommendation:</b> Don't try to set up all alerts on day one. Start with low-stock warnings and pending approval reminders. Add more triggers as the team gets comfortable with the system.</div>
+  </div>
+</div>
+
+<!-- REPORTING -->
+<div class="card" id="m-report">
+  <div class="card-head"><h3>Reporting &amp; Dashboards <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Built-in report builder, dashboard widgets, and custom script reports for KPIs and business intelligence.</p>
+      <p><b>How ERPNext provides it:</b> Query Report (SQL), Script Report (Python), Report Builder (UI-based). Dashboard with number cards, charts, shortcuts.</p>
+    </div>
+    <h4>GrubPac Key Dashboards</h4>
+    <table>
+      <tr><th>Dashboard</th><th>Metrics</th></tr>
+      <tr><td><b>Operations</b></td><td>Units deployed, units in stock, pending QA, deployment rate</td></tr>
+      <tr><td><b>Support</b></td><td>Open tickets, SLA compliance %, avg resolution time, escalated</td></tr>
+      <tr><td><b>Finance</b></td><td>Revenue, outstanding invoices, vendor payables, cash flow</td></tr>
+      <tr><td><b>Inventory</b></td><td>Stock levels by warehouse, reorder alerts, dead stock</td></tr>
+    </table>
+    <div class="callout-green"><b>Recommendation:</b> Build these dashboards once you have real data flowing through the system. The report builder is flexible enough to create custom views without writing code.</div>
+  </div>
+</div>
+
+<!-- REST APIs -->
+<div class="card" id="m-api">
+  <div class="card-head"><h3>REST APIs / Integrations <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Every DocType automatically gets CRUD REST APIs. Plus webhook support, OAuth, and API key authentication.</p>
+      <p><b>How ERPNext provides it:</b> Auto-generated endpoints: <code>/api/resource/{DocType}</code> for all operations. Webhooks for external event triggers.</p>
+      <p><b>GrubPac use:</b> External billing systems can pull invoice data. Customer portals can create tickets via API. IoT dashboards can update asset status.</p>
+    </div>
+    <div class="callout-blue"><b>Recommendation:</b> Useful for connecting ERPNext to external systems. The auto-generated API means you don't need to build custom endpoints — just authenticate and call the standard resource URLs. Worth testing the API early to understand rate limits and response formats.</div>
+  </div>
+</div>
+
+<!-- DOCUMENT MANAGEMENT -->
+<div class="card" id="m-docmgmt">
+  <div class="card-head"><h3>Document Management <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> File attachments linked to any business record — contracts, reports, images stored alongside transactions.</p>
+      <p><b>How ERPNext provides it:</b> File manager with drag-and-drop. Attach files to any DocType record. S3-compatible storage backend.</p>
+      <p><b>GrubPac use:</b> Contracts on Customer records, QA photos on inspections, shipment docs on Purchase Receipts, warranty certificates on Assets.</p>
+    </div>
+    <div class="callout-blue"><b>Recommendation:</b> Works for attaching files to records. Not a replacement for a full DMS (no versioning, no folder structure), but good enough for contracts, QA photos, and shipment documents linked to specific transactions.</div>
+  </div>
+</div>
+
+<!-- AUDIT LOGS -->
+<div class="card" id="m-audit">
+  <div class="card-head"><h3>Audit Logs / Activity Tracking <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Complete change history for every record — who changed what, when, before/after values.</p>
+      <p><b>How ERPNext provides it:</b> Version tracking on every DocType with field-level change logs. Activity log for user actions. Access log for document views.</p>
+      <p><b>GrubPac use:</b> Full traceability for enterprise and compliance-sensitive customers — every asset movement, ticket change, and financial transaction permanently logged.</p>
+    </div>
+    <div class="callout-green"><b>Recommendation:</b> This is table stakes for compliance-sensitive customers (pharma cold chain, large enterprise fleets). Version tracking is enabled by default on most DocTypes — verify it is turned on for Asset, Issue, and financial documents during setup.</div>
+  </div>
+</div>
+
+<!-- SCHEDULER -->
+<div class="card" id="m-scheduler">
+  <div class="card-head"><h3>Scheduler / Background Automation <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Cron-like scheduled jobs, background task queue, and event-driven automation.</p>
+      <p><b>How ERPNext provides it:</b> Scheduler hooks (daily, weekly, monthly, hourly, cron). Background workers via Redis queue. Auto Repeat for recurring documents.</p>
+      <p><b>GrubPac use:</b> Auto-generate monthly invoices, send maintenance reminders 7 days before service, close stale tickets after 30 days.</p>
+    </div>
+    <div class="callout-blue"><b>Recommendation:</b> The scheduler runs through the background worker containers. Use it for things like auto-generating monthly subscription invoices, sending maintenance reminder emails, or cleaning up stale draft documents.</div>
+  </div>
+</div>
+
+<!-- PORTAL -->
+<div class="card" id="m-portal">
+  <div class="card-head"><h3>Portal / Self-Service <span class="tag t-low">Low Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Web portal for external users (customers, suppliers) to view orders, tickets, and invoices.</p>
+      <p><b>How ERPNext provides it:</b> Website module with portal pages. Customers can track tickets and download invoices.</p>
+      <p><b>GrubPac use:</b> Low priority — most customers interact through account managers. Evaluate when customer base grows.</p>
+    </div>
+    <div class="callout-amber"><b>Recommendation:</b> Skip for now. GrubPac's enterprise customers work through account managers, not self-service portals. Revisit if the customer count grows to a point where self-service makes operational sense.</div>
+  </div>
+</div>
+
+<!-- USER MANAGEMENT -->
+<div class="card" id="m-user">
+  <div class="card-head"><h3>User Management <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> User accounts, team organization, role assignment, authentication (2FA, LDAP, OAuth).</p>
+      <p><b>How ERPNext provides it:</b> User DocType with role assignment, module access, user permissions, session management.</p>
+      <p><b>GrubPac use:</b> Create accounts per team member, assign roles, enable 2FA for admin users.</p>
+    </div>
+    <div class="callout-blue"><b>Recommendation:</b> Part of the Frappe framework. Set up user accounts, assign roles, and enable 2FA for admin users during initial configuration.</div>
+  </div>
+</div>
+
+<!-- COMMUNICATION -->
+<div class="card" id="m-comms">
+  <div class="card-head"><h3>Communication / Email Workflows <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Email integration with threaded conversations linked to business records.</p>
+      <p><b>How ERPNext provides it:</b> Email Account integration (IMAP/SMTP). Incoming emails auto-link to relevant records. Reply from within ERPNext.</p>
+      <p><b>GrubPac use:</b> Support ticket replies arrive directly. PO confirmations sent via ERPNext. Invoice reminders automated.</p>
+    </div>
+    <div class="callout-blue"><b>Recommendation:</b> Connect your company email accounts (IMAP/SMTP) during setup. Emails sent from ERPNext get linked to the relevant PO, ticket, or invoice record — keeps conversations in context instead of scattered across inboxes.</div>
+  </div>
+</div>
+
+<!-- REGIONAL -->
+<div class="card" id="m-regional">
+  <div class="card-head"><h3>Regional / Tax Compliance <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Country-specific tax rules, invoice formats, and regulatory compliance.</p>
+      <p><b>How ERPNext provides it:</b> ERPNext includes tax templates for multiple countries. Some regions have mature, well-tested compliance (e.g., automated e-invoicing and filing). Others may require manual tax template configuration. Review what is available for your operating regions during setup.</p>
+      <p><b>GrubPac use:</b> Tax compliance across operating regions. Multi-country invoicing with correct tax treatment per jurisdiction.</p>
+    </div>
+    <div class="callout-blue"><b>Recommendation:</b> Review which regional tax templates are available for your operating countries. Some work with minimal setup, others need manual template creation and testing. Budget a few hours for tax configuration during initial accounting setup.</div>
+  </div>
+</div>
+
+<!-- DATA IMPORT -->
+<div class="card" id="m-import">
+  <div class="card-head"><h3>Data Import / Export <span class="tag t-med">Medium Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Bulk data operations — import from CSV/XLSX, export reports and data sets.</p>
+      <p><b>How ERPNext provides it:</b> Data Import tool for any DocType. Template download, field mapping, validation. Export any list to CSV/XLSX/PDF.</p>
+      <p><b>GrubPac use:</b> Bulk import existing customer list, device inventory, employee records during initial migration.</p>
+    </div>
+    <div class="callout-blue"><b>Recommendation:</b> You'll need this during initial migration to bulk-import existing customer lists, device inventory, and employee records from spreadsheets. Download the import template for each DocType to see the expected column format.</div>
+  </div>
+</div>
+
+<!-- MANUFACTURING -->
+<div class="card" id="m-mfg">
+  <div class="card-head"><h3>Manufacturing <span class="tag t-opt">Optional / Future</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> Bill of Materials, Work Orders, production planning, capacity management.</p>
+      <p><b>How ERPNext provides it:</b> BOM, Work Order, Job Card, Production Plan, Routing. Full MRP with demand-driven procurement.</p>
+      <p><b>GrubPac use:</b> NOT currently applicable — hardware is OEM manufactured externally. Relevant only if GrubPac moves to in-house assembly.</p>
+    </div>
+    <div class="callout-amber"><b>Recommendation:</b> Not relevant since GrubPac uses OEM manufacturing. The BOM and Work Order features are built for companies that assemble products in-house. Only worth revisiting if that changes.</div>
+  </div>
+</div>
+
+<!-- DOCUMENT ARCHITECTURE -->
+<div class="card" id="m-docarch">
+  <div class="card-head"><h3>Document-Driven Architecture <span class="tag t-high">High Priority</span></h3></div>
+  <div class="card-body">
+    <div class="info">
+      <p><b>What it is:</b> The foundational design pattern of Frappe/ERPNext. Every business entity is a "DocType" — a structured document with fields, validations, permissions, workflows, and auto-generated APIs. This is how the entire system thinks.</p>
+      <p><b>Why it matters:</b> Instead of building separate schemas, API routes, and permission logic for each entity, you define a DocType and Frappe auto-generates everything: database table, REST API, form UI, list view, print format, workflow support, and audit trail.</p>
+    </div>
+    <h4>Architecture Concept</h4>
+    <pre class="mermaid">
+flowchart TD
+    A["Define DocType\n(fields, validations, permissions)"] --> B["Auto-Generated\nDatabase Table"]
+    A --> C["Auto-Generated\nREST API"]
+    A --> D["Auto-Generated\nForm UI"]
+    A --> E["Auto-Generated\nList / Report View"]
+    A --> F["Workflow\nSupport"]
+    A --> G["Audit Trail\n+ Versioning"]
+    A --> H["Print Format\n+ PDF Export"]
+    style A fill:#0f3460,color:#fff
+    style B fill:#E8F5E9,stroke:#2E7D32
+    style C fill:#E3F2FD,stroke:#1565C0
+    style D fill:#FFF3E0,stroke:#E65100
+    style E fill:#F3E5F5,stroke:#6A1B9A
+    </pre>
+    <div class="callout-green"><b>Recommendation:</b> Worth studying closely. If GrubPac ever builds a custom internal platform, this document-driven approach significantly reduces the amount of repetitive CRUD, API, and permission code you would otherwise write manually.</div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: ARCHITECTURE DEEP DIVE ===== -->
+<div class="card" id="arch">
+  <div class="card-head"><h2>4. Architecture Deep Dive</h2></div>
+  <div class="info"><p>Understanding how ERPNext's layers work — from browser to database — and what each layer provides.</p></div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    subgraph CLIENT["Browser / Client"]
+        UI["ERPNext UI — Frappe Desk\nJavaScript SPA"]
+    end
+    subgraph SERVER["Application Server"]
+        FW["Frappe Framework\nPython WSGI — Werkzeug"]
+        ORM["Document ORM\nDocType to Database\nAuto-validation, hooks"]
+        WF["Workflow Engine\nState machine\nApproval chains"]
+        API["REST API Layer\nAuto-generated CRUD\nOAuth / API Keys"]
+    end
+    subgraph CACHE["Cache Layer"]
+        REDIS["Redis\nSession cache\nJob queue\nReal-time pub/sub"]
+    end
+    subgraph WORKERS["Background Processing"]
+        BG["Background Workers\nDefault / Short / Long\nAsync job processing"]
+        SCHED["Scheduler\nCron jobs\nRecurring tasks"]
+    end
+    subgraph DB["Database"]
+        MARIA["MariaDB\nAll DocType tables\nAudit history\nFile metadata"]
+    end
+    UI -->|"HTTP / WebSocket"| FW
+    FW --> ORM
+    FW --> WF
+    FW --> API
+    ORM --> MARIA
+    FW --> REDIS
+    REDIS --> BG
+    REDIS --> SCHED
+    BG --> ORM
+    SCHED --> ORM
+    style CLIENT fill:#FCE4EC,stroke:#C62828
+    style SERVER fill:#E3F2FD,stroke:#1565C0
+    style CACHE fill:#FFF8E1,stroke:#F57F17
+    style WORKERS fill:#F3E5F5,stroke:#6A1B9A
+    style DB fill:#E8F5E9,stroke:#2E7D32
+    </pre>
+    <h4>Layer-by-Layer Explanation</h4>
+    <table>
+      <tr><th>Layer</th><th>Technology</th><th>What It Does</th></tr>
+      <tr><td><b>Browser UI</b></td><td>JavaScript SPA (Frappe Desk)</td><td>Renders forms, lists, dashboards, reports. Real-time updates via WebSocket.</td></tr>
+      <tr><td><b>Frappe Framework</b></td><td>Python 3 + Werkzeug WSGI</td><td>Request routing, authentication, session management, middleware.</td></tr>
+      <tr><td><b>Document ORM</b></td><td>Frappe Document class</td><td>Maps DocTypes to database tables. Handles validation, permission checks, auto-naming, linked cascades.</td></tr>
+      <tr><td><b>Workflow Engine</b></td><td>State machine in Frappe</td><td>Document state transitions. Role-based transition enforcement. Auto-actions on state change.</td></tr>
+      <tr><td><b>REST API</b></td><td>Auto-generated endpoints</td><td>Every DocType gets <code>/api/resource/{doctype}</code> with full CRUD. Plus <code>/api/method/</code> for custom scripts.</td></tr>
+      <tr><td><b>Redis Cache</b></td><td>Redis 7.x (3 instances)</td><td>Application cache, background job queue (RQ), real-time pub/sub (Socket.IO).</td></tr>
+      <tr><td><b>Background Workers</b></td><td>Python RQ workers</td><td>Three queues (default, short, long). Process emails, reports, bulk operations, webhooks async.</td></tr>
+      <tr><td><b>Scheduler</b></td><td>Frappe Scheduler</td><td>Cron-like hooks: daily, weekly, monthly. Recurring document generation, digest emails.</td></tr>
+      <tr><td><b>Database</b></td><td>MariaDB 10.6</td><td>All DocType tables auto-created. Audit history stored. File metadata indexed. Full-text search.</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===== SECTION 5: REUSABLE PATTERNS ===== -->
+<div class="card" id="reuse">
+  <div class="card-head"><h2>5. Reusable Architecture Patterns</h2></div>
+  <div class="info"><p>Patterns from ERPNext/Frappe that GrubPac can adopt for any future custom enterprise system — regardless of whether ERPNext itself is used.</p></div>
+  <div class="card-body">
+    <table>
+      <tr><th>Pattern</th><th>What It Is</th><th>GrubPac Benefit</th></tr>
+      <tr><td><b>Document-Driven Architecture</b></td><td>Every entity is a structured document with auto-generated CRUD, APIs, UI, and audit trail</td><td>Define schema once, get database + API + UI + permissions auto-generated. Saves a lot of repetitive work.</td></tr>
+      <tr><td><b>Workflow Engine</b></td><td>Visual state-machine for any document — define states, transitions, role permissions</td><td>Formalize all approval processes. Auditable decision chains.</td></tr>
+      <tr><td><b>Approval Engine</b></td><td>Multi-level approval with conditions (e.g., amount > threshold triggers director approval)</td><td>Move informal approvals into a tracked, auditable system.</td></tr>
+      <tr><td><b>RBAC</b></td><td>Role → Permission → DocType with field-level and data-level restrictions</td><td>Secure multi-team access. Warehouse sees inventory, not finance.</td></tr>
+      <tr><td><b>Notification Engine</b></td><td>Event-driven alerts with configurable conditions, recipients, channels</td><td>Proactive operations — alerts before problems escalate.</td></tr>
+      <tr><td><b>Support Workflows</b></td><td>Ticket → SLA → Assignment → Escalation → Resolution chain</td><td>Professional customer support with measurable SLA compliance.</td></tr>
+      <tr><td><b>Asset Lifecycle Design</b></td><td>Procurement → QA → Deploy → Maintain → Replace → Retire tracking</td><td>Full visibility into every deployed GrubPac unit and its history.</td></tr>
+      <tr><td><b>Vendor Procurement</b></td><td>Supplier → PO → Receipt → QA → Invoice → Payment chain</td><td>Structured OEM vendor management with approval gates.</td></tr>
+      <tr><td><b>Dashboard Architecture</b></td><td>Number cards, charts, filters, drill-down — composable dashboard widgets</td><td>Executive visibility without custom BI tool.</td></tr>
+      <tr><td><b>Audit Logging</b></td><td>Every field change, access event, and action permanently recorded</td><td>Enterprise and pharma compliance. Full traceability.</td></tr>
+      <tr><td><b>Background Automation</b></td><td>Scheduled jobs, async workers, recurring document generation</td><td>Auto-invoicing, maintenance reminders, report generation.</td></tr>
+      <tr><td><b>Integration Architecture</b></td><td>Auto-generated REST APIs + webhooks + API key auth for every entity</td><td>Connect ERPNext to billing, IoT dashboards, or any external system.</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===== SECTION 6: FINAL RECOMMENDATION ===== -->
+<div class="card" id="recommendation">
+  <div class="card-head"><h2>6. Final Recommendation</h2></div>
+  <div class="card-body">
+    <h4>Decision Matrix</h4>
+    <div class="decision-grid">
+      <div class="decision-card d-yes">
+        <h4>Adopt for Internal Ops</h4>
+        <p>Use ERPNext for procurement, inventory, assets, accounting. Add HRMS app for HR.</p>
+      </div>
+      <div class="decision-card d-yes">
+        <h4>Use as Proof of Concept</h4>
+        <p>Deploy current instance for team testing before full production rollout</p>
+      </div>
+      <div class="decision-card d-maybe">
+        <h4>Architecture Inspiration</h4>
+        <p>Adopt DocType pattern, workflow engine, and RBAC design for future custom systems</p>
+      </div>
+      <div class="decision-card d-future">
+        <h4>Custom Enterprise Platform</h4>
+        <p>Build future platform using Frappe patterns — when ERPNext customization limits are reached</p>
+      </div>
+    </div>
+
+    <h4>Phased Adoption Roadmap</h4>
+    <table>
+      <tr><th>Phase</th><th>Timeline</th><th>Modules</th><th>Outcome</th></tr>
+      <tr><td><b>Phase 1</b></td><td>Month 1-2</td><td>Asset, Inventory, Warehouse, Purchase, Quality</td><td>Full device lifecycle tracking, OEM procurement</td></tr>
+      <tr><td><b>Phase 2</b></td><td>Month 2-3</td><td>CRM, Sales, Helpdesk, Maintenance</td><td>Customer management, support tickets, service ops</td></tr>
+      <tr><td><b>Phase 3</b></td><td>Month 3-4</td><td>Accounting, Finance, Workflows, RBAC</td><td>Financial operations, approval chains, access control</td></tr>
+      <tr><td><b>Phase 4</b></td><td>Month 4-6</td><td>HR, Payroll (install HRMS app), Reporting, Notifications</td><td>Employee ops, dashboards, automated alerts</td></tr>
+      <tr><td><b>Phase 5</b></td><td>Month 6+</td><td>API Integrations, Portal, Advanced Reports</td><td>External integrations, customer portal, BI</td></tr>
+    </table>
+
+    <div class="callout-green"><b>Bottom line:</b> ERPNext covers the core business operations GrubPac needs — asset lifecycle tracking for every smart box unit, inventory management of components (batteries, compressors, solar panels), OEM procurement, customer sales pipeline, accounting, and service operations. HR/Payroll and advanced Helpdesk need separate Frappe apps installed on the same instance. The deployment is already running on AWS. The practical next step is to start entering real data into Phase 1 modules and see how well the workflows fit before committing to full adoption.</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /page -->
+<div style="text-align:center;padding:20px 0 40px;color:#888;font-size:12px">
+  GrubPac Technologies — Internal Use Only — May 2026
+</div>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#E3F2FD',primaryTextColor:'#1a1a2e',primaryBorderColor:'#1565C0',lineColor:'#78909C',secondaryColor:'#F3E5F5',tertiaryColor:'#FFF8E1',fontSize:'13px'},flowchart:{useMaxWidth:true,htmlLabels:true,curve:'basis'},er:{useMaxWidth:true}});
+</script>
+</body>
+</html>

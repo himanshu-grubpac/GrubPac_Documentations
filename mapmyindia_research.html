@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MapmyIndia Integration Architecture — GrubPac Technologies</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f5f6f8;
+      color: #1a1a2e;
+      line-height: 1.7
+    }
+
+    .hdr {
+      background: linear-gradient(135deg, #0a1628, #0f3460);
+      color: #fff;
+      padding: 52px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden
+    }
+
+    .hdr::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
+    }
+
+    .hdr h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+      letter-spacing: -0.5px
+    }
+
+    .hdr .subtitle {
+      font-size: 14px;
+      opacity: .75;
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative
+    }
+
+    .hdr .badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, .15);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 12px;
+      letter-spacing: 0.5px;
+      position: relative
+    }
+
+    .page {
+      display: flex;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 20px
+    }
+
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      padding: 24px 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto
+    }
+
+    .sidebar nav {
+      padding-right: 16px
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 6px 12px;
+      color: #555;
+      text-decoration: none;
+      font-size: 12px;
+      border-radius: 6px;
+      margin-bottom: 2px;
+      border-left: 3px solid transparent;
+      transition: all .2s
+    }
+
+    .sidebar a:hover {
+      background: #e8ecf0;
+      color: #0f3460
+    }
+
+    .sidebar .nav-section {
+      font-size: 10px;
+      font-weight: 700;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 16px 12px 6px;
+      margin-top: 4px
+    }
+
+    .main {
+      flex: 1;
+      padding: 28px 0 40px 28px;
+      min-width: 0
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 14px rgba(0, 0, 0, .05);
+      margin-bottom: 24px;
+      overflow: hidden
+    }
+
+    .card-head {
+      padding: 22px 28px 0
+    }
+
+    .card-head h2 {
+      font-size: 18px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .card-head h3 {
+      font-size: 16px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: #0f3460
+    }
+
+    .card-body {
+      padding: 12px 28px 28px;
+      overflow-x: auto
+    }
+
+    .card-body h4 {
+      font-size: 14px;
+      color: #0f3460;
+      margin: 16px 0 6px
+    }
+
+    .info {
+      font-size: 13px;
+      color: #444;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      background: #f7f9fc;
+      border-radius: 8px;
+      border-left: 4px solid #0f3460
+    }
+
+    .info b {
+      color: #1a1a2e
+    }
+
+    .info p {
+      margin: 4px 0
+    }
+
+    .callout-green {
+      background: #E8F5E9;
+      border-left: 4px solid #2E7D32;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 12px 0;
+      font-size: 13px;
+      color: #1B5E20
+    }
+
+    .callout-blue {
+      background: #E3F2FD;
+      border-left: 4px solid #1565C0;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 12px 0;
+      font-size: 13px;
+      color: #0D47A1
+    }
+
+    .callout-amber {
+      background: #FFF8E1;
+      border-left: 4px solid #F57F17;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 12px 0;
+      font-size: 13px;
+      color: #5D4037
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 5px;
+      font-size: 10.5px;
+      font-weight: 700;
+      vertical-align: middle;
+      letter-spacing: 0.3px
+    }
+
+    .t-high {
+      background: #E8F5E9;
+      color: #2E7D32
+    }
+
+    .t-med {
+      background: #E3F2FD;
+      color: #1565C0
+    }
+
+    .t-opt {
+      background: #ECEFF1;
+      color: #546E7A
+    }
+
+    .t-yes {
+      background: #E8F5E9;
+      color: #2E7D32
+    }
+
+    .t-partial {
+      background: #FFF8E1;
+      color: #F57F17
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 12.5px
+    }
+
+    th {
+      background: #f0f2f5;
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 600;
+      color: #1a1a2e;
+      border-bottom: 2px solid #dee2e6;
+      white-space: nowrap
+    }
+
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid #eee;
+      color: #444;
+      vertical-align: top
+    }
+
+    tr:hover td {
+      background: #f9fafe
+    }
+
+    .mod-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 12px 0
+    }
+
+    .mod-card {
+      background: #f7f9fc;
+      border-radius: 10px;
+      padding: 16px 18px;
+      border: 1px solid #e8ecf0
+    }
+
+    .mod-card h4 {
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #0f3460
+    }
+
+    .mod-card .desc {
+      font-size: 12.5px;
+      color: #555;
+      margin-bottom: 8px
+    }
+
+    .feat-list {
+      list-style: none;
+      padding: 0;
+      margin: 8px 0
+    }
+
+    .feat-list li {
+      padding: 5px 0;
+      font-size: 12.5px;
+      color: #444;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      border-bottom: 1px solid #f0f0f0
+    }
+
+    .feat-list li:last-child {
+      border-bottom: none
+    }
+
+    .feat-list .icon {
+      color: #0f3460;
+      font-weight: 700;
+      flex-shrink: 0
+    }
+
+    @media(max-width:900px) {
+      .page {
+        flex-direction: column
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: static
+      }
+
+      .main {
+        padding: 16px 0
+      }
+
+      .mod-grid {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="hdr">
+    <h1>MapmyIndia Integration Architecture</h1>
+    <div class="subtitle">Architectural design and technical evaluation of MapmyIndia (Mappls) APIs for fleet tracking,
+      wrong-way driving detection, and geospatial analytics for GrubPac operations.</div>
+    <div class="badge">CONFIDENTIAL — INTERNAL USE ONLY — MAY 2026</div>
+  </div>
+  <div class="page">
+    <aside class="sidebar">
+      <nav>
+        <div class="nav-section">Overview</div>
+        <a href="#summary">Executive Summary</a>
+        <a href="#data-foundation">Data Foundation &amp; Coverage</a>
+        <div class="nav-section">Core Systems</div>
+        <a href="#m-map-matching">Map Matching &amp; Snapping</a>
+        <a href="#m-wrong-way">Wrong-Way Detection</a>
+        <a href="#m-uber-h3">Uber H3 Integration</a>
+        <div class="nav-section">Technical Flow</div>
+        <a href="#arch-flow">Data Pipeline Architecture</a>
+        <div class="nav-section">Commercial</div>
+        <a href="#pricing">Pricing &amp; Licensing</a>
+      </nav>
+    </aside>
+    <div class="main">
+
+      <!-- SECTION 1 -->
+      <div class="card" id="summary">
+        <div class="card-head">
+          <h2>1. Executive Summary</h2>
+        </div>
+        <div class="card-body">
+          <div class="mod-grid">
+            <div class="mod-card">
+              <h4>Why MapmyIndia?</h4>
+              <div class="desc">For Indian road networks, global providers (Google, HERE) struggle with dynamic traffic
+                rules, physical dividers, and local one-way streets. MapmyIndia leverages physical ground surveyors, a
+                direct partnership with ISRO (NavIC satellite system), and IoT telemetry from millions of trucks to
+                provide the highest-accuracy ground-truth data available in the subcontinent.</div>
+            </div>
+            <div class="mod-card">
+              <h4>Business Objective</h4>
+              <div class="desc">To implement enterprise-grade driver monitoring and safety compliance. Specifically,
+                analyzing noisy GPS telemetry directly from the GrubPac IoT boxes in real-time to detect dangerous
+                violations such as wrong-side driving, speeding, and unauthorized route deviations.</div>
+            </div>
+          </div>
+          <div class="callout-green"><b>Recommendation:</b> Utilize MapmyIndia's Map Matching API to convert raw GPS
+            trajectories into verified road segments with direction metadata, acting as the foundation for our internal
+            safety alert system.</div>
+        </div>
+      </div>
+
+      <!-- SECTION 2 -->
+      <div class="card" id="data-foundation">
+        <div class="card-head">
+          <h2>2. Data Foundation &amp; Coverage</h2>
+        </div>
+        <div class="info">
+          <p>Understanding why MapmyIndia provides superior accuracy for the Indian market.</p>
+        </div>
+        <div class="card-body">
+          <table>
+            <tr>
+              <th>Metric / Source</th>
+              <th>Scale / Impact</th>
+              <th>Benefit for GrubPac</th>
+            </tr>
+            <tr>
+              <td><b>Road Network Coverage</b></td>
+              <td>4.31+ Million Kilometers (99% of navigable roads)</td>
+              <td>Ensures drivers can be tracked even in tier-3 cities and rural areas.</td>
+            </tr>
+            <tr>
+              <td><b>City &amp; Village Mapping</b></td>
+              <td>7,900+ cities (100%), 600,000+ villages</td>
+              <td>Hyper-local address resolution for last-mile delivery.</td>
+            </tr>
+            <tr>
+              <td><b>ISRO / NavIC Integration</b></td>
+              <td>Indigenous satellite navigation support</td>
+              <td>Better positional accuracy and data sovereignty compared to US GPS.</td>
+            </tr>
+            <tr>
+              <td><b>IoT Telematics Fleet</b></td>
+              <td>Live data from millions of commercial vehicles</td>
+              <td>Real-time speed limits, traffic patterns, and updated road blockages.</td>
+            </tr>
+            <tr>
+              <td><b>Attribute-Rich Data</b></td>
+              <td>Physical dividers, service lanes, exact one-ways</td>
+              <td>The crucial data layer required to determine if a specific lane is one-way.</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 3 -->
+      <div class="card" id="m-map-matching">
+        <div class="card-head">
+          <h3>Map Matching &amp; Snapping <span class="tag t-high">Core API</span></h3>
+        </div>
+        <div class="card-body">
+          <div class="info">
+            <p><b>What it is:</b> Raw GPS coordinates from the IoT box are noisy and "bounce" around. Map Matching takes
+              a sequence of raw GPS coordinates, analyzes the trajectory, and "snaps" them to the exact logical road
+              center-line in the digital database.</p>
+          </div>
+          <h4>The Process</h4>
+          <ul class="feat-list">
+            <li><span class="icon">→</span> <b>GrubPac Box (IoT Module)</b> sends batch of GPS pings (Lat, Long, Speed,
+              Bearing) every 10 seconds.</li>
+            <li><span class="icon">→</span> GrubPac Backend forwards the batch to MapmyIndia API.</li>
+            <li><span class="icon">→</span> API applies Hidden Markov Models (HMM) to filter out noise and matches the
+              points to physical road links.</li>
+            <li><span class="icon">→</span> API returns the matched coordinates AND the exact Road Segment ID with
+              metadata.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SECTION 4 -->
+      <div class="card" id="m-wrong-way">
+        <div class="card-head">
+          <h3>Wrong-Way Detection Logic <span class="tag t-high">High Priority</span></h3>
+        </div>
+        <div class="card-body">
+          <div class="info">
+            <p><b>How it works:</b> Wrong-way driving cannot be detected by raw GPS alone. It requires comparing the
+              vehicle's heading against the legally allowed direction of the snapped road segment.</p>
+          </div>
+          <pre class="mermaid">
+flowchart TD
+    A["Raw GPS Ping\nHeading: 270 West"] --> B{"MapmyIndia\nMap Matching API"}
+    B --> C["Snapped to:\nHighway 48 Northbound"]
+    B --> D["Road Metadata:\nAllowed Direction\nEastbound Only"]
+    C --> E{"Rule Engine\nComparison"}
+    D --> E
+    E -->|"Heading Conflicts\nwith Allowed Direction"| F["Trigger\nViolation Alert"]
+    E -->|"Heading Matches\nAllowed Direction"| G["Log Normal\nMovement"]
+    style F fill:#FFEBEE,stroke:#C62828
+    style G fill:#E8F5E9,stroke:#2E7D32
+    </pre>
+          <div class="callout-amber"><b>Crucial Requirement:</b> The map database MUST know that a road has a physical
+            divider (splitting it into two one-way roads). MapmyIndia's physical surveying guarantees this metadata
+            exists, whereas global maps often group divided highways into a single two-way line, causing false
+            negatives.</div>
+        </div>
+      </div>
+
+      <!-- SECTION 5 -->
+      <div class="card" id="m-uber-h3">
+        <div class="card-head">
+          <h3>Integration with Uber H3 <span class="tag t-med">Geospatial Indexing</span></h3>
+        </div>
+        <div class="card-body">
+          <div class="info">
+            <p><b>What it is:</b> Uber H3 divides the world into hexagonal grids. It is excellent for indexing areas,
+              calculating density, and doing fast proximity searches (e.g., "find all drivers in this 1km hex").</p>
+          </div>
+          <h4>How H3 and MapmyIndia Work Together</h4>
+          <ul class="feat-list">
+            <li><span class="icon">1.</span> <b>H3 for Discovery:</b> Use H3 in your database (like PostgreSQL/PostGIS)
+              to quickly index where the driver is and group them by region.</li>
+            <li><span class="icon">2.</span> <b>MapmyIndia for Rules:</b> H3 knows <i>where</i> you are, but it does NOT
+              know what a road is or what the traffic laws are. Once H3 finds the driver, you pass their exact
+              coordinates to MapmyIndia to check road compliance.</li>
+            <li><span class="icon">3.</span> <b>The Synergy:</b> "Find all drivers in Hexagon 8a2a1072b59ffff (H3). Take
+              their last 10 GPS pings and check if they are driving the wrong way (MapmyIndia)."</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SECTION 6 -->
+      <div class="card" id="arch-flow">
+        <div class="card-head">
+          <h2>Data Pipeline Architecture</h2>
+        </div>
+        <div class="card-body">
+          <pre class="mermaid">
+flowchart TD
+    A["GrubPac Box IoT\nGPS + Speed + Heading\nevery 10 seconds"] --> B["GrubPac Backend\nReceives GPS batch"]
+    B --> C["H3 converts\nlat/lon to hex cell\nfor spatial indexing"]
+    B --> D["MapmyIndia API\nMap Matching\nSnap to road segment"]
+    C --> E["PostgreSQL + H3 Index\nStore position\nCalculate hex region"]
+    D --> F["Road Rules returned\nAllowed Direction\nOne-Way Status"]
+    F --> G{"Compare\nHeading vs\nAllowed Direction"}
+    G -->|"Mismatch"| H["Alert System\nWrong-Way Violation\nFlag on Dashboard"]
+    G -->|"Match"| I["Log Safe Status\nUpdate PostgreSQL"]
+
+    style A fill:#FFF3E0,stroke:#E65100
+    style C fill:#E8F5E9,stroke:#2E7D32
+    style D fill:#E3F2FD,stroke:#1565C0
+    style H fill:#FFEBEE,stroke:#C62828
+    style I fill:#E8F5E9,stroke:#2E7D32
+    </pre>
+        </div>
+      </div>
+
+      <!-- SECTION 7: PRICING -->
+      <div class="card" id="pricing">
+        <div class="card-head">
+          <h2>3. Pricing &amp; Licensing</h2>
+        </div>
+        <div class="info">
+          <p>MapmyIndia (Mappls) pricing model breakdown based on current published information and enterprise quotes.
+            All prices in INR unless stated otherwise.</p>
+        </div>
+        <div class="card-body">
+          <h4>Tier Structure</h4>
+          <table>
+            <tr>
+              <th>Plan</th>
+              <th>Monthly Cost</th>
+              <th>API Calls Included</th>
+              <th>Map Matching / Snap-to-Road</th>
+              <th>Support Level</th>
+            </tr>
+            <tr>
+              <td><b>Free Developer Tier</b></td>
+              <td>₹0</td>
+              <td>Limited (for development and testing only)</td>
+              <td>Not available — classified as Premium API</td>
+              <td>Community / Self-serve docs</td>
+            </tr>
+            <tr>
+              <td><b>Starter Plan</b></td>
+              <td>~₹25,000/month</td>
+              <td>~10,000 API calls</td>
+              <td>Must be requested separately</td>
+              <td>Email support</td>
+            </tr>
+            <tr>
+              <td><b>Enterprise / Fleet Plan</b></td>
+              <td>Custom quote (contact sales)</td>
+              <td>Volume-based pricing, fixed billing cycles</td>
+              <td>Included — custom SLA and rate limits</td>
+              <td>Dedicated account manager, SLA-backed</td>
+            </tr>
+          </table>
+          <div class="callout-amber"><b>Important:</b> The <b>Snap-to-Road / Map Matching API</b> is classified as a
+            <b>Premium API</b> by Mappls. It is NOT available on the free developer tier. You must contact sales to
+            request access and get a quote specific to your volume. This is the most critical API for GrubPac's
+            wrong-way detection feature.
+          </div>
+          <h4>Key Pricing Factors</h4>
+          <ul class="feat-list">
+            <li><span class="icon">→</span> <b>Volume of API calls:</b> Per-transaction cost drops significantly at
+              higher volumes. Discuss projected monthly call count with their sales team.</li>
+            <li><span class="icon">→</span> <b>Number of vehicles:</b> Fleet tracking solutions (InTouch IoT) are often
+              priced per-vehicle per-month.</li>
+            <li><span class="icon">→</span> <b>Feature bundle:</b> Geocoding, Routing, Map Matching, Distance Matrix,
+              and Telematics can be bundled together for a lower combined rate.</li>
+            <li><span class="icon">→</span> <b>Fixed vs Pay-as-you-go:</b> Mappls offers fixed monthly billing for
+              predictable budgets, unlike Google Maps which is purely consumption-based.</li>
+            <li><span class="icon">→</span> <b>Azure Marketplace:</b> Mappls APIs are also available via Microsoft Azure
+              Marketplace with structured billing.</li>
+          </ul>
+          <h4>Comparison: MapmyIndia vs Google Maps vs HERE</h4>
+          <table>
+            <tr>
+              <th>Feature</th>
+              <th>MapmyIndia (Mappls)</th>
+              <th>Google Maps Platform</th>
+              <th>HERE Technologies</th>
+            </tr>
+            <tr>
+              <td><b>Free Tier</b></td>
+              <td>Yes (limited, dev only)</td>
+              <td>$200/month credit (~₹16,700)</td>
+              <td>250,000 txn/month free</td>
+            </tr>
+            <tr>
+              <td><b>Map Matching API</b></td>
+              <td>Premium (quote required)</td>
+              <td>Roads API: $10 per 1,000 calls</td>
+              <td>Route Matching: custom pricing</td>
+            </tr>
+            <tr>
+              <td><b>Geocoding</b></td>
+              <td>Included in plans</td>
+              <td>$5 per 1,000 calls</td>
+              <td>Included in free tier</td>
+            </tr>
+            <tr>
+              <td><b>Routing</b></td>
+              <td>Included in plans</td>
+              <td>$5–$10 per 1,000 calls</td>
+              <td>Included in free tier</td>
+            </tr>
+            <tr>
+              <td><b>India Road Accuracy</b></td>
+              <td>Best — ground surveys + ISRO</td>
+              <td>Good — satellite + community</td>
+              <td>Good — fleet probes + satellite</td>
+            </tr>
+            <tr>
+              <td><b>One-Way / Divider Data</b></td>
+              <td>Excellent — physical surveys</td>
+              <td>Moderate</td>
+              <td>Moderate</td>
+            </tr>
+            <tr>
+              <td><b>Data Sovereignty</b></td>
+              <td>India-based (compliant)</td>
+              <td>US-based (GDPR / data concerns)</td>
+              <td>Germany-based</td>
+            </tr>
+            <tr>
+              <td><b>Enterprise Fleet Tools</b></td>
+              <td>InTouch IoT platform built-in</td>
+              <td>Not available</td>
+              <td>HERE Tracking (separate product)</td>
+            </tr>
+          </table>
+          <h4>Cost Estimate for GrubPac</h4>
+          <div class="callout-green"><b>Estimated Monthly Cost:</b> For a fleet of 100–500 GrubPac boxes sending GPS
+            pings every 10 seconds and using Map Matching: expect ₹50,000–₹2,00,000/month (approx $600–$2,400 USD)
+            depending on final negotiated rate. This includes Map Matching, Geocoding, and basic Routing APIs. Contact
+            Mappls sales: <b>+91-7829 774 111</b> or <b>+91-9999 333 223</b>. Portal: <b>mappls.com/api</b></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>
