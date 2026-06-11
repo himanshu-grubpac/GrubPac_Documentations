@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrubData — Geospatial Integration Plan</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f6f8;color:#1a1a2e;line-height:1.7}
+.hdr{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;padding:48px 32px;text-align:center}
+.hdr h1{font-size:30px;font-weight:700;margin-bottom:6px}
+.hdr p{font-size:15px;opacity:.85;max-width:750px;margin:0 auto}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 20px}
+
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(0,0,0,.05);margin-bottom:28px;overflow:hidden}
+.card-head{padding:22px 28px 0}
+.card-head h2{font-size:19px;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-body{padding:12px 28px 28px;overflow-x:auto}
+
+.info{font-size:13.5px;color:#444;margin-bottom:16px;padding:12px 16px;background:#f7f9fc;border-radius:8px;border-left:4px solid #0f3460}
+.info b{color:#1a1a2e}
+.info p{margin:4px 0}
+
+.tag{display:inline-block;padding:2px 9px;border-radius:5px;font-size:11px;font-weight:600;margin-left:4px;vertical-align:middle}
+.t-h3{background:#E8F5E9;color:#2E7D32}.t-pg{background:#E3F2FD;color:#1565C0}
+.t-rd{background:#FFF8E1;color:#F57F17}.t-vh{background:#F3E5F5;color:#6A1B9A}
+.t-new{background:#FFF3E0;color:#E65100}.t-ex{background:#ECEFF1;color:#37474F}
+.t-pg2{background:#E0F2F1;color:#00695C}.t-s3{background:#FBE9E7;color:#BF360C}
+
+.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin:20px 0}
+.feat{background:#f7f9fc;border-radius:10px;padding:16px 18px;border:1px solid #e8ecf0}
+.feat h4{font-size:14px;margin-bottom:4px;color:#0f3460}
+.feat .who{font-size:12px;color:#0f3460;margin-bottom:6px;font-weight:600}
+.feat .what{font-size:12.5px;color:#555;margin-bottom:6px}
+.feat .use{font-size:12px;color:#777;font-style:italic}
+
+.legend{display:flex;flex-wrap:wrap;gap:14px;padding:16px 28px;border-top:1px solid #eee}
+.legend span{display:flex;align-items:center;gap:5px;font-size:12px;color:#555}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+.toc{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(0,0,0,.05);padding:22px 28px;margin-bottom:28px}
+.toc h3{font-size:16px;margin-bottom:14px}
+.toc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 24px}
+.toc-grid a{display:block;padding:3px 0;color:#0f3460;text-decoration:none;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toc-grid a:hover{text-decoration:underline}
+@media(max-width:900px){.toc-grid{grid-template-columns:repeat(2,1fr)}}
+
+.cost-box{margin-top:12px;padding:12px 16px;background:#f0faf0;border-radius:8px;border-left:4px solid #2E7D32;font-size:12.5px;color:#333}
+.cost-box b{color:#2E7D32}
+.cost-box .line{margin:3px 0}
+
+@media print{body{background:#fff}.card{box-shadow:none;border:1px solid #ddd}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>GrubData — Geospatial Integration Plan</h1>
+  <p>How H3, PostGIS, Redis, and Valhalla/OSRM fit into the GrubData government surveillance portal. Every feature explained — what it is, why we need it, where it goes, and how it works.</p>
+</div>
+
+<div class="wrap">
+
+<!-- TOC -->
+<div class="toc">
+  <h3>All Sections</h3>
+  <div class="toc-grid">
+    <a href="#tools">1. The 6 Tools</a>
+    <a href="#master">2. Master System Flow</a>
+    <a href="#f-livetrack">3. Live Driver Tracking</a>
+    <a href="#f-nearby">4. Nearby Driver Lookup</a>
+    <a href="#f-anpr">5. ANPR Geo Correlation</a>
+    <a href="#f-face">6. Face Movement Tracking</a>
+    <a href="#f-heat">7. Heatmaps</a>
+    <a href="#f-fence">8. Geofencing</a>
+    <a href="#f-cluster">9. Incident Clustering</a>
+    <a href="#f-deviate">10. Route Deviation</a>
+    <a href="#f-hotspot">11. Hotspot Analytics</a>
+    <a href="#f-multires">12. Multi-Resolution Zoom</a>
+    <a href="#f-pathcells">13. Path Between Locations</a>
+    <a href="#f-compact">14. Cell Compaction</a>
+    <a href="#f-area">15. Density Normalization</a>
+    <a href="#f-griddist">16. Cell-Level Distance</a>
+    <a href="#f-validate">17. Cell Validation</a>
+    <a href="#f-polygon">18. Polygon Containment</a>
+    <a href="#f-evidence">19. Evidence Boundary</a>
+    <a href="#f-camera">20. Camera Coverage</a>
+    <a href="#f-distance">21. Exact Distances</a>
+    <a href="#f-match">22. Route Matching</a>
+    <a href="#f-eta">23. ETA / Path Routing</a>
+    <a href="#f-dispatch">24. Route-Aware Dispatch</a>
+    <a href="#f-suspect">25. Suspect Path Estimation</a>
+    <a href="#schema">26. Database Changes</a>
+  </div>
+</div>
+
+<!-- SECTION 1: TOOLS -->
+<div class="card" id="tools">
+  <div class="card-head"><h2>1. The 6 Tools — What Each One Does</h2></div>
+  <div class="card-body">
+    <div class="features">
+
+      <div class="feat">
+        <h4><span class="tag t-h3">H3</span> Geo Indexing Engine</h4>
+        <div class="who">Built by: Uber | Open Source (Apache 2.0) | Language: C core, JS/Python bindings | npm: h3-js</div>
+        <div class="what">H3 is a hexagonal grid system created by Uber for their ride-sharing platform. It takes any GPS coordinate on Earth (like 25.2048, 55.2708) and maps it to a hexagon cell ID (like 8a2a1072b59ffff). Every location on the planet falls inside one hex. Instead of comparing raw lat/lon numbers for every query, you just compare cell IDs — which is instant. Uber built this because they needed to match millions of riders and drivers by location in real time. We use it the same way — to quickly answer "what is near this point?" without scanning every record in the database.</div>
+        <div class="use">Use for: fast nearby lookups, heatmap visualization, geofence pre-check, movement paths, incident clustering, hotspot analytics, patrol coverage tracking.</div>
+      </div>
+
+      <div class="feat">
+        <h4><span class="tag t-pg">PostGIS</span> Exact Geometry Engine</h4>
+        <div class="who">Built by: OSGeo Foundation (Refractions Research originally) | Open Source (GPL 2.0) | Extension for PostgreSQL | Used by: NASA, USGS, European Commission, French IGN</div>
+        <div class="what">PostGIS is the industry standard spatial extension for PostgreSQL. It adds geography and geometry data types — so you can store real shapes like points, polygons, and lines directly in the database. It answers exact questions: "Is this vehicle point inside this restricted zone polygon?" or "Exactly how many meters apart are these two locations?" This is the same tool used by government agencies worldwide when they need legally defensible, meter-accurate geographic calculations. We already use PostgreSQL — PostGIS is just an extension we enable on top of it. No new database needed.</div>
+        <div class="use">Use for: exact polygon containment (legal evidence), camera FOV polygons, precise distance calculations, geofence boundary validation, route geometry storage, evidence boundary proof.</div>
+      </div>
+
+      <div class="feat">
+        <h4><span class="tag t-rd">Redis</span> Realtime Memory Cache</h4>
+        <div class="who">Built by: Redis Ltd (Salvatore Sanfilippo originally) | Open Source (BSD 3-Clause) | Already in our stack | Used by: Twitter, GitHub, Uber, Instagram</div>
+        <div class="what">Redis is an in-memory data store — it keeps data in RAM instead of on disk, which makes reads and writes extremely fast (microseconds, not milliseconds). We already use Redis in GrubData for rate limiting, RBAC caching, and tenant feature flags. For geo features, we extend its use: instead of hitting the database every time someone asks "where are all active drivers right now?", we keep the latest position of every driver in Redis. It auto-expires old data — if a driver stops sending GPS pings for 60 seconds, their entry disappears automatically. No cleanup needed.</div>
+        <div class="use">Use for: live driver positions, cell-to-driver index ("which drivers are in hex cell X?"), online/offline detection, realtime nearby search — all under 1 millisecond.</div>
+      </div>
+
+      <div class="feat">
+        <h4><span class="tag t-vh">Valhalla</span> Road Network Intelligence Engine</h4>
+        <div class="who">Built by: Mapzen (now maintained by community + Microsoft) | Open Source (MIT License) | Self-hosted Docker container | Uses OpenStreetMap road data</div>
+        <div class="what">Valhalla is an open-source routing engine that understands actual roads. H3 and PostGIS only know about coordinates — they have no idea that there's a highway, a one-way street, or a water canal between two points. Valhalla loads the entire road map (from OpenStreetMap) and can answer: "What's the fastest road route from A to B?", "Snap these noisy GPS points to the nearest real road", and "Which areas can a vehicle reach from this point in 5 minutes?" We run it as a Docker container alongside our backend. For Dubai, we load the UAE road extract from OpenStreetMap. Alternative: OSRM (by Project OSRM / MapBox) — similar but Valhalla has better map-matching and isochrone APIs.</div>
+        <div class="use">Use for: GPS-to-road snapping, real drive-time ETA, best route calculation, route deviation detection, road-aware dispatch, suspect reachable area estimation.</div>
+      </div>
+
+      <div class="feat">
+        <h4><span class="tag t-pg2">PostgreSQL</span> Main Database (Already in System)</h4>
+        <div class="who">Built by: PostgreSQL Global Development Group | Open Source (PostgreSQL License) | Already our primary database | Used by: Apple, Instagram, Spotify, Reddit</div>
+        <div class="what">PostgreSQL is the main database behind GrubData. It already stores all our tenants, users, roles, boxes, search jobs, results, audit logs, video requests, saved videos — everything. We already use the <code>cube</code> and <code>earthdistance</code> extensions for basic geo distance queries. PostGIS is another extension that upgrades our geo capabilities massively. No migration to a new database — we just add the extension to what we already have.</div>
+        <div class="use">Already used for: all GrubData data. PostGIS extension enables spatial queries on the same database.</div>
+      </div>
+
+      <div class="feat">
+        <h4><span class="tag t-s3">AWS S3</span> Evidence Storage (Already in System)</h4>
+        <div class="who">Built by: Amazon Web Services | Commercial cloud service | Already integrated | Stores all GrubData video and image evidence</div>
+        <div class="what">AWS S3 is our cloud storage for video clips, face images, ANPR snapshots, and all raw media evidence. GrubPac boxes sync their recorded video to S3 (30-day cloud retention). None of the geo features change how S3 works — geo operates on metadata (coordinates, timestamps) not on the media files themselves. S3 stays exactly as it is.</div>
+        <div class="use">Already used for: video and image evidence storage. No changes needed for geo integration.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: MASTER FLOW -->
+<div class="card" id="master">
+  <div class="card-head"><h2>2. Master System Flow</h2></div>
+  <div class="info">
+    <p>This is the big picture. Data flows from edge devices (GrubPac boxes, patrol vehicles) through our cloud, gets geo-indexed by H3, cached in Redis for live state, stored in PostgreSQL+PostGIS for persistence, and optionally processed by Valhalla for road intelligence. Our existing Express API and Next.js frontend sit on top of all of it.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    subgraph EDGE["EDGE DEVICES (Field)"]
+        direction LR
+        BOX["GrubPac Box\n4 cameras + GPS + 4G\nCaptures video continuously\nStores 7 days on device"]
+        VEH["Patrol / Delivery Vehicle\nSends GPS ping every 2 sec\nSpeed + heading + driver ID"]
+    end
+
+    EDGE -->|"GPS coordinates + video + detections"| CLOUD
+
+    subgraph CLOUD["CLOUD INGESTION"]
+        direction LR
+        S3["AWS S3\nVideo + snapshots\n30-day cloud retention"]
+        PING["Telematics Endpoint\nReceives GPS pings\nfrom all vehicles"]
+        SEARCH["Search Workers\nANPR / Face / Surveillance\njobs run here"]
+    end
+
+    PING -->|"Every GPS ping gets converted"| H3_STEP
+    SEARCH -->|"Every search result location"| H3_STEP
+
+    subgraph H3_STEP["STEP 1 — H3 INDEXING"]
+        direction LR
+        H3A["Convert lat/lon to hex cell\nFast geographic bucketing\nResolution 9 = ~175m hexagons"]
+    end
+
+    H3_STEP -->|"Live position + cell ID"| REDIS_STEP
+    H3_STEP -->|"Cell ID stored with record"| PG_STEP
+
+    subgraph REDIS_STEP["STEP 2 — REDIS (Live State)"]
+        direction LR
+        RED["Store current driver position\nMap cell → active drivers\nAuto-expires in 60 seconds\nSub-millisecond lookups"]
+    end
+
+    H3_STEP -.->|"GPS batch for road-matching"| VAL_STEP
+
+    subgraph VAL_STEP["STEP 3 — VALHALLA (Road Intelligence)"]
+        direction LR
+        VAL["Snap GPS to nearest road\nCalculate real drive-time ETA\nDetect route deviations\nGenerate reachable-area maps"]
+    end
+
+    VAL_STEP -->|"Road-matched route geometry"| PG_STEP
+
+    subgraph PG_STEP["STEP 4 — POSTGRESQL + POSTGIS (Persistent Storage)"]
+        direction LR
+        PG["Boxes with spatial index\nSearch results with hex cell\nGeofence zone polygons\nFace/plate observation logs\nDriver ping history\nRoad-matched route paths\nCamera coverage polygons"]
+    end
+
+    PG_STEP --> API
+    REDIS_STEP --> API
+
+    subgraph API["GRUBDATA REST API (Express)"]
+        direction LR
+        API1["Nearby box search\nHeatmap data\nLive driver list\nDispatch nearest\nGeofence alerts\nMovement paths\nPatrol coverage"]
+    end
+
+    API --> FE
+
+    subgraph FE["FRONTEND (Next.js)"]
+        direction LR
+        FE1["Live map with driver pins\nHex heatmap overlay\nGeofence zone editor\nSuspect movement timeline\nSearch results on map\nPatrol coverage report"]
+    end
+
+    style EDGE fill:#FFF3E0,stroke:#E65100,stroke-width:2px
+    style CLOUD fill:#FFF9C4,stroke:#F9A825,stroke-width:2px
+    style H3_STEP fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px
+    style REDIS_STEP fill:#FFF8E1,stroke:#F57F17,stroke-width:2px
+    style VAL_STEP fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px
+    style PG_STEP fill:#E3F2FD,stroke:#1565C0,stroke-width:2px
+    style API fill:#ECEFF1,stroke:#37474F,stroke-width:2px
+    style FE fill:#FCE4EC,stroke:#C62828,stroke-width:2px
+    </pre>
+  </div>
+  <div class="legend">
+    <span><i style="background:#FFF3E0;border:1px solid #E65100"></i> Edge Devices</span>
+    <span><i style="background:#E8F5E9;border:1px solid #2E7D32"></i> H3 (hex indexing)</span>
+    <span><i style="background:#FFF8E1;border:1px solid #F57F17"></i> Redis (live cache)</span>
+    <span><i style="background:#F3E5F5;border:1px solid #6A1B9A"></i> Valhalla (roads)</span>
+    <span><i style="background:#E3F2FD;border:1px solid #1565C0"></i> PostGIS (exact geo)</span>
+    <span><i style="background:#ECEFF1;border:1px solid #37474F"></i> API Layer</span>
+    <span><i style="background:#FCE4EC;border:1px solid #C62828"></i> Frontend</span>
+  </div>
+</div>
+
+<!-- FEATURES 3-12: H3 FEATURES -->
+<div class="card" id="f-livetrack">
+  <div class="card-head"><h2>3. Live Driver Tracking <span class="tag t-h3">H3</span> <span class="tag t-rd">Redis</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Track all active drivers and vehicles in realtime on the operator dashboard.</p>
+    <p><b>Example:</b> Every patrol vehicle sends its GPS, speed, and heading every 2 seconds. The dashboard shows all of them live on the map.</p>
+    <p><b>How it works:</b> GPS arrives → H3 converts lat/lon to a hex cell → Redis stores "driver 91 is in cell X" with a 60-second expiry. If the driver stops sending pings, they auto-disappear. Frontend polls Redis through the API to show live pins.</p>
+    <p><b>Where in GrubData:</b> New telematics endpoint. Feeds real data into the existing <code>behaviorMonitoring.activeDrivers</code> dashboard field that currently uses placeholder data.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    A["Vehicle sends GPS\nevery 2 seconds\nlat, lon, speed, heading\ndriver ID, timestamp"] --> B["Telematics API\nreceives the ping"]
+    B --> C["H3 converts\nlat/lon → hex cell\n~175 meter hexagon"]
+    C --> D["Redis stores\ndriver:91 → current position\ncell:abc → driver 91\nExpires in 60 seconds"]
+    C --> E["PostgreSQL stores\ndriver_pings table\nfor historical audit trail"]
+    D --> F["Dashboard API reads\nall active drivers\nfrom Redis"]
+    F --> G["Frontend shows\nlive driver pins\non the map"]
+
+    style C fill:#E8F5E9
+    style D fill:#FFF8E1
+    style E fill:#E3F2FD
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> H3 = $0 (open source, runs in-process). Redis = $0 additional (already in our stack).</div>
+    <div class="line"><b>Without this:</b> At 1M drivers sending GPS every 2 seconds = 500,000 queries/sec hitting PostgreSQL directly. You'd need a massive DB cluster ($5,000–$15,000/month) just for live position queries, and it still wouldn't be real-time.</div>
+    <div class="line"><b>With this:</b> Redis handles 500K reads/sec on a single $50–$200/month instance. H3 cell conversion is pure math — zero network cost, runs in microseconds in Node.js memory. PostgreSQL only gets batch writes for history (100x less load).</div>
+    <div class="line"><b>Efficiency gain:</b> ~95% reduction in database load. Live queries go from 50–200ms (DB) to &lt;1ms (Redis). System part affected: <code>dashboard.service.ts</code> behavior monitoring, new telematics endpoint.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Saves roughly $10,000–$14,000/month in database compute costs alone.</div>
+  </div>
+</div>
+
+<div class="card" id="f-nearby">
+  <div class="card-head"><h2>4. Nearby Driver Lookup <span class="tag t-h3">H3</span> <span class="tag t-rd">Redis</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Answer the question: "Which drivers are near this incident right now?"</p>
+    <p><b>Example:</b> An explosion alert comes in. You need the nearest responders immediately.</p>
+    <p><b>Without H3:</b> You'd run PostGIS exact distance against every driver in the database. Heavy, slow.</p>
+    <p><b>With H3:</b> Incident is in cell ABC. Use gridDisk(ABC, 3) to get all nearby cells. Ask Redis: "who is in those cells?" Instant answer. Under 1 millisecond.</p>
+    <p><b>Where in GrubData:</b> New dispatch feature. Uses the same Redis cell index from live driver tracking.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    A["Incident reported\nat specific location"] --> B["H3 converts\nincident location\nto hex cell"]
+    B --> C["H3 gridDisk\ngets 37 neighboring\ncells around incident"]
+    C --> D["Redis lookup\nall drivers in those\n37 cells\nunder 1 millisecond"]
+    D --> E["Result:\n8 drivers nearby\nwith positions + speed"]
+
+    style B fill:#E8F5E9
+    style C fill:#E8F5E9
+    style D fill:#FFF8E1
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. Same H3 + Redis already running for live tracking.</div>
+    <div class="line"><b>Without this:</b> To find nearby drivers you'd run <code>ST_DWithin</code> against every active driver row in PostgreSQL. With 1M drivers, that's a full spatial scan every time someone asks — 500ms–2 seconds per query under load, plus heavy DB CPU.</div>
+    <div class="line"><b>With this:</b> Redis SUNION on 37 cell keys = &lt;1 millisecond. Zero database involvement. Even at 10,000 concurrent dispatch lookups, Redis handles it on a single node.</div>
+    <div class="line"><b>Efficiency gain:</b> 500x–2000x faster response. System part affected: new dispatch endpoint, incident response workflow.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Enables real-time dispatch that would be physically impossible with database-only approach. Saves the cost of a dedicated PostGIS read replica ($500–$2,000/month).</div>
+  </div>
+</div>
+
+<div class="card" id="f-anpr">
+  <div class="card-head"><h2>5. ANPR Geo Correlation <span class="tag t-h3">H3</span> <span class="tag t-ex">Existing + Enhanced</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> ANPR = Automatic Number Plate Recognition. Each detection has a plate, camera, time, and location. H3 indexes the location so you can quickly find the same vehicle nearby or trace its movement.</p>
+    <p><b>Example:</b> Plate DUB-1234 was seen at camera 3 at 10:15 AM. Later you want to know: "Was this plate seen anywhere nearby?" Search neighboring H3 cells instead of scanning every record.</p>
+    <p><b>Where in GrubData:</b> The existing search worker already stores location in <code>search_job_results.payload</code>. We add an H3 cell column so these results become instantly searchable by geography. New <code>plate_observations</code> table for cross-search correlation.</p>
+    <p><b>Use cases:</b> Stolen vehicle tracking, suspect movement, plate hotspot analysis, repeated sightings correlation.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    A["ANPR camera detects\nplate: DUB-1234\ncamera 3, 10:15 AM\nlat 25.20, lon 55.27"] --> B["H3 converts\ndetection location\nto hex cell"]
+    B --> C["Store in plate_observations\nplate + cell + timestamp\n+ camera + box"]
+    C --> D["Later query:\nFind same plate nearby\nSearch neighboring cells\nCorrelate sightings"]
+    D --> E["Result:\nPlate seen at 3 locations\nMovement path revealed\nTimeline reconstructed"]
+
+    style B fill:#E8F5E9
+    style C fill:#E3F2FD
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. H3 runs in-process. PostgreSQL column addition — no new service.</div>
+    <div class="line"><b>Without this:</b> "Find same plate nearby" requires scanning every <code>search_job_results</code> row and computing distance for each one. With 10M+ results across all tenants, that's a multi-second sequential scan per query. At 1M boxes producing ANPR hits continuously, the table grows by millions of rows per day.</div>
+    <div class="line"><b>With this:</b> Add <code>h3_index_r9</code> column with a B-tree index. Query becomes <code>WHERE h3_index = ANY($cells)</code> — index lookup, returns in 2–5ms regardless of table size. Storage cost for the extra column: ~8 bytes per row.</div>
+    <div class="line"><b>Efficiency gain:</b> Geo queries on ANPR results go from O(n) full scan to O(1) index hit. System part affected: <code>search.worker.ts</code> (write path), search results API (read path).</div>
+    <div class="line"><b>At scale (1M boxes):</b> Prevents the need for a separate search/indexing service (like Elasticsearch for geo queries — $500–$3,000/month). Everything stays in PostgreSQL.</div>
+  </div>
+</div>
+
+<div class="card" id="f-face">
+  <div class="card-head"><h2>6. Face Movement Tracking <span class="tag t-h3">H3</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Same person detected across multiple cameras. Build their movement path.</p>
+    <p><b>Example:</b> Suspect face detected at Camera A (10:00), Camera B (10:15), Camera C (10:30). Each detection has a GPS location. H3 indexes each one. Query by face_id ordered by time = movement path.</p>
+    <p><b>Where in GrubData:</b> Face search already uses AWS Rekognition and stores results. We add a <code>face_observations</code> table to log each detection with its H3 cell. Frontend draws the path on the map with a timeline.</p>
+    <p><b>Use cases:</b> Suspect movement tracking, face correlation across boxes, path reconstruction, hotspot presence analysis.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    A["Face search finds\nsuspect at 3 cameras\nCamera A → B → C\nwith timestamps"] --> B["Each detection:\nface_id + lat/lon\n→ H3 cell conversion"]
+    B --> C["Store in face_observations\nface_id + cell + camera\n+ box_id + timestamp"]
+    C --> D["Query by face_id\nORDER BY observed_at\n→ movement sequence"]
+    D --> E["Frontend draws\npath on map:\nA → B → C\nwith time labels"]
+
+    style B fill:#E8F5E9
+    style C fill:#E3F2FD
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. H3 in-process + PostgreSQL table.</div>
+    <div class="line"><b>Without this:</b> Face movement tracking would require joining all face search results, computing pairwise distances, and sorting by location+time. With AWS Rekognition producing results across thousands of cameras, this becomes an expensive cross-join operation. Also, Rekognition charges $0.001 per face search — we're already paying that. The geo correlation is free value on top of paid AI results.</div>
+    <div class="line"><b>With this:</b> Simple INSERT per detection (face_id + cell + time). Path query is a single indexed SELECT ordered by timestamp. No computation needed at read time.</div>
+    <div class="line"><b>Efficiency gain:</b> Enables a feature that's impossible without geo indexing. Write: 0.1ms per INSERT. Read: 1–3ms per path query. System part affected: <code>search.worker.ts</code> (after Rekognition results), new movement API endpoint.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Extracts maximum value from existing Rekognition spend ($0.001/face). Movement tracking adds ~$0 marginal cost per detection.</div>
+  </div>
+</div>
+
+<div class="card" id="f-heat">
+  <div class="card-head"><h2>7. Heatmaps <span class="tag t-h3">H3</span> <span class="tag t-ex">Existing + Enhanced</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Visual density maps. Shows where things happen most — incidents, detections, patrols, ANPR hits.</p>
+    <p><b>Today:</b> Dashboard heatmap uses <code>lat.toFixed(3)</code> string bucketing — crude rectangular grid, uneven, overlapping.</p>
+    <p><b>With H3:</b> Data is already geo-bucketed into hex cells. Just GROUP BY cell, count events, render colored hexagons. Clean tessellation, no overlap, proper density visualization. Each hex covers equal area.</p>
+    <p><b>Where in GrubData:</b> Replace logic in <code>dashboard.service.ts</code> getDashboardHeatmap function. Frontend renders hex polygons using cellToBoundary coordinates.</p>
+    <p><b>Use cases:</b> Incident density, patrol coverage heatmap, face detection hotspots, ANPR hit concentration.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    A["Dashboard selects\ntime range\nand data type"] --> B["Query search results\nwith lat/lon\nfor that period"]
+    B --> C["H3 converts each\nresult location\nto hex cell (res 8)"]
+    C --> D["Group by cell\nCount events per hex\n→ weight values"]
+    D --> E["H3 cellToBoundary\n→ 6 polygon vertices\nper hex for rendering"]
+    E --> F["Frontend draws\ncolored hexagons\nhigh density = red\nlow density = green"]
+
+    style C fill:#E8F5E9
+    style E fill:#E8F5E9
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. H3 cellToBoundary runs in the browser — no server cost for rendering.</div>
+    <div class="line"><b>Without this:</b> Current <code>lat.toFixed(3)</code> grid bucketing recomputes every time the dashboard loads. With 100K+ search results, the aggregation takes 2–5 seconds. Rectangular grid also distorts at different latitudes — Dubai and Helsinki would show different-sized cells for the same data. If you wanted proper hex heatmaps without H3, you'd need a paid mapping service like Mapbox GL ($499–$1,499/month for enterprise).</div>
+    <div class="line"><b>With this:</b> Results already have h3_index stored — GROUP BY is an index-only scan, returns in 20–50ms. Frontend renders hex polygons from cellToBoundary — no external tile service needed.</div>
+    <div class="line"><b>Efficiency gain:</b> 50–100x faster heatmap generation. System part affected: <code>dashboard.service.ts</code> getDashboardHeatmap (lines 345–415), frontend heatmap component.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Replaces need for commercial mapping tiles for density viz. Saves $500–$1,500/month vs Mapbox/Carto enterprise tier.</div>
+  </div>
+</div>
+
+<div class="card" id="f-fence">
+  <div class="card-head"><h2>8. Geofencing <span class="tag t-h3">H3</span> <span class="tag t-pg">PostGIS</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Virtual restricted areas. Airport, government buildings, military zones. Any vehicle entering triggers an alert.</p>
+    <p><b>How it works:</b> Admin draws a polygon on the map. System stores it as a PostGIS polygon AND converts it to a set of H3 cells. On every driver ping: first do a fast H3 check (is this cell in any zone's cell list?). Only if H3 says "maybe" do we run the expensive PostGIS exact containment check. Two-stage = fast + accurate.</p>
+    <p><b>Where in GrubData:</b> New <code>geo_zones</code> table. Check runs inside the telematics ping handler. Alerts go to <code>audit_logs</code> + push notification.</p>
+    <p><b>Use cases:</b> No-entry zones, patrol boundaries, restricted compound alerts, evidence area monitoring.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    A["Admin draws restricted\nzone polygon on map"] --> B["Store as PostGIS polygon\n+ convert to H3 cell set\nusing polygonToCells"]
+
+    C["Driver ping arrives\nH3 converts to cell"] --> D{"H3 fast check:\nis cell in any\nzone's cell list?"}
+    D -->|"No match"| E["Not in any zone\nContinue normally"]
+    D -->|"Possible match"| F["PostGIS exact check:\nST_Contains polygon, point\nPrecise boundary test"]
+    F -->|"Outside"| E
+    F -->|"Confirmed inside"| G["ALERT triggered\nAudit log entry\nPush notification\nDispatch response"]
+
+    style D fill:#E8F5E9
+    style F fill:#E3F2FD
+    style G fill:#FFCDD2
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. H3 polygonToCells runs once at zone creation. PostGIS is a free PostgreSQL extension.</div>
+    <div class="line"><b>Without this:</b> Every GPS ping (1M drivers × 0.5 pings/sec = 500K pings/sec) would need to run ST_Contains against every geofence polygon in PostGIS. With 500 zones, that's 250 million PostGIS operations per second. You'd need a cluster of dedicated PostGIS servers ($10,000–$30,000/month). Commercial geofencing APIs (Google Geofencing, HERE) charge $0.004–$0.01 per check = $1M+/month at this scale.</div>
+    <div class="line"><b>With this:</b> H3 pre-check is a simple array lookup — eliminates 99% of pings instantly. PostGIS only runs on the 1% that actually might be inside a zone. 250M ops/sec drops to ~2.5M/sec, easily handled by existing DB.</div>
+    <div class="line"><b>Efficiency gain:</b> 99% reduction in PostGIS operations. System part affected: telematics ping handler, <code>audit_logs</code> table, new <code>geo_zones</code> table.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Saves $10,000–$30,000/month in compute vs pure PostGIS approach. Saves $1M+/month vs commercial geofencing APIs.</div>
+  </div>
+</div>
+
+<div class="card" id="f-cluster">
+  <div class="card-head"><h2>9. Incident Clustering <span class="tag t-h3">H3</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Multiple events that are probably the same incident. A plate detection, a face detection, and a camera alert — all in the same area at the same time. Instead of 3 separate alerts, cluster them as 1 incident.</p>
+    <p><b>How it works:</b> If events fall in the same or neighboring H3 cells within a time window, they get grouped together.</p>
+    <p><b>Where in GrubData:</b> Post-processing step after search results are stored. Groups nearby results by cell + time proximity.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    A["3 separate events\nplate detection\nface detection\ncamera alert"] --> B["All in same H3 cell\nor neighboring cells\nwithin 5-minute window"]
+    B --> C["System clusters them\nas 1 incident\ninstead of 3 alerts"]
+    C --> D["Dashboard shows\n1 incident marker\nwith all 3 evidence items"]
+
+    style B fill:#E8F5E9
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. Pure H3 cell comparison in memory.</div>
+    <div class="line"><b>Without this:</b> Without clustering, 1 real-world incident generates 3–10 separate alerts (plate + face + camera + motion). Operators waste time investigating duplicates. At 1M boxes generating thousands of events/hour, the alert flood becomes unmanageable — you'd need extra operators or a paid event correlation platform like Splunk/PagerDuty ($2,000–$10,000/month).</div>
+    <div class="line"><b>With this:</b> Events in the same H3 cell within a time window auto-merge. Simple cell comparison — no distance math needed. Reduces alert volume by 60–80%.</div>
+    <div class="line"><b>Efficiency gain:</b> 60–80% fewer alerts to review. System part affected: search result post-processor, dashboard incident list.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Reduces need for additional monitoring staff. Each operator handles 3–5x more real incidents instead of reviewing duplicates.</div>
+  </div>
+</div>
+
+<div class="card" id="f-deviate">
+  <div class="card-head"><h2>10. Route Deviation <span class="tag t-h3">H3</span> <span class="tag t-vh">Valhalla</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Expected route vs actual route. Was the driver supposed to go A → B → C but actually went A → D → E?</p>
+    <p><b>How it works:</b> Expected route is a set of H3 cells. Actual GPS pings get map-matched to real roads via Valhalla, then converted to cells. Cells in actual but NOT in expected = deviation detected.</p>
+    <p><b>Limitation:</b> H3 alone gives approximate deviation. Valhalla adds road-accurate detection.</p>
+    <p><b>Where in GrubData:</b> Combines telematics ping stream + Valhalla map-matching + cell comparison logic.</p>
+    <p><b>Use cases:</b> Driver monitoring, delivery compliance, suspect vehicle tracking.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    A["Expected route:\ncells A → B → C → D"] --> C{"Compare\ncell sets"}
+    B["Actual GPS pings:\nValhalla snaps to road\n→ actual cells A → B → X → Y"] --> C
+    C -->|"Extra cells found\nnot in expected route"| D["Deviation detected!\nAlert supervisor\nLog to audit trail"]
+    C -->|"All cells match\nexpected route"| E["On track\nNo deviation"]
+
+    style A fill:#E8F5E9
+    style B fill:#F3E5F5
+    style D fill:#FFCDD2
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> H3 = $0. Valhalla = ~$50–$150/month for a Docker container (self-hosted with UAE road data from OpenStreetMap, which is free).</div>
+    <div class="line"><b>Without this:</b> Route deviation detection done manually by supervisors reviewing GPS trails — labor-intensive, delayed, inconsistent. Commercial fleet tracking with route deviation (Samsara, Verizon Connect) charges $25–$45 per vehicle/month. At 1M vehicles = $25M–$45M/month.</div>
+    <div class="line"><b>With this:</b> Automated cell-set comparison runs in real-time per ping. H3 does the quick check; Valhalla adds road accuracy for confirmed deviations. Total compute: one Valhalla container + existing PostgreSQL.</div>
+    <div class="line"><b>Efficiency gain:</b> Real-time automated detection vs next-day manual review. System part affected: telematics ping stream, new deviation alert service, <code>audit_logs</code>.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Self-hosted Valhalla at $150/month vs commercial fleet services at $25M+/month. Even at 10K vehicles, saves $250K–$450K/month.</div>
+  </div>
+</div>
+
+<div class="card" id="f-hotspot">
+  <div class="card-head"><h2>11. Hotspot Analytics <span class="tag t-h3">H3</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Recurring problematic locations. Which areas keep having incidents?</p>
+    <p><b>How it works:</b> Count repeated events per H3 cell over time. Cell XYZ had 200 incidents this month? That's a hotspot. Rank cells by event count.</p>
+    <p><b>Where in GrubData:</b> Analytics query over face_observations, plate_observations, and search_job_results grouped by H3 cell.</p>
+    <p><b>Use cases:</b> Operational intelligence, resource allocation, proactive patrol planning.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    A["All detection events\nover past month\nface + plate + incidents"] --> B["Group by H3 cell\nCOUNT events per cell"]
+    B --> C["Rank cells\nby event count\nTop 50 = hotspots"]
+    C --> D["Dashboard shows\nhot zones on map\nPrioritize patrols there"]
+
+    style B fill:#E8F5E9
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. SQL GROUP BY on indexed h3 column.</div>
+    <div class="line"><b>Without this:</b> Hotspot analysis requires GIS analysts running manual queries with custom distance thresholds, or paying for analytics platforms like Esri ArcGIS ($10,000–$50,000/year) or CARTO ($500–$3,000/month). Results take hours to generate.</div>
+    <div class="line"><b>With this:</b> Single SQL query: <code>SELECT h3_index, COUNT(*) FROM events GROUP BY h3_index ORDER BY 2 DESC LIMIT 50</code>. Returns in 50–200ms even on millions of rows because h3_index is indexed.</div>
+    <div class="line"><b>Efficiency gain:</b> Analyst-hours reduced to seconds. System part affected: <code>dashboard.service.ts</code> analytics, new hotspot API endpoint.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Replaces $10K–$50K/year in GIS software licenses. Every government operator can run hotspot analysis themselves — no GIS specialist needed.</div>
+  </div>
+</div>
+
+<!-- NEW H3 FEATURES -->
+<div class="card" id="f-multires">
+  <div class="card-head"><h2>12. Multi-Resolution Zoom <span class="tag t-h3">H3</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>H3 functions:</b> <code>cellToParent(cell, parentRes)</code> and <code>cellToChildren(cell, childRes)</code></p>
+    <p><b>What it is:</b> Every H3 cell exists at multiple resolutions — like zooming in and out on a map. A resolution-5 hex covers a big area (about 250 km²). A resolution-9 hex covers a small area (about 0.1 km²). cellToParent takes a small cell and gives you the bigger cell it sits inside. cellToChildren does the reverse — gives you all the smaller cells inside a big one.</p>
+    <p><b>How we use it in GrubData:</b> When the dashboard heatmap is zoomed out (city level), we use resolution 5 or 6 for broad clusters. When zoomed in (street level), we use resolution 9 for precise hotspots. Instead of re-querying the database at each zoom level, we just call cellToParent on the stored resolution-9 cells to roll them up to any coarser level on the fly. Same data, different zoom — no extra DB queries.</p>
+    <p><b>Where:</b> Dashboard heatmap zoom handler. Also useful for analytics reports — "incidents per district" (res 5) vs "incidents per street" (res 9) from the same dataset.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    A["User zooms out\non dashboard map"] --> B["Take stored res-9 cells\nfrom search results"]
+    B --> C["H3 cellToParent\nconvert each to res-5\nbigger hexagons"]
+    C --> D["Group by parent cell\nsum weights\nfewer, larger hexes"]
+    D --> E["Frontend renders\nbroad city-level\nheatmap view"]
+
+    style C fill:#E8F5E9
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. cellToParent is a pure bit-shift operation — runs in nanoseconds per cell.</div>
+    <div class="line"><b>Without this:</b> Each zoom level on the heatmap would require a separate database query with different aggregation parameters. 5 zoom levels = 5 DB queries per dashboard load. At 1,000 concurrent operators, that's 5,000 DB queries per page view.</div>
+    <div class="line"><b>With this:</b> Query DB once at finest resolution (res-9). Client-side cellToParent rolls data up to any zoom level instantly. 5 zoom levels = 1 DB query + 4 in-memory transforms (microseconds each).</div>
+    <div class="line"><b>Efficiency gain:</b> 80% fewer DB queries for zoom interactions. System part affected: dashboard heatmap, analytics reports.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Reduces dashboard DB load by 4–5x. Saves PostgreSQL read capacity for search jobs instead of repeated heatmap recomputes.</div>
+  </div>
+</div>
+
+<div class="card" id="f-pathcells">
+  <div class="card-head"><h2>13. Path Between Locations <span class="tag t-h3">H3</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>H3 function:</b> <code>gridPathCells(startCell, endCell)</code></p>
+    <p><b>What it is:</b> Given two H3 cells (point A and point B), this function returns all the hex cells that form a straight-line path between them. Think of it like drawing a line on a hex grid and getting every hex the line passes through.</p>
+    <p><b>How we use it in GrubData:</b> When we track a suspect's face or plate across two camera locations, gridPathCells gives us the approximate cells the suspect traveled through between those sightings. We can then check if any other cameras or boxes exist in those intermediate cells — to find additional evidence we might have missed. Also useful for showing expected travel corridors on the map.</p>
+    <p><b>Where:</b> Face/ANPR movement tracking — filling gaps between known detection points. Also useful for route planning visualization.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    A["Suspect seen at\nCamera A cell\nthen Camera C cell"] --> B["H3 gridPathCells\nA → C\nreturns all cells\nalong the path"]
+    B --> C["Check: any other\ncameras or boxes\nin those middle cells?"]
+    C --> D["Found Camera B\nin the path!\nPull its video too"]
+
+    style B fill:#E8F5E9
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. gridPathCells is an in-memory computation.</div>
+    <div class="line"><b>Without this:</b> To find cameras between two detection points, you'd query every box in the database and compute distance to every point along an interpolated line. With 1M boxes, that's a full spatial scan per path query.</div>
+    <div class="line"><b>With this:</b> gridPathCells returns ~10–50 cells between two points. Query becomes <code>WHERE h3_index = ANY($pathCells)</code> — index lookup, returns in 1–3ms.</div>
+    <div class="line"><b>Efficiency gain:</b> Enables automatic evidence discovery between known detection points. System part affected: face/ANPR movement tracking API, search result correlation.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Finds missed evidence automatically — cameras the operator didn't think to check. Increases investigation efficiency without adding operational staff.</div>
+  </div>
+</div>
+
+<div class="card" id="f-compact">
+  <div class="card-head"><h2>14. Cell Compaction <span class="tag t-h3">H3</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>H3 functions:</b> <code>compactCells(cellSet)</code> and <code>uncompactCells(compactedSet, res)</code></p>
+    <p><b>What it is:</b> When you convert a large geofence polygon to H3 cells, you might get thousands of small cells. compactCells replaces groups of 7 child cells with 1 parent cell wherever possible — dramatically reducing the cell count while covering the exact same area. uncompactCells reverses it back to fine resolution when needed.</p>
+    <p><b>How we use it in GrubData:</b> Geofence zones stored in the <code>geo_zones.h3_cells</code> array. A large restricted zone (like an airport perimeter) could have 5000+ resolution-9 cells. After compaction, that drops to maybe 200 mixed-resolution cells. Smaller storage, faster lookups. When checking a driver ping against a zone, we uncompact only the relevant parent cells.</p>
+    <p><b>Where:</b> Geofence zone creation and storage. Also useful for storing large coverage areas efficiently.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    A["Large geofence polygon\nconverted to 5000+\nresolution-9 cells"] --> B["H3 compactCells\nmerge groups of 7\ninto parent cells"]
+    B --> C["Result: ~200 cells\nmixed resolution\nsame area coverage"]
+    C --> D["Store in geo_zones\nh3_cells array\n25x smaller"]
+
+    style B fill:#E8F5E9
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. compactCells runs once at zone creation.</div>
+    <div class="line"><b>Without this:</b> A large geofence zone like Dubai International Airport perimeter = 5,000+ resolution-9 cells stored in a PostgreSQL array. Checking <code>WHERE $cell = ANY(h3_cells)</code> against a 5,000-element array is slow. Multiply by 500K pings/sec = massive CPU waste. Storage: 5,000 × 8 bytes × 500 zones = ~20MB just for cell arrays.</div>
+    <div class="line"><b>With this:</b> After compaction, 5,000 cells become ~200 mixed-resolution cells. Array lookups are 25x faster. Storage drops to ~0.8MB. Zone check per ping goes from ~50µs to ~2µs.</div>
+    <div class="line"><b>Efficiency gain:</b> 25x smaller zone storage, 25x faster containment checks. System part affected: <code>geo_zones</code> table, geofence check in ping handler.</div>
+    <div class="line"><b>At scale (1M boxes):</b> At 500K pings/sec checking 500 zones, compaction saves ~24µs per ping = 12 CPU-seconds per second saved. That's roughly 1–2 fewer server instances ($200–$500/month).</div>
+  </div>
+</div>
+
+<div class="card" id="f-area">
+  <div class="card-head"><h2>15. Density Normalization <span class="tag t-h3">H3</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>H3 function:</b> <code>cellArea(cell, unit)</code></p>
+    <p><b>What it is:</b> Returns the exact area of a hex cell in square meters or square kilometers. H3 hexagons are nearly equal in area, but not perfectly — cells near the poles are slightly different from cells near the equator.</p>
+    <p><b>How we use it in GrubData:</b> When showing heatmap density, raw event counts can be misleading. A cell with 50 events that covers 0.05 km² is much more dense than a cell with 50 events covering 0.2 km². cellArea lets us normalize: incidents per square kilometer instead of raw count. This gives a fair density comparison across the map.</p>
+    <p><b>Where:</b> Dashboard heatmap analytics — converting raw counts to density values for accurate visualization. Also useful for coverage area calculations in reports.</p>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. Pure math function, runs in microseconds.</div>
+    <div class="line"><b>Without this:</b> Heatmaps show raw counts — misleading for government reports. "Area X has 50 events" looks the same as "Area Y has 50 events" even if X is 10x smaller. To fix this without H3, you'd need custom spatial area calculations per grid cell, which is complex geometry math.</div>
+    <div class="line"><b>With this:</b> One function call per cell gives exact area. Divide count by area = true density. Accurate government analytics reports with zero additional cost.</div>
+    <div class="line"><b>Efficiency gain:</b> Accurate density metrics instead of misleading raw counts. System part affected: dashboard analytics, heatmap rendering, exported reports.</div>
+  </div>
+</div>
+
+<div class="card" id="f-griddist">
+  <div class="card-head"><h2>16. Cell-Level Distance <span class="tag t-h3">H3</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>H3 function:</b> <code>gridDistance(cellA, cellB)</code></p>
+    <p><b>What it is:</b> Returns how many hex "steps" apart two cells are. Not meters — hex steps. If gridDistance is 1, they are direct neighbors. If it's 5, they are 5 hexagons apart. This is way faster than calculating actual geographic distance.</p>
+    <p><b>How we use it in GrubData:</b> Quick proximity check without involving PostGIS. "Is this face detection within 3 cells of the previous one?" If yes, they might be related — cluster them. If gridDistance is 50, they are far apart — separate incidents. Also used to determine the k value for gridDisk (how many rings to search for nearby boxes).</p>
+    <p><b>Where:</b> Incident clustering logic, nearby search ring calculation, movement path gap detection ("suspect jumped 20 cells — that's suspicious").</p>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. In-memory integer comparison.</div>
+    <div class="line"><b>Without this:</b> Every proximity check requires Haversine distance calculation (trig functions) or PostGIS call. At millions of comparisons per second for clustering, that's heavy CPU or DB load.</div>
+    <div class="line"><b>With this:</b> gridDistance is a single integer comparison — 10,000x faster than geographic distance. Use it as a fast pre-filter, only compute real distance for the few that pass.</div>
+    <div class="line"><b>Efficiency gain:</b> 10,000x faster proximity checks vs Haversine. System part affected: incident clustering, search result grouping, nearby box k-ring sizing.</div>
+  </div>
+</div>
+
+<div class="card" id="f-validate">
+  <div class="card-head"><h2>17. Cell Validation and Resolution <span class="tag t-h3">H3</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>H3 functions:</b> <code>isValidCell(cell)</code> and <code>getResolution(cell)</code></p>
+    <p><b>What it is:</b> isValidCell checks if a cell ID is a real H3 cell (not corrupted or garbage data). getResolution tells you what resolution level a cell is at (0-15).</p>
+    <p><b>How we use it in GrubData:</b> Input validation. When the frontend sends a cell ID (e.g., for a heatmap click or geofence lookup), we validate it before querying. When processing mixed-resolution data from compacted zones, getResolution tells us which cells need uncompacting. Basic safety — never trust input, always validate.</p>
+    <p><b>Where:</b> API input validation middleware, geofence processing, data integrity checks on stored H3 values.</p>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. Utility functions, nanosecond execution.</div>
+    <div class="line"><b>Without this:</b> Invalid cell IDs reaching the database cause failed queries, wasted CPU cycles, and potentially incorrect results. Debugging bad H3 data in production is expensive in engineer time.</div>
+    <div class="line"><b>With this:</b> Catch bad data at the API boundary before it touches the database. Prevents garbage-in-garbage-out. getResolution ensures mixed-resolution data from compacted zones is handled correctly.</div>
+    <div class="line"><b>Efficiency gain:</b> Prevents downstream errors. System part affected: all API endpoints accepting H3 cell parameters, data migration scripts.</div>
+  </div>
+</div>
+
+<!-- POSTGIS FEATURES -->
+<div class="card" id="f-polygon">
+  <div class="card-head"><h2>18. Exact Polygon Containment <span class="tag t-pg">PostGIS</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Was the driver exactly inside the restricted compound? Not approximately — exactly.</p>
+    <p><b>Why PostGIS:</b> H3 gives approximate containment (hex boundaries don't match real zone shapes). PostGIS uses ST_Contains(zone_polygon, driver_point) for precise geometric truth. If a court asks "was this vehicle inside the zone?" — you need PostGIS-level accuracy.</p>
+    <p><b>Where in GrubData:</b> Geofence validation (after H3 pre-check), evidence boundary checks, legal-grade location proof.</p>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. PostGIS is a free extension on our existing PostgreSQL. No new service, no license.</div>
+    <div class="line"><b>Without this:</b> H3 containment is approximate — a hex cell might overlap the zone boundary. For government/legal evidence, "approximately inside" is not acceptable. Commercial GIS containment services (Esri, Google Maps) charge per API call — at scale, $5,000–$20,000/month.</div>
+    <div class="line"><b>With this:</b> ST_Contains runs inside our own database. Zero per-query cost. Legally defensible, meter-accurate. Combined with H3 pre-filter (Section 8), PostGIS only runs on 1% of checks.</div>
+    <div class="line"><b>Efficiency gain:</b> Government-grade accuracy at zero marginal cost. System part affected: geofence validation, evidence reports, audit logs.</div>
+  </div>
+</div>
+
+<div class="card" id="f-evidence">
+  <div class="card-head"><h2>19. Evidence Boundary Validation <span class="tag t-pg">PostGIS</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Was the event inside the official investigation zone? Government evidence needs exact geographic truth.</p>
+    <p><b>Example:</b> Court asks: "Was this ANPR detection within the investigation perimeter?" PostGIS gives the answer with meter-level precision.</p>
+    <p><b>Where in GrubData:</b> Validation layer on search results before they're included in evidence reports (<code>evidence_reports</code> table).</p>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. Same PostGIS extension.</div>
+    <div class="line"><b>Without this:</b> Evidence validation done manually by officers checking maps. Error-prone, slow, not auditable. If challenged in court, there's no systematic proof. Hiring GIS analysts for evidence validation: $5,000–$10,000/month per analyst.</div>
+    <div class="line"><b>With this:</b> Automated ST_Contains check on every evidence item. Results are logged with exact coordinates and containment proof. Court-ready, zero manual effort.</div>
+    <div class="line"><b>Efficiency gain:</b> Eliminates manual evidence-location verification. System part affected: <code>evidence_reports</code> creation pipeline, search result validation.</div>
+  </div>
+</div>
+
+<div class="card" id="f-camera">
+  <div class="card-head"><h2>20. Camera Coverage Polygons <span class="tag t-pg">PostGIS</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Each camera on the GrubPac box sees a specific cone/region. Represent that as a polygon.</p>
+    <p><b>Use:</b> "Did the suspect pass through the visible region of camera 3?" → ST_Contains(camera_polygon, suspect_point). Camera forensic analysis — proving a camera could or could not have captured something.</p>
+    <p><b>Where in GrubData:</b> New <code>camera_coverage</code> table linked to boxes. Admin draws FOV polygon per camera.</p>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. PostGIS polygon storage + ST_Contains queries.</div>
+    <div class="line"><b>Without this:</b> No way to know which camera could have seen a specific location. Officers manually check camera angles by watching video. With 4 cameras per box × 1M boxes = 4M camera FOVs to reason about.</div>
+    <div class="line"><b>With this:</b> Each camera's field of view is a stored polygon. Query: "Which cameras could see this point?" → instant spatial lookup. Useful for forensic analysis and evidence completeness.</div>
+    <div class="line"><b>Efficiency gain:</b> Automated camera relevance detection. System part affected: new <code>camera_coverage</code> table, search result enrichment.</div>
+    <div class="line"><b>At scale (1M boxes):</b> 4M camera FOV polygons with GIST index — spatial queries still return in &lt;10ms. No external service needed.</div>
+  </div>
+</div>
+
+<div class="card" id="f-distance">
+  <div class="card-head"><h2>21. Exact Distances <span class="tag t-pg">PostGIS</span> <span class="tag t-ex">Existing + Enhanced</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Need "184 meters" — not an approximation. PostGIS ST_Distance gives exact meter-level distance between any two geographic points.</p>
+    <p><b>Today:</b> We use earthdistance extension — works but less accurate and no spatial index. PostGIS replaces this with GIST-indexed geography type.</p>
+    <p><b>Where in GrubData:</b> Replaces <code>earth_distance(ll_to_earth(...), ll_to_earth(...))</code> in <code>boxes.repository.ts</code> with <code>ST_DWithin</code> + <code>ST_Distance</code>. Also used for nearest dispatch accuracy.</p>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0. Replaces existing earthdistance extension with better PostGIS equivalent.</div>
+    <div class="line"><b>Without this (today):</b> Current <code>earth_distance(ll_to_earth(lat,lon), ll_to_earth(lat,lon))</code> works but has no GIST spatial index — it does a full table scan filtered by distance. With 1M boxes, nearby-box query takes 200–500ms.</div>
+    <div class="line"><b>With this:</b> PostGIS geography column with GIST index. <code>ST_DWithin(geom, point, 5000)</code> uses the spatial index — returns in 2–5ms regardless of table size. 100x faster.</div>
+    <div class="line"><b>Efficiency gain:</b> 100x faster nearby box queries. System part affected: <code>boxes.repository.ts</code> findBoxesNearLocation (lines 24–67).</div>
+    <div class="line"><b>At scale (1M boxes):</b> Eliminates the need for a read replica dedicated to spatial queries. Saves $500–$2,000/month in DB compute.</div>
+  </div>
+</div>
+
+<!-- VALHALLA FEATURES -->
+<div class="card" id="f-match">
+  <div class="card-head"><h2>22. Route Matching (GPS to Road) <span class="tag t-vh">Valhalla</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Raw GPS is noisy. A vehicle reports a position in the middle of a building. Route matching snaps those GPS points to the nearest real road, giving you the actual path the vehicle took.</p>
+    <p><b>How:</b> Send a batch of GPS pings to Valhalla's trace_route API → get back a road-snapped LineString geometry.</p>
+    <p><b>Where in GrubData:</b> New <code>infra/routing.ts</code> HTTP client. Results stored in <code>driver_routes</code> table as PostGIS LineString.</p>
+    <p><b>Use cases:</b> Vehicle route truth, evidence-grade path reconstruction, deviation detection input.</p>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> Valhalla Docker container = ~$50–$150/month compute (t3.medium or equivalent). OpenStreetMap road data = $0 (free download, UAE extract ~200MB).</div>
+    <div class="line"><b>Without this:</b> Google Roads API for map-matching: $0.01 per request. At 1M drivers × 30 pings/min = 30M requests/hour = $300K/hour = completely impossible at scale. Even at 1K drivers: $300/hour.</div>
+    <div class="line"><b>With this:</b> Valhalla trace_route handles thousands of requests/sec on a single container. Fixed cost regardless of volume. Process GPS batches in bulk (1 call per route, not per ping).</div>
+    <div class="line"><b>Efficiency gain:</b> Fixed $150/month vs $300K+/hour on Google. System part affected: new <code>infra/routing.ts</code>, <code>driver_routes</code> table.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Self-hosted Valhalla at $150/month replaces Google Roads at millions/month. Even adding 3 Valhalla replicas for redundancy = $450/month total.</div>
+  </div>
+</div>
+
+<div class="card" id="f-eta">
+  <div class="card-head"><h2>23. ETA and Path Routing <span class="tag t-vh">Valhalla</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Estimate arrival time and find the best route from A to B by actual roads.</p>
+    <p><b>Why not just H3:</b> H3 gives air distance. In Dubai's road network, air distance is misleading — highways, one-way streets, water crossings. Valhalla knows the actual road graph.</p>
+    <p><b>Where in GrubData:</b> Used by dispatch feature to rank drivers. "Driver A is 3 min by road. Driver B is 8 min by road. Send Driver A."</p>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> Same Valhalla container ($50–$150/month). No additional cost.</div>
+    <div class="line"><b>Without this:</b> Google Directions API: $0.005–$0.01 per route request. Google Distance Matrix: $0.005 per element. For dispatch (8 drivers × 1 incident = 8 elements): $0.04 per dispatch. At 10,000 dispatches/day = $400/day = $12,000/month. At scale with 1M boxes generating incidents: hundreds of thousands per month.</div>
+    <div class="line"><b>With this:</b> Valhalla route API — unlimited requests on self-hosted container. 8-driver matrix computed in ~50ms. Zero per-request cost.</div>
+    <div class="line"><b>Efficiency gain:</b> Unlimited route calculations at fixed cost. System part affected: dispatch endpoint, incident response workflow.</div>
+  </div>
+</div>
+
+<div class="card" id="f-dispatch">
+  <div class="card-head"><h2>24. Route-Aware Dispatch <span class="tag t-h3">H3</span> <span class="tag t-rd">Redis</span> <span class="tag t-vh">Valhalla</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Dispatch the nearest driver by road — not by straight-line distance.</p>
+    <p><b>Example:</b> Driver A is 500m away physically but 10 min by road (wrong side of highway). Driver B is 1km away but 3 min by road (direct access). Send Driver B.</p>
+    <p><b>How:</b> H3+Redis finds candidates in under 1ms (air proximity). Valhalla's sources_to_targets gives actual drive-time for each. Rank by ETA. Best driver gets dispatched.</p>
+    <p><b>Where in GrubData:</b> New dispatch endpoint combining all three layers.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    A["Incident location\nreported"] --> B["H3 + Redis:\nfind all drivers\nnear incident\nunder 1 millisecond"]
+    B --> C["8 drivers found\nwithin ~3km air distance"]
+    C --> D["Valhalla calculates\nactual road ETA\nfor each driver"]
+    D --> E["Driver A: 10 min\nDriver B: 3 min\nDriver C: 7 min\nDriver D: 4 min"]
+    E --> F["Dispatch Driver B\nnearest by ROAD\nnot by air"]
+
+    style B fill:#E8F5E9
+    style D fill:#F3E5F5
+    </pre>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> $0 combined — all three layers (H3 + Redis + Valhalla) are already running for other features.</div>
+    <div class="line"><b>Without this:</b> Commercial dispatch platforms (HERE Fleet, Google OR-Tools Cloud): $0.50–$2 per dispatch request with road-aware routing. At 10K dispatches/day = $5K–$20K/month. They also require sending your driver GPS to a third-party — government security concern.</div>
+    <div class="line"><b>With this:</b> Entirely self-hosted. No data leaves your infrastructure. Under 100ms total (1ms H3+Redis + 50ms Valhalla). Unlimited dispatches at zero marginal cost.</div>
+    <div class="line"><b>Efficiency gain:</b> Combines all 3 tools for the most impactful feature. System part affected: new dispatch endpoint, integrates live tracking + routing + nearby search.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Government-grade dispatch system at $200/month total infrastructure vs $20K–$100K/month on commercial platforms. All data stays on-premise.</div>
+  </div>
+</div>
+
+<div class="card" id="f-suspect">
+  <div class="card-head"><h2>25. Suspect Path Estimation <span class="tag t-vh">Valhalla</span> <span class="tag t-new">New</span></h2></div>
+  <div class="info">
+    <p><b>What it is:</b> Based on the road graph — can this suspect reach a certain checkpoint in 5 minutes? Which areas can they reach from their last known location?</p>
+    <p><b>How:</b> Valhalla's isochrone API generates a polygon of all reachable areas from a point within N minutes of driving. Overlay that on the map to see where the suspect could be.</p>
+    <p><b>Where in GrubData:</b> Forensic analysis tool. Feed last known suspect location + time budget → get reachable area polygon.</p>
+  </div>
+  <div class="cost-box">
+    <div class="line"><b>Library cost:</b> Same Valhalla container. Isochrone API is built-in.</div>
+    <div class="line"><b>Without this:</b> Google Maps isochrone: not publicly available as API. HERE isochrone API: $0.50 per request. TomTom reachable range: $0.42 per request. For real-time suspect tracking with multiple time scenarios: $5–$10 per suspect per analysis. Manual alternative: officers guess based on experience.</div>
+    <div class="line"><b>With this:</b> Valhalla isochrone returns reachable polygon in ~200ms. Unlimited calls. Overlay on map shows exactly where suspect could be. Run multiple time scenarios (3 min, 5 min, 10 min) for $0.</div>
+    <div class="line"><b>Efficiency gain:</b> Instant forensic analysis vs guesswork. System part affected: forensic analysis tool, investigation dashboard.</div>
+    <div class="line"><b>At scale (1M boxes):</b> Every investigation gets world-class reachability analysis at zero per-use cost. Previously only available to agencies with $100K+ GIS budgets.</div>
+  </div>
+</div>
+
+<!-- SCHEMA -->
+<div class="card" id="schema">
+  <div class="card-head"><h2>26. Database Changes</h2></div>
+  <div class="info">
+    <p><b>Existing tables modified:</b> <code>boxes</code> gets h3_index + PostGIS geom column. <code>search_job_results</code> gets h3_index generated column.</p>
+    <p><b>New tables:</b> geo_zones, face_observations, plate_observations, driver_pings, driver_routes, camera_coverage. All go in a new migration file <code>002_geo.sql</code>.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+erDiagram
+    boxes {
+        uuid id PK
+        text box_id_code
+        float latitude
+        float longitude
+        bigint h3_index_r9 "NEW"
+        geography geom "NEW PostGIS point"
+    }
+    geo_zones {
+        uuid id PK
+        uuid tenant_id FK
+        text name
+        text kind
+        geography geom "PostGIS polygon"
+        bigint_arr h3_cells "H3 cell array"
+    }
+    face_observations {
+        uuid id PK
+        text face_id
+        bigint h3_index_r9
+        uuid box_id FK
+        text camera_id
+        timestamptz observed_at
+    }
+    plate_observations {
+        uuid id PK
+        text plate_text
+        bigint h3_index_r9
+        uuid box_id FK
+        timestamptz observed_at
+    }
+    driver_pings {
+        uuid id PK
+        text driver_id
+        float lat
+        float lon
+        bigint h3_index_r9
+        float speed
+        timestamptz ts
+    }
+    driver_routes {
+        uuid id PK
+        text driver_id
+        geography geom "road LineString"
+        date route_date
+    }
+    camera_coverage {
+        uuid id PK
+        uuid box_id FK
+        text camera_id
+        geography geom "FOV polygon"
+    }
+    boxes ||--o{ camera_coverage : "has cameras"
+    boxes ||--o{ face_observations : "detected at"
+    boxes ||--o{ plate_observations : "detected at"
+    </pre>
+  </div>
+</div>
+
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme:'base',
+  themeVariables:{
+    primaryColor:'#E3F2FD',primaryTextColor:'#1a1a2e',primaryBorderColor:'#1565C0',
+    lineColor:'#78909C',secondaryColor:'#F3E5F5',tertiaryColor:'#FFF8E1',fontSize:'13px'
+  },
+  flowchart:{useMaxWidth:true,htmlLabels:true,curve:'basis',nodeSpacing:50,rankSpacing:60},
+  er:{useMaxWidth:true}
+});
+</script>
+</body>
+</html>
