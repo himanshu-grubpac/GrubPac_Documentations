@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrubData — Data Entry &amp; Flow Architecture (Miro Screenshots)</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f6f8;color:#1a1a2e;line-height:1.65}
+.hdr{background:linear-gradient(135deg,#1a1a2e,#1565C0);color:#fff;padding:44px 28px;text-align:center}
+.hdr h1{font-size:28px;font-weight:700;margin-bottom:6px}
+.hdr p{font-size:14px;opacity:.9;max-width:860px;margin:0 auto}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 20px}
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(0,0,0,.05);margin-bottom:24px;overflow:hidden}
+.card-head{padding:20px 26px 0}
+.card-head h2{font-size:18px;margin-bottom:6px}
+.card-body{padding:10px 26px 24px;overflow-x:auto}
+.info{font-size:13px;color:#444;margin-bottom:14px;padding:11px 15px;background:#f7f9fc;border-radius:8px;border-left:4px solid #1565C0}
+.info b{color:#1a1a2e}
+.info p{margin:3px 0}
+.shot{background:#E3F2FD;border:2px dashed #1565C0;border-radius:10px;padding:10px 14px;font-size:12px;color:#0D47A1;margin-bottom:14px}
+.shot b{display:block;font-size:13px;margin-bottom:4px}
+.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;margin:2px 4px 2px 0}
+.t-pg{background:#E3F2FD;color:#1565C0}.t-api{background:#E8F5E9;color:#2E7D32}
+.t-fe{background:#F3E5F5;color:#6A1B9A}.t-s3{background:#FBE9E7;color:#BF360C}
+.t-wrk{background:#FFF8E1;color:#F57F17}.t-sys{background:#ECEFF1;color:#37474F}
+.t-kaf{background:#EDE7F6;color:#4A148C}.t-new{background:#FFF3E0;color:#E65100}
+.toc{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(0,0,0,.05);padding:20px 26px;margin-bottom:24px}
+.toc h3{font-size:15px;margin-bottom:12px}
+.toc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px 20px}
+.toc-grid a{display:block;padding:2px 0;color:#1565C0;text-decoration:none;font-size:12px}
+.toc-grid a:hover{text-decoration:underline}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0}
+th,td{border:1px solid #e0e0e0;padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#f7f9fc;font-weight:600}
+.grp{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin:12px 0}
+.gbox{background:#f7f9fc;border:1px solid #e8ecf0;border-radius:10px;padding:12px 14px}
+.gbox h4{font-size:13px;color:#1565C0;margin-bottom:6px}
+.gbox ul{font-size:12px;color:#444;padding-left:18px}
+.gbox li{margin:2px 0}
+.legend{display:flex;flex-wrap:wrap;gap:12px;padding:14px 26px;border-top:1px solid #eee;font-size:11.5px;color:#555}
+@media(max-width:900px){.toc-grid{grid-template-columns:repeat(2,1fr)}}
+@media print{body{background:#fff}.card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>GrubData — Data Entry &amp; Flow Architecture</h1>
+  <p>Where data enters PostgreSQL, S3, and the future observability stack. Built for Miro screenshots — open in browser, screenshot each section, paste on the board.</p>
+</div>
+
+<div class="wrap">
+
+<div class="toc">
+  <h3>Sections (screenshot order for Miro)</h3>
+  <div class="toc-grid">
+    <a href="#master">1. Master flow (today)</a>
+    <a href="#entry-summary">2. All entry points</a>
+    <a href="#tables">3. Table groups</a>
+    <a href="#auth">4. Auth &amp; sessions</a>
+    <a href="#rbac">5. RBAC &amp; employees</a>
+    <a href="#search">6. Search pipeline</a>
+    <a href="#video">7. Video &amp; media</a>
+    <a href="#gov">8. Governance &amp; admin</a>
+    <a href="#audit">9. Audit logs</a>
+    <a href="#external">10. S3 &amp; AWS (non-DB)</a>
+    <a href="#async">11. Async / worker paths</a>
+    <a href="#deploy">12. CI/CD blue-green</a>
+    <a href="#obs">13. Target observability</a>
+    <a href="#short">14. Short summary</a>
+  </div>
+  <div class="info" style="margin-top:12px"><p><b>Schema source:</b> <code>grubdata-backend/src/db/migrations/001_main_schema.sql</code> — 27 tables + 3 materialized views. Column legend: <b>Data kind</b> · <b>What gets added/flows</b> · <b>Op</b> (INSERT / UPDATE / READ).</p></div>
+</div>
+
+<!-- 1 MASTER -->
+<div class="card" id="master">
+  <div class="card-head"><h2>1. Master Flow — Today (Production)</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 1</b>Live user data path — government officer → portal → database</div>
+  <div class="info"><p>Officer uses browser → Next.js → nginx (EC2 :80) → Express API → PostgreSQL. Video files live in S3; DB stores metadata and search results only.</p></div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    U["Government user\n(browser)"] --> FE["Next.js frontend\n:3001 blue/green"]
+    FE --> NGX["nginx :80\n/api → backend\n/ → frontend"]
+    NGX --> API["Express API\n/api/v1"]
+    API --> PG[("PostgreSQL\n27 tables")]
+    API --> SQS["SQS optional\nAWS_SQS_SEARCH_QUEUE_URL"]
+    SQS --> WRK["Search worker\nsame API process"]
+    WRK --> PG
+    WRK --> S3
+    WRK --> REK["AWS Rekognition\nface mode only"]
+    API --> S3[("AWS S3\nuploads + media")]
+    API --> LOG["Winston JSON\nstdout → Docker logs"]
+    </pre>
+  </div>
+  <div class="legend">
+    <span><span class="tag t-fe">Frontend</span> UI only — no direct DB</span>
+    <span><span class="tag t-api">API</span> all Postgres writes</span>
+    <span><span class="tag t-pg">Postgres</span> system of record</span>
+    <span><span class="tag t-s3">S3</span> binary media</span>
+  </div>
+  <table>
+    <tr><th>Hop</th><th>Data kind</th><th>What flows</th><th>Stored in</th></tr>
+    <tr><td>Browser → Frontend</td><td>UI input</td><td>Forms, search params, cookies, file picks</td><td>Memory only → API calls</td></tr>
+    <tr><td>Frontend → API</td><td>JSON + multipart</td><td>Login creds, search jobs, employee records, video requests</td><td>Postgres rows</td></tr>
+    <tr><td>API → Postgres</td><td>Structured relational</td><td>Users, jobs, results, audit, RBAC, video metadata</td><td>27 tables (+ 3 mat. views)</td></tr>
+    <tr><td>Worker → S3</td><td>Binary media</td><td>MP4 segments, ANPR clips, surveillance footage</td><td>S3 objects</td></tr>
+    <tr><td>Worker → Postgres</td><td>Search results JSON</td><td>search_job_results.payload — plateText, videoFilename, location, matchScore, etc.</td><td>search_job_results</td></tr>
+    <tr><td>Worker → Rekognition</td><td>Face match</td><td>When mode=face and AWS_REKOGNITION_COLLECTION_ID set</td><td>Scores in search_job_results.payload</td></tr>
+    <tr><td>API → stdout</td><td>JSON log lines</td><td>requestId, level, message, errors</td><td>Docker logs → Loki target</td></tr>
+  </table>
+</div>
+
+<!-- 2 ENTRY SUMMARY -->
+<div class="card" id="entry-summary">
+  <div class="card-head"><h2>2. All PostgreSQL Entry Points (Writers)</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 2</b>Every path that INSERT/UPDATEs Postgres — 8 writers</div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    PG[("PostgreSQL")]
+
+    W1["① Frontend → REST API"] --> PG
+    W2["② Auth service\nlogin / logout / refresh"] --> PG
+    W3["③ Search worker"] --> PG
+    W4["④ Audit sink batch"] --> PG
+    W5["⑤ Bootstrap seed"] --> PG
+    W6["⑥ Admin API"] --> PG
+    W7["⑦ Video request service"] --> PG
+    W8["⑧ Migrations DDL"] --> PG
+
+    FE["Next.js UI"] --> W1
+    LOGIN["Login / logout"] --> W2
+    SQS["SQS or DB poll\nno SQS URL"] --> W3
+    HANDLERS["All API handlers"] --> W4
+    START["First API boot"] --> W5
+    ERP["GrubPac API key"] --> W6
+    VR["Video request UI"] --> W7
+    DEPLOY["npm run migrate"] --> W8
+    </pre>
+  </div>
+  <table>
+    <tr><th>#</th><th>Entry path</th><th>Data kind</th><th>What gets added</th><th>Tables</th><th>Op</th></tr>
+    <tr><td>1</td><td><span class="tag t-fe">Frontend</span> → API</td><td>Business transactions</td><td>Search params, employee profiles, saved hits, role defs</td><td>Feature tables</td><td>INSERT/UPDATE</td></tr>
+    <tr><td>2</td><td>Auth service</td><td>Identity &amp; session</td><td>refresh_token_hash, user_agent, ip, last_login_at, failed_attempts, token_jti</td><td>auth_users, auth_sessions, revoked_access_tokens</td><td>INSERT/UPDATE</td></tr>
+    <tr><td>3</td><td>Search worker</td><td>Job lifecycle + hits</td><td>Progress %, status, plate/face match payloads, coords</td><td>search_jobs, search_job_results</td><td>INSERT/UPDATE</td></tr>
+    <tr><td>4</td><td>Audit sink</td><td>Compliance events</td><td>action, status, IP, requestId, metadata JSON</td><td>audit_logs</td><td>INSERT batch</td></tr>
+    <tr><td>5</td><td>Bootstrap</td><td>Seed config</td><td>Default tenant, admin user, permissions, roles</td><td>tenants, roles, permissions, auth_users</td><td>INSERT once</td></tr>
+    <tr><td>6</td><td>Admin API</td><td>Tenant provisioning</td><td>New org, features, grants, org tree, API keys</td><td>tenants, org_units, tenant_features, grants</td><td>INSERT</td></tr>
+    <tr><td>7</td><td>Video service</td><td>Video workflow</td><td>Request window, clip items, media keys, fulfillment status</td><td>video_requests, video_request_items, media_assets</td><td>INSERT/UPDATE</td></tr>
+    <tr><td>8</td><td>Migrations</td><td>Schema DDL</td><td>Table/column definitions, indexes — not user content</td><td>schema_migrations</td><td>DDL</td></tr>
+  </table>
+  <div class="info"><p><b>Not Postgres:</b> Raw video bytes → S3. Face index → Rekognition. Future metrics → Prometheus. Future events → Kafka. Logs → stdout (→ Loki target).</p></div>
+</div>
+
+<!-- 3 TABLES -->
+<div class="card" id="tables">
+  <div class="card-head"><h2>3. Database Table Groups (Schema Clusters)</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 3</b>Six boxes on Miro — one per group. Also screenshot pgAdmin table list per group.</div>
+  <div class="grp">
+    <div class="gbox"><h4>A — Identity &amp; tenancy</h4><ul>
+      <li>tenants, tenant_features</li>
+      <li>auth_users, employees</li>
+      <li>auth_sessions, revoked_access_tokens</li>
+    </ul></div>
+    <div class="gbox"><h4>B — RBAC</h4><ul>
+      <li>roles, permissions</li>
+      <li>role_permissions, role_permission_config</li>
+      <li>employee_roles</li>
+    </ul></div>
+    <div class="gbox"><h4>C — Org &amp; cross-tenant</h4><ul>
+      <li>org_units, employee_org_scopes</li>
+      <li>cross_tenant_access_requests</li>
+      <li>cross_tenant_access_grants</li>
+    </ul></div>
+    <div class="gbox"><h4>D — Search &amp; results</h4><ul>
+      <li>search_jobs, search_job_results</li>
+      <li>search_job_selections, saved_search_hits</li>
+      <li>locations, boxes</li>
+    </ul></div>
+    <div class="gbox"><h4>E — Video &amp; evidence</h4><ul>
+      <li>video_requests, video_request_items</li>
+      <li>media_assets, evidence_reports</li>
+    </ul></div>
+    <div class="gbox"><h4>F — Ops &amp; integrations</h4><ul>
+      <li>audit_logs</li>
+      <li>api_keys</li>
+      <li>dashboard_rollup_* (materialized views)</li>
+    </ul></div>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TB
+    subgraph A["A Identity"]
+        tenants --> auth_users --> employees
+        auth_sessions
+        revoked_access_tokens
+    end
+    subgraph D["D Search"]
+        search_jobs --> search_job_results
+        saved_search_hits
+        boxes
+    end
+    subgraph E["E Video"]
+        video_requests --> video_request_items
+        media_assets
+    end
+    employees --> search_jobs
+    employees --> audit_logs
+    search_job_results --> saved_search_hits
+    search_job_results --> video_request_items
+    </pre>
+  </div>
+  <table>
+    <tr><th>Group</th><th>Data kind</th><th>What is stored (examples)</th><th>Tables</th></tr>
+    <tr><td>A Identity</td><td>Accounts &amp; sessions</td><td>email, password_hash, role_key, refresh token, tenant slug</td><td>tenants, auth_users, employees, auth_sessions</td></tr>
+    <tr><td>B RBAC</td><td>Access control</td><td>permission keys, role names, module configs JSON</td><td>roles, permissions, role_permissions</td></tr>
+    <tr><td>C Org</td><td>Hierarchy &amp; sharing</td><td>org tree, cross-tenant justification, grant level</td><td>org_units, cross_tenant_access_*</td></tr>
+    <tr><td>D Search</td><td>Investigation data</td><td>mode, parameters/parameters_snapshot JSON, hit payloads (plateText, videoFilename, location, matchScore)</td><td>search_jobs, search_job_results, boxes (read via API)</td></tr>
+    <tr><td>E Video</td><td>Clip workflow</td><td>date range, camera ID, S3 key, request status, evidence reason</td><td>video_requests, media_assets, evidence_reports</td></tr>
+    <tr><td>F Ops</td><td>Ops &amp; integration</td><td>audit actions, API key hash, hourly search counts (rollup)</td><td>audit_logs, api_keys, dashboard_rollup_*</td></tr>
+  </table>
+</div>
+
+<!-- 4 AUTH -->
+<div class="card" id="auth">
+  <div class="card-head"><h2>4. Auth &amp; Sessions — Data Entry</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 4</b></div>
+  <div class="card-body">
+    <pre class="mermaid">
+sequenceDiagram
+    participant U as User browser
+    participant FE as Frontend
+    participant API as Auth API
+    participant PG as PostgreSQL
+
+    U->>FE: POST /login
+    FE->>API: POST /api/v1/auth/login
+    API->>PG: SELECT auth_users, employees
+    API->>PG: INSERT auth_sessions
+    API->>PG: UPDATE auth_users last_login
+    API->>PG: INSERT audit_logs via audit sink
+    API-->>FE: httpOnly cookies access+refresh
+
+    U->>FE: POST /logout
+    FE->>API: POST /api/v1/auth/logout
+    API->>PG: UPDATE auth_sessions revoked_at
+    API->>PG: INSERT revoked_access_tokens
+    </pre>
+  </div>
+  <table>
+    <tr><th>Action</th><th>Data kind</th><th>What gets added</th><th>Table</th><th>Op</th></tr>
+    <tr><td>Login</td><td>Session + identity</td><td>refresh_token_hash, user_agent, IP, last_login_at</td><td>auth_sessions, auth_users</td><td>INSERT/UPDATE</td></tr>
+    <tr><td>Refresh</td><td>Rotated session</td><td>Revoke old session (refresh_token_hash), INSERT new auth_sessions row, new token pair</td><td>auth_sessions</td><td>UPDATE/INSERT</td></tr>
+    <tr><td>Logout</td><td>Revocation</td><td>revoked_at on session, access token JTI</td><td>auth_sessions, revoked_access_tokens</td><td>UPDATE/INSERT</td></tr>
+    <tr><td>Failed login</td><td>Security counter</td><td>failed_attempts++, locked_until, audit ERROR</td><td>auth_users, audit_logs</td><td>UPDATE/INSERT</td></tr>
+  </table>
+</div>
+
+<!-- 5 RBAC -->
+<div class="card" id="rbac">
+  <div class="card-head"><h2>5. RBAC &amp; Employees — Data Entry</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 5</b></div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    FE["Frontend\nEmployees / Roles pages"] --> API["employees.* / roles.* API"]
+    API --> AU["INSERT/UPDATE auth_users"]
+    API --> EM["INSERT/UPDATE employees"]
+    API --> ER["INSERT employee_roles"]
+    API --> RO["INSERT/UPDATE roles"]
+    API --> RP["INSERT role_permissions\nrole_permission_config"]
+    AU --> PG[("PostgreSQL")]
+    EM --> PG
+    ER --> PG
+    RO --> PG
+    RP --> PG
+    API --> AL["audit_logs"]
+    AL --> PG
+    </pre>
+  </div>
+  <table>
+    <tr><th>Feature</th><th>Data kind</th><th>What gets added</th><th>Tables</th><th>Op</th></tr>
+    <tr><td>Add employee</td><td>Person + account</td><td>name, email, phone, employee_code, password_hash, role assignment</td><td>auth_users, employees, employee_roles</td><td>INSERT</td></tr>
+    <tr><td>Edit / suspend / delete</td><td>HR status</td><td>status active/suspended/deleted, suspension reason, is_active flag</td><td>employees, auth_users</td><td>UPDATE</td></tr>
+    <tr><td>Create / edit role</td><td>Permission matrix</td><td>role_key, permission keys, per-permission config JSON</td><td>roles, role_permissions, role_permission_config</td><td>INSERT/UPDATE</td></tr>
+    <tr><td>Assign role</td><td>Role binding</td><td>user_id + role_id link, primary flag, role_key sync</td><td>employee_roles, auth_users</td><td>INSERT/UPDATE</td></tr>
+  </table>
+</div>
+
+<!-- 6 SEARCH -->
+<div class="card" id="search">
+  <div class="card-head"><h2>6. Search Pipeline — Data Entry (ANPR · Face · Surveillance)</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 6</b>Highest-volume path when government users go live</div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    FE["Frontend search pages"] --> API["POST /search/*\ncreateSearchJob"]
+    API --> SJ["INSERT search_jobs\nstatus=queued"]
+    API --> Q["enqueueSearchJob\nSQS if URL set"]
+    Q --> WRK["search.worker.ts\nor DB poll fallback"]
+    WRK --> S3["READ S3\n{prefix}-{tenantId}\ntest-videos/ · test-videos-anpr/"]
+    WRK --> REK["Rekognition\nface mode"]
+    WRK --> SJ2["UPDATE search_jobs\nprogress, status"]
+    WRK --> RES["INSERT search_job_results\npayload JSON per hit"]
+    SJ --> PG[("PostgreSQL")]
+    SJ2 --> PG
+    RES --> PG
+    FE2["Save hit / selections"] --> API2["saved_search_hits\nsearch_job_selections"]
+    API2 --> PG
+    </pre>
+  </div>
+  <table>
+    <tr><th>Step</th><th>Data kind</th><th>What gets added</th><th>Table / store</th><th>Op</th></tr>
+    <tr><td>Start search</td><td>Job definition</td><td>mode (anpr/face/surveillance), parameters JSON, user_id, org_unit</td><td>search_jobs</td><td>INSERT</td></tr>
+    <tr><td>Worker progress</td><td>Job state</td><td>status, progress_percent, eta_seconds, started/completed timestamps</td><td>search_jobs</td><td>UPDATE</td></tr>
+    <tr><td>Match found</td><td>Hit record</td><td>payload JSON: boxId, plateText, videoFilename, capturedAt, matchScore, location, cameraId, aggregatorName (mode-dependent)</td><td>search_job_results</td><td>INSERT</td></tr>
+    <tr><td>User saves clip</td><td>Bookmark</td><td>user_id + result_id link</td><td>saved_search_hits</td><td>INSERT</td></tr>
+    <tr><td>Map selections</td><td>UI state</td><td>selected_result_ids JSON array</td><td>search_job_selections</td><td>INSERT/UPDATE</td></tr>
+    <tr><td>S3 read (worker)</td><td>Binary video</td><td>ListObjects on bucket <code>grubdata-media-{tenantId}</code>, prefixes from env (default test-videos/, test-videos-anpr/)</td><td>S3</td><td>READ</td></tr>
+  </table>
+</div>
+
+<!-- 7 VIDEO -->
+<div class="card" id="video">
+  <div class="card-head"><h2>7. Video Requests &amp; Media — Data Entry</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 7</b></div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    FE["Requested video UI"] --> API["video-requests API"]
+    API --> VR["INSERT video_requests"]
+    API --> VI["INSERT video_request_items"]
+    WRK["Fulfillment / mock"] --> MA["INSERT media_assets\nmetadata only"]
+    WRK --> S3[("S3 presigned\nvideo bytes")]
+    MA --> PG[("PostgreSQL")]
+    VR --> PG
+    VI --> PG
+    API --> SR["INSERT search_job_results\noptional synthetic rows"]
+    SR --> PG
+    </pre>
+  </div>
+  <table>
+    <tr><th>Action</th><th>Data kind</th><th>What gets added</th><th>Postgres</th><th>S3</th><th>Op</th></tr>
+    <tr><td>Request video</td><td>Workflow header</td><td>date_from, date_to, box_id, search_job link, pending status</td><td>video_requests, video_request_items</td><td>—</td><td>INSERT</td></tr>
+    <tr><td>Clip ready</td><td>Media metadata</td><td>storage_key, mime_type, byte_size, item status available</td><td>media_assets, video_request_items</td><td>video object</td><td>INSERT/UPDATE</td></tr>
+    <tr><td>Stream playback</td><td>Binary stream</td><td>presigned URL or proxy stream — no new DB row</td><td>read metadata</td><td>GET object</td><td>READ</td></tr>
+  </table>
+</div>
+
+<!-- 8 GOV -->
+<div class="card" id="gov">
+  <div class="card-head"><h2>8. Governance, Admin &amp; Dashboard — Data Entry</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 8</b></div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    subgraph GOV["Government tenant"]
+        GU["Govt user"] --> GAPI["POST /governance/*"]
+        GAPI --> REQ["INSERT cross_tenant_access_requests"]
+        GAPI --> GRANT["On approve:\nINSERT cross_tenant_access_grants"]
+        GU --> SRCH["search bulk report\nvideo-request report"]
+        SRCH --> ER["INSERT evidence_reports"]
+    end
+
+    subgraph ADM["GrubPac admin API key"]
+        AK["API key"] --> AAPI["POST /admin/*"]
+        AAPI --> TEN["INSERT tenants, org_units\ntenant_features, roles, permissions"]
+        AAPI --> USR["INSERT auth_users, employees"]
+        AAPI --> KEY["INSERT api_keys"]
+        AAPI --> GRANT2["INSERT cross_tenant_access_grants\n(admin shortcut)"]
+    end
+
+    subgraph DASH["Dashboard"]
+        DU["User"] --> DAPI["GET /dashboard/*\nread rollups"]
+        DU --> REF["POST /dashboard/ops/rollups/refresh"]
+        REF --> MV["REFRESH dashboard_rollup_*"]
+    end
+
+    REQ --> PG[("PostgreSQL")]
+    ER --> PG
+    GRANT --> PG
+    TEN --> PG
+    USR --> PG
+    KEY --> PG
+    GRANT2 --> PG
+    MV --> PG
+    </pre>
+  </div>
+  <table>
+    <tr><th>Path</th><th>Data kind</th><th>What gets added</th><th>Tables</th><th>Op</th></tr>
+    <tr><td>Cross-tenant request</td><td>Access petition</td><td>source_tenant_id, target_tenant_id, justification, status pending</td><td>cross_tenant_access_requests</td><td>INSERT</td></tr>
+    <tr><td>Approve via governance</td><td>Access grant</td><td>grantee_tenant_id, resource_tenant_id, access_level (read_metadata/read_media/full), request_id link</td><td>cross_tenant_access_grants, cross_tenant_access_requests</td><td>INSERT/UPDATE</td></tr>
+    <tr><td>Admin cross-tenant grant</td><td>Direct grant</td><td>Same grant columns — skips request workflow (<code>admin.service grantCrossTenantAccess</code>)</td><td>cross_tenant_access_grants</td><td>INSERT/UPSERT</td></tr>
+    <tr><td>Provision tenant</td><td>Org bootstrap</td><td>tenant name/slug/type, feature flags, default roles, root org_unit, admin user</td><td>tenants, org_units, tenant_features, roles, permissions, auth_users, employees</td><td>INSERT</td></tr>
+    <tr><td>API key (ERP)</td><td>Integration credential</td><td>key_hash, key_prefix, scopes[], label, expires_at</td><td>api_keys</td><td>INSERT</td></tr>
+    <tr><td>Dashboard charts</td><td>Aggregated metrics</td><td>hourly search/saved counts from existing rows — refreshed on demand</td><td>dashboard_rollup_search_hourly, dashboard_rollup_saved_hourly</td><td>REFRESH</td></tr>
+    <tr><td>Evidence report</td><td>Legal submission</td><td>reason, target_result_ids JSON — via search bulk report or video-request report</td><td>evidence_reports</td><td>INSERT</td></tr>
+    <tr><td>Boxes / locations</td><td>Geo hardware (schema)</td><td>boxes: read-only API (<code>GET /boxes/nearby</code>, <code>GET /boxes/:boxIdCode</code>). locations: read in dashboard heatmap — no write API in codebase yet</td><td>boxes, locations</td><td>READ (writes: migration/seed/manual)</td></tr>
+  </table>
+</div>
+
+<!-- 9 AUDIT -->
+<div class="card" id="audit">
+  <div class="card-head"><h2>9. Audit Logs — Universal Write Path</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 9</b>Every sensitive action fans in here</div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    R1["Any API handler"] --> AS["audit.service\nlogAuditEventFromReq"]
+    AS --> Q["audit.sink\nin-memory queue"]
+    Q --> BATCH["Batch flush\ndefault 250ms / 100 rows"]
+    BATCH --> PG["INSERT audit_logs"]
+    FE["Logs UI"] --> API["GET /api/v1/audit-logs"]
+    API --> PG
+    </pre>
+  </div>
+  <table>
+    <tr><th>Source action</th><th>Data kind</th><th>What gets added per row</th><th>Table</th><th>Op</th></tr>
+    <tr><td>Login / logout / search / CRUD</td><td>Compliance event</td><td>action key, SUCCESS/ERROR, IP, requestId, user_id, metadata JSON</td><td>audit_logs</td><td>INSERT batch</td></tr>
+    <tr><td>Logs UI (read)</td><td>Query only</td><td>Filtered audit rows — no new data written</td><td>audit_logs</td><td>SELECT</td></tr>
+    <tr><td>Target Kafka fan-out</td><td>Event stream</td><td>Same audit payload as JSON event on topic grubdata.audit</td><td>Kafka (future)</td><td>PUBLISH</td></tr>
+  </table>
+  <div class="info"><p><b>Columns (schema):</b> tenant_id, user_id, action, status (SUCCESS|ERROR), ip, request_id, user_agent, resource_type, resource_id, metadata jsonb. <b>Target:</b> duplicate stream to Kafka topic <code>grubdata.audit</code> (not implemented).</p></div>
+</div>
+
+<!-- 10 EXTERNAL -->
+<div class="card" id="external">
+  <div class="card-head"><h2>10. External Data — S3 &amp; AWS (Not Postgres)</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 10</b>Show alongside DB — binary data does not land in Postgres</div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    subgraph INGEST["How bytes enter AWS"]
+        S3PRE["Pre-loaded S3\nbucket grubdata-media-{tenantId}\nprefixes test-videos/ test-videos-anpr/"]
+        UP["POST /api/v1/media\nmultipart upload"]
+    end
+
+    subgraph AWS["AWS services"]
+        S3[("S3 bucket\nvideo objects")]
+        REK["Rekognition\nface match"]
+    end
+
+    subgraph APP["GrubData backend"]
+        WRK["Search worker"] --> S3PRE
+        WRK --> REK
+        MEDIA["media API"] --> UP
+        UP --> S3
+        PROXY["media proxy\npresigned URL"]
+    end
+
+    subgraph DB["PostgreSQL metadata only"]
+        RES["search_job_results.payload\nS3 key, plate, coords"]
+        MA["media_assets\nstorage_key, mime, size"]
+    end
+
+    S3PRE --> S3
+    WRK --> RES
+    MEDIA --> MA
+    S3 --> PROXY
+    PROXY --> BROWSER["Browser playback"]
+    REK --> RES
+    </pre>
+  </div>
+  <table>
+    <tr><th>Source</th><th>Data kind</th><th>What flows in</th><th>Primary store</th><th>Postgres holds (metadata)</th></tr>
+    <tr><td>ANPR / surveillance clips</td><td>Binary video</td><td>Pre-loaded .mp4 under tenant bucket prefixes (env: AWS_S3_SURVEILLANCE_VIDEO_PREFIX, AWS_S3_ANPR_VIDEO_PREFIX)</td><td>S3</td><td>videoFilename + metadata in search_job_results.payload</td></tr>
+    <tr><td>Face search upload</td><td>Image binary</td><td>POST /api/v1/media → S3 + media_assets row</td><td>S3 + Postgres</td><td>storage_key, mime_type, byte_size, original_filename</td></tr>
+    <tr><td>Face matching (face mode)</td><td>ML match result</td><td>Rekognition when AWS_REKOGNITION_COLLECTION_ID set</td><td>Rekognition (transient)</td><td>matchScore, faceId in search_job_results.payload</td></tr>
+    <tr><td>Video playback</td><td>HTTP stream</td><td>Presigned URL or nginx proxy bytes</td><td>S3 GET</td><td>— (read only)</td></tr>
+  </table>
+</div>
+
+<!-- 11 ASYNC -->
+<div class="card" id="async">
+  <div class="card-head"><h2>11. Background / Async Paths</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 11</b></div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    API["API process"] --> SQS["AWS SQS\nif AWS_SQS_SEARCH_QUEUE_URL set"]
+    API --> POLL["DB poll fallback\nclaimNextQueuedSearchJob\nevery 1500ms default"]
+    SQS --> WRK["Search worker\nsame Node process"]
+    POLL --> WRK
+    WRK --> PG[("PostgreSQL")]
+    API --> AUD["Audit batch sink\n250ms / 100 rows"]
+    AUD --> PG
+    API --> LOG["Winston → stdout"]
+    </pre>
+  </div>
+  <table>
+    <tr><th>Async path</th><th>Data kind</th><th>What flows</th><th>Destination</th><th>Op</th></tr>
+    <tr><td>SQS search queue</td><td>Job message</td><td>{ searchId, tenantId } — only if AWS_SQS_SEARCH_QUEUE_URL set; else enqueue is no-op</td><td>Worker claims job → search_jobs UPDATE</td><td>ENQUEUE</td></tr>
+    <tr><td>DB poll fallback</td><td>Queued job row</td><td>Polls status=queued rows when SQS URL unset</td><td>search_jobs → worker pipeline</td><td>SELECT/UPDATE</td></tr>
+    <tr><td>Audit batch sink</td><td>Compliance rows</td><td>AUDIT_FLUSH_INTERVAL_MS (250), AUDIT_BATCH_MAX (100)</td><td>audit_logs INSERT</td><td>INSERT batch</td></tr>
+    <tr><td>Winston logger</td><td>JSON log line</td><td>timestamp, level, message, requestId, stack</td><td>stdout / Docker</td><td>APPEND</td></tr>
+    <tr><td>Redis (optional)</td><td>Cache entries</td><td>RBAC authz + tenant_features cache keys — only if REDIS_URL set</td><td>Redis memory</td><td>SET/TTL</td></tr>
+  </table>
+  <div class="info"><p><b>Redis</b> (optional, <code>REDIS_URL</code>): RBAC and tenant-features cache only — not durable business data. Required for multi-worker rate-limit sharing per <code>cluster.ts</code>.</p></div>
+</div>
+
+<!-- 12 DEPLOY -->
+<div class="card" id="deploy">
+  <div class="card-head"><h2>12. CI/CD Blue/Green Deploy (No User Data)</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 12</b>Code deploy path — separate from business data entry</div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    GH["GitHub push main"] --> CI["Actions: typecheck + build"]
+    CI --> SSH["SSH EC2"]
+    SSH --> SYNC["git reset --hard origin/main"]
+    SYNC --> DEP["deploy-blue-green.sh"]
+    DEP --> BUILD["Build inactive slot\nblue or green"]
+    BUILD --> HC["Health: /api/v1/ready"]
+    HC --> NGX["Recreate nginx\nsmoke test :80"]
+    NGX --> STOP["Stop old slot"]
+    DEP --> PG[("Postgres unchanged\nshared volume")]
+    </pre>
+  </div>
+  <table>
+    <tr><th>Step</th><th>Data kind</th><th>What moves</th><th>User data affected?</th></tr>
+    <tr><td>GitHub push</td><td>Source code</td><td>TypeScript, Dockerfiles, deploy scripts</td><td>No</td></tr>
+    <tr><td>CI build test</td><td>Compile artifacts</td><td>npm build output on GitHub runner</td><td>No</td></tr>
+    <tr><td>EC2 docker build</td><td>Container images</td><td>backend-blue/green, frontend-blue/green images</td><td>No</td></tr>
+    <tr><td>nginx switch</td><td>Routing config</td><td>upstream frontend-blue/green, backend-blue/green</td><td>No</td></tr>
+    <tr><td>Postgres volume</td><td>Business data</td><td>Existing rows unchanged — shared volume across slots</td><td>Yes — preserved, not modified</td></tr>
+  </table>
+  <div class="info"><p>Deploy moves <b>containers</b>, not user rows. Postgres data persists across blue ↔ green switches.</p></div>
+</div>
+
+<!-- 13 OBS -->
+<div class="card" id="obs">
+  <div class="card-head"><h2>13. Target Observability — Future Data Entry Points (not in codebase yet)</h2></div>
+  <div class="shot"><b>📸 Miro screenshot 13</b>Right column on Miro — planned pipeline (not all live yet)</div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TD
+    subgraph PRODUCERS["Data producers"]
+        FE2["Next.js"]
+        API2["Express API"]
+        WRK2["Search worker"]
+        NGX2["nginx"]
+    end
+
+    subgraph TODAY["Today"]
+        PG2[("PostgreSQL")]
+        LOG2["stdout logs"]
+    end
+
+    subgraph TARGET["Target stack"]
+        PROM["Prometheus\n/metrics scrape"]
+        LOKI["Loki\nlog store"]
+        KAF["Kafka / MSK\nevent topics"]
+        GRAF["Grafana\ndashboards"]
+    end
+
+    API2 --> PG2
+    API2 --> LOG2
+    FE2 --> API2
+    WRK2 --> API2
+
+    API2 -.->|metrics| PROM
+    LOG2 -.->|Promtail/Alloy| LOKI
+    API2 -.->|search, audit, video events| KAF
+    WRK2 -.->|job lifecycle| KAF
+    PROM --> GRAF
+    LOKI --> GRAF
+    KAF --> GRAF
+    </pre>
+  </div>
+  <table>
+    <tr><th>Target sink</th><th>Data kind</th><th>What flows in (examples)</th><th>Also in Postgres?</th></tr>
+    <tr><td>Prometheus</td><td>Time-series metrics</td><td>req/sec, p95 latency, error rate, queue depth, CPU</td><td>No — separate store</td></tr>
+    <tr><td>Loki</td><td>Log lines</td><td>JSON logs with requestId, searchId, tenantId labels</td><td>No — parallel to stdout</td></tr>
+    <tr><td>Kafka grubdata.search.jobs</td><td>Job events</td><td>queued → running → completed / failed + searchId</td><td>Yes — search_jobs</td></tr>
+    <tr><td>Kafka grubdata.audit</td><td>Audit events</td><td>action, user, IP, metadata per API call</td><td>Yes — audit_logs</td></tr>
+    <tr><td>Kafka grubdata.video.lifecycle</td><td>Video workflow</td><td>requested, processing, ready, expired</td><td>Yes — video_requests</td></tr>
+    <tr><td>Kafka grubdata.media.ingest</td><td>Upload events</td><td>filename, size, storage_key on complete</td><td>Yes — media_assets</td></tr>
+    <tr><td>Grafana</td><td>Visualization</td><td>Reads metrics + logs + Kafka lag — stores dashboards only</td><td>No</td></tr>
+  </table>
+</div>
+
+<!-- 14 SHORT -->
+<div class="card" id="short">
+  <div class="card-head"><h2>14. Short Summary</h2></div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TB
+    U["Users / admins"] --> FE["Frontend"]
+    FE --> API["Express API"]
+    API --> PG[("PostgreSQL\nsystem of record")]
+    API --> S3[("S3\nvideo bytes")]
+    API --> WRK["Search worker"]
+    WRK --> PG
+    WRK --> S3
+    API --> AUD["audit_logs"]
+    AUD --> PG
+    API --> LOG["stdout logs"]
+
+    API -.->|target| OBS["Prometheus · Loki · Kafka · Grafana"]
+    GH["GitHub CI"] -.->|blue/green| EC2["EC2 containers\nnot user data"]
+    </pre>
+  </div>
+  <table>
+    <tr><th>Store</th><th>Data kind</th><th>What GrubData puts there</th></tr>
+    <tr><td>PostgreSQL</td><td>Structured business data</td><td>Users, searches, results, audit, video metadata, RBAC</td></tr>
+    <tr><td>S3</td><td>Binary media</td><td>Video MP4, face upload images — not in Postgres</td></tr>
+    <tr><td>stdout → Loki</td><td>Operational logs</td><td>requestId-correlated JSON log lines</td></tr>
+    <tr><td>Prometheus</td><td>Metrics (target)</td><td>Latency, errors, queue depth numbers</td></tr>
+    <tr><td>Kafka (target)</td><td>Domain events</td><td>Search, audit, video lifecycle event streams</td></tr>
+    <tr><td>EC2 containers</td><td>Application code</td><td>Docker images only — deploy does not touch user rows</td></tr>
+  </table>
+  <div class="info">
+    <p><b>Postgres:</b> All durable business data enters via the <b>Express API</b> or <b>search worker</b>. Frontend never touches DB directly.</p>
+    <p><b>S3:</b> Video bytes and uploads — DB stores keys and JSON metadata only.</p>
+    <p><b>Audit:</b> Every sensitive API action → <code>audit_logs</code> (async batch).</p>
+    <p><b>Deploy:</b> GitHub → EC2 blue/green — changes code containers, not user data.</p>
+    <p><b>Next:</b> Prometheus (metrics), Loki (logs), Kafka (events), Grafana (one UI) — parallel to Postgres, not replacing it.</p>
+  </div>
+</div>
+
+</div>
+
+<script>
+mermaid.initialize({startOnLoad:true,theme:'neutral',flowchart:{curve:'basis',htmlLabels:true},securityLevel:'loose'});
+</script>
+</body>
+</html>
