@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrubPac — Company Software Plan</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;color:#1a1a2e;line-height:1.65;font-size:14px}
+.hdr{background:linear-gradient(135deg,#1a1a2e,#0f3460 60%,#283593);color:#fff;padding:48px 28px 40px;text-align:center}
+.hdr h1{font-size:30px;font-weight:800;margin-bottom:8px}
+.hdr .sub{font-size:14px;opacity:.9;max-width:780px;margin:0 auto}
+.hdr .ver{font-size:11px;opacity:.5;font-family:monospace;margin-top:10px}
+.wrap{max-width:1200px;margin:0 auto;padding:28px 20px 64px}
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.05);margin-bottom:20px;border:1px solid #e4e8ee}
+.card-head{padding:18px 22px 0}
+.card-head h2{font-size:18px;color:#0f3460;margin-bottom:4px}
+.card-head .lead{font-size:13px;color:#666;margin-bottom:6px}
+.card-body{padding:8px 22px 20px;overflow-x:auto}
+.card-body h3{font-size:14px;color:#283593;margin:16px 0 8px;padding-bottom:3px;border-bottom:2px solid #e8ecf0}
+.card-body h3:first-child{margin-top:0}
+.info{font-size:13px;padding:11px 14px;background:#f7f9fc;border-radius:8px;border-left:4px solid #0f3460;margin-bottom:12px}
+.info b{color:#1a1a2e}
+.info-green{border-color:#2E7D32;background:#f0faf0}
+.info-orange{border-color:#E65100;background:#fff8f0}
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;margin:1px}
+.t-oss{background:#E3F2FD;color:#0D47A1}
+.t-paid{background:#FFEBEE;color:#B71C1C}
+.t-build{background:#FFF3E0;color:#E65100}
+.t-adopt{background:#C8E6C9;color:#1B5E20}
+.t-later{background:#FFF8E1;color:#F57F17}
+.t-notnow{background:#ECEFF1;color:#546E7A}
+.t-internal{background:#F3E5F5;color:#6A1B9A}
+.t-freemium{background:#E0F2F1;color:#00695C}
+.src{font-size:10px;color:#888;display:block;margin-top:2px}
+.src a{color:#3949AB}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+th,td{border:1px solid #dde2e8;padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#eef2f7;font-weight:700;color:#0f3460;font-size:10px;text-transform:uppercase;letter-spacing:.3px}
+tr:nth-child(even){background:#fafbfc}
+.sw{display:inline-block;background:#E3F2FD;color:#0D47A1;border:1px solid #1565C0;border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;margin:1px 2px 1px 0}
+.sw-build{background:#FFF3E0;color:#E65100;border-color:#F57C00}
+.toc{background:#fff;border-radius:12px;padding:18px 22px;margin-bottom:20px;border:1px solid #e4e8ee}
+.toc h3{font-size:15px;color:#0f3460;margin-bottom:10px}
+.toc a{display:block;font-size:12px;color:#3949AB;text-decoration:none;padding:3px 0}
+.toc a:hover{color:#E65100}
+.toc ol{padding-left:20px}
+.toc li{margin:4px 0;font-size:12px}
+.sec{display:inline-block;background:#0f3460;color:#fff;font-size:11px;font-weight:800;padding:4px 12px;border-radius:5px;margin-right:8px}
+.flow-steps{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:8px 0;padding:10px 12px;background:#fafbfc;border:1px solid #dde2e8;border-radius:8px;font-size:11px;line-height:1.5}
+.flow-step{background:#e3f2fd;border:1px solid #1565C0;border-radius:5px;padding:3px 8px;font-weight:600;color:#0D47A1}
+.flow-step-build{background:#FFF3E0;border-color:#F57C00;color:#E65100}
+.flow-arrow{color:#78909c;font-weight:700;padding:0 1px}
+.flow-note{font-size:11px;color:#666;margin:-4px 0 14px}
+.flow-table{font-size:11px;margin:8px 0 14px}
+.status{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px}
+.s-live{background:#E8F5E9;color:#1B5E20}
+.s-ref{background:#E3F2FD;color:#0D47A1}
+.s-plan{background:#FFF8E1;color:#F57F17}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:#555;margin:8px 0}
+@media(max-width:800px){.hdr h1{font-size:24px}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>GrubPac Technologies — Company Software Plan</h1>
+  <p class="sub">Which software top companies use · what it does · where it runs · whether GrubPac should adopt, buy, or build. Covers <b>all portals and all departments</b> — not one product line.</p>
+  <p class="ver">June 2026 · Revision 6 · grubpac.com</p>
+</div>
+
+<div class="wrap">
+
+<div class="info info-green">
+  <p><b>How to read Section 3 “GrubPac choice” column:</b> <b>Use now</b> = we install this software. <b>Build ourselves</b> = custom GrubPac code. <b>Not using now</b> = industry uses it, but we use a free alternative listed above instead. <b>Optional later</b> = add only when the company outgrows current tools. Licenses: <a href="#license-reference">Section 2</a>. Full list (each tool once): <a href="#unique-software">Section 8</a>.</p>
+</div>
+
+<nav class="toc" id="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#industry-catalog">Industry Software Catalog — what big companies use</a></li>
+    <li><a href="#license-reference">License &amp; Pricing — open source vs paid (verified)</a></li>
+    <li><a href="#grubpac-decisions">GrubPac Software Choices — use · build · not using · optional</a></li>
+    <li><a href="#architecture">Company Architecture — all portals, compact flows</a></li>
+    <li><a href="#portals">GrubPac Portals &amp; Products</a></li>
+    <li><a href="#departments">Department → Software</a></li>
+    <li><a href="#workflows">Incident &amp; On-Call Software (world-class vs GrubPac)</a></li>
+    <li><a href="#unique-software">Complete Software List — every tool once, no repeats</a></li>
+    <li><a href="#positions">Who Uses Which Software (by job title)</a></li>
+  </ol>
+  <div class="legend">
+    <span><span class="tag t-oss">OSS</span> Open source — free to self-host</span>
+    <span><span class="tag t-freemium">Freemium</span> Free tier + paid upgrade</span>
+    <span><span class="tag t-paid">Paid</span> Commercial — costs money</span>
+    <span><span class="tag t-internal">Internal</span> Big-company only — cannot buy</span>
+    <span><span class="tag t-build">Build</span> Custom GrubPac software</span>
+    <span><span class="tag t-later">Optional later</span> Add when needed</span>
+  </div>
+</nav>
+
+<!-- ═══ SECTION 1: INDUSTRY CATALOG ═══ -->
+<div class="card" id="industry-catalog">
+  <div class="card-head">
+    <h2><span class="sec">1</span> Industry Software Catalog</h2>
+    <p class="lead">Publicly documented tools at Google, Meta, Amazon, Netflix, Uber, Ola, Zomato. License type verified in <a href="#license-reference">Section 2</a>. “Not public” = no confirmed engineering blog or official doc.</p>
+  </div>
+  <div class="card-body">
+    <table>
+      <tr>
+        <th>Category</th>
+        <th>What it does</th>
+        <th>Google</th>
+        <th>Meta</th>
+        <th>Amazon</th>
+        <th>Netflix</th>
+        <th>Uber</th>
+        <th>Ola / Zomato</th>
+      </tr>
+      <tr>
+        <td><b>Infrastructure</b></td>
+        <td>Run apps &amp; containers at scale</td>
+        <td>Borg → Kubernetes <span class="tag t-oss">OSS</span> · Borg <span class="tag t-internal">Internal</span></td>
+        <td>Custom clusters <span class="tag t-internal">Internal</span></td>
+        <td>EC2/EKS <span class="tag t-paid">Paid cloud</span></td>
+        <td>EC2 + Mesos <span class="tag t-paid">Paid</span> + Mesos <span class="tag t-oss">OSS</span></td>
+        <td>Kubernetes <span class="tag t-oss">OSS</span></td>
+        <td>K8s / cloud VMs</td>
+      </tr>
+      <tr>
+        <td><b>Metrics</b></td>
+        <td>Time-series: latency, errors, SLIs</td>
+        <td>Monarch <span class="tag t-internal">Internal</span></td>
+        <td>ODS <span class="tag t-internal">Internal</span></td>
+        <td>CloudWatch <span class="tag t-paid">Paid</span></td>
+        <td>Atlas <span class="tag t-oss">OSS</span> Apache 2.0</td>
+        <td>M3 <span class="tag t-oss">OSS</span> · Prometheus <span class="tag t-oss">OSS</span> · Thanos <span class="tag t-oss">OSS</span></td>
+        <td>Zomato: VictoriaMetrics <span class="tag t-oss">OSS</span> · Ola: Prometheus + New Relic <span class="tag t-paid">Paid</span></td>
+      </tr>
+      <tr>
+        <td><b>Logs</b></td>
+        <td>Central search &amp; analytics</td>
+        <td>Internal <span class="tag t-internal">Internal</span></td>
+        <td>Scribe <span class="tag t-internal">Internal</span> (old OSS archived 2022)</td>
+        <td>CloudWatch Logs <span class="tag t-paid">Paid</span></td>
+        <td>Internal</td>
+        <td>Elasticsearch <span class="tag t-paid">Elastic License</span></td>
+        <td>Ola: ELK · Zomato: internal</td>
+      </tr>
+      <tr>
+        <td><b>Tracing</b></td>
+        <td>Follow one request across services</td>
+        <td>Dapper <span class="tag t-internal">Internal</span></td>
+        <td>Internal APM</td>
+        <td>X-Ray <span class="tag t-paid">Paid</span></td>
+        <td>Internal</td>
+        <td>Jaeger <span class="tag t-oss">OSS</span> Apache 2.0 · CNCF</td>
+        <td>OTel <span class="tag t-oss">OSS</span> · New Relic <span class="tag t-paid">Paid</span></td>
+      </tr>
+      <tr>
+        <td><b>Dashboards</b></td>
+        <td>Charts per team &amp; exec rollups</td>
+        <td>Monarch UI <span class="tag t-internal">Internal</span></td>
+        <td>Scuba + ODS <span class="tag t-internal">Internal</span></td>
+        <td>Internal ops boards</td>
+        <td>Atlas UI</td>
+        <td>Grafana <span class="tag t-oss">OSS</span> AGPL · Kibana <span class="tag t-paid">Elastic License</span></td>
+        <td>Grafana-class</td>
+      </tr>
+      <tr>
+        <td><b>Alerting</b></td>
+        <td>Notify when SLI/SLO breaks</td>
+        <td>Internal</td>
+        <td>Internal</td>
+        <td>CloudWatch Alarms <span class="tag t-paid">Paid</span></td>
+        <td>Atlas alerts</td>
+        <td>Prometheus Alertmanager <span class="tag t-oss">OSS</span></td>
+        <td>Prometheus / vendor APM</td>
+      </tr>
+      <tr>
+        <td><b>Incidents</b></td>
+        <td>War room, timeline, resolution</td>
+        <td>Internal</td>
+        <td>Not public</td>
+        <td>Incident Manager <span class="tag t-paid">Paid AWS</span></td>
+        <td>Incident.io <span class="tag t-paid">Paid</span> from $15/user/mo</td>
+        <td>PagerDuty <span class="tag t-paid">Paid</span> from $21/user/mo · Slack <span class="tag t-freemium">Freemium</span></td>
+        <td>Not public</td>
+      </tr>
+      <tr>
+        <td><b>Ticketing / tasks</b></td>
+        <td>Track bugs, sprints, ops work</td>
+        <td>Buganizer <span class="tag t-internal">Internal</span></td>
+        <td>Phabricator <span class="tag t-oss">OSS</span> (discontinued)</td>
+        <td>OpsCenter <span class="tag t-paid">Paid</span> · Jira <span class="tag t-paid">Paid</span></td>
+        <td>Jira <span class="tag t-paid">Paid</span></td>
+        <td>Jira-class</td>
+        <td>Jira / internal</td>
+      </tr>
+      <tr>
+        <td><b>CI/CD</b></td>
+        <td>Build, test, deploy</td>
+        <td>Bazel <span class="tag t-oss">OSS</span> · Piper <span class="tag t-internal">Internal</span></td>
+        <td>Custom CI <span class="tag t-internal">Internal</span></td>
+        <td>CodePipeline <span class="tag t-paid">Paid</span></td>
+        <td>Spinnaker <span class="tag t-oss">OSS</span> Apache 2.0</td>
+        <td>Custom / Jenkins <span class="tag t-oss">OSS</span></td>
+        <td>GitHub Actions <span class="tag t-freemium">Freemium</span></td>
+      </tr>
+      <tr>
+        <td><b>Developer portal</b></td>
+        <td>Service catalog, ownership, docs</td>
+        <td>Internal</td>
+        <td>Internal</td>
+        <td>Internal</td>
+        <td>Galley <span class="tag t-internal">Internal</span></td>
+        <td>Internal</td>
+        <td>Backstage <span class="tag t-oss">OSS</span> Apache 2.0 · CNCF</td>
+      </tr>
+      <tr>
+        <td><b>SRE practice</b></td>
+        <td>SLI / SLO / error budgets</td>
+        <td>Google SRE book standard</td>
+        <td>SRE writings</td>
+        <td>COE culture</td>
+        <td>Customer-impact metrics</td>
+        <td>SLO dashboards</td>
+        <td>Similar principles</td>
+      </tr>
+      <tr>
+        <td><b>Security / SOC</b></td>
+        <td>SIEM, vuln scan, compliance</td>
+        <td>Proprietary</td>
+        <td>Proprietary</td>
+        <td>GuardDuty <span class="tag t-paid">Paid AWS</span></td>
+        <td>Security Monkey <span class="tag t-oss">OSS</span></td>
+        <td>Internal SOC</td>
+        <td>Vendor SIEM <span class="tag t-paid">Paid</span></td>
+      </tr>
+      <tr>
+        <td><b>HR / ERP</b></td>
+        <td>Payroll, attendance, finance, CRM</td>
+        <td>Internal</td>
+        <td>Internal</td>
+        <td>Workday-class <span class="tag t-paid">Paid</span></td>
+        <td>Internal + vendors</td>
+        <td>Workday / SAP <span class="tag t-paid">Paid</span></td>
+        <td>ERP vendors</td>
+      </tr>
+      <tr>
+        <td><b>Asset / CMDB</b></td>
+        <td>Servers, devices, ownership</td>
+        <td>Asset Inventory <span class="tag t-internal">Internal</span></td>
+        <td>Internal</td>
+        <td>Internal</td>
+        <td>Internal</td>
+        <td>ServiceNow <span class="tag t-paid">Paid</span> ~$4–8/CI/yr</td>
+        <td>Not public</td>
+      </tr>
+      <tr>
+        <td><b>Exec dashboards</b></td>
+        <td>Business + ops KPIs for leadership</td>
+        <td>Custom <span class="tag t-build">Build</span></td>
+        <td>Custom <span class="tag t-build">Build</span></td>
+        <td>Custom <span class="tag t-build">Build</span></td>
+        <td>Custom <span class="tag t-build">Build</span></td>
+        <td>Custom <span class="tag t-build">Build</span></td>
+        <td>Grafana exec views</td>
+      </tr>
+    </table>
+    <div class="info info-orange">
+      <p><b>Verified:</b> Netflix adopted <a href="https://incident.io/customers/netflix">Incident.io</a> (paid SaaS) after build-vs-buy. Uber’s Jaeger, M3, Prometheus, Thanos are Apache 2.0 OSS. Meta archived open-source <a href="https://github.com/facebookarchive/scribe">Scribe</a> in 2022 — production Scribe is internal only. Google Monarch is proprietary (<a href="https://www.vldb.org/pvldb/vol13/p3181-adams.pdf">VLDB paper</a>, not a product you can buy).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 2: LICENSE REFERENCE ═══ -->
+<div class="card" id="license-reference">
+  <div class="card-head">
+    <h2><span class="sec">2</span> License &amp; Pricing Reference — Verified June 2026</h2>
+    <p class="lead">Every tool below: license from official GitHub <code>LICENSE</code> file or vendor pricing page. <b>OSS</b> = free to self-host (you pay servers). <b>Freemium</b> = free tier exists, paid above limits. <b>Paid</b> = no meaningful free self-host option.</p>
+  </div>
+  <div class="card-body">
+
+    <h3>Industry tools — open source (verified on GitHub)</h3>
+    <table>
+      <tr><th>Tool</th><th>License</th><th>Self-host free?</th><th>Used by</th><th>Source</th></tr>
+      <tr><td>Prometheus</td><td>Apache 2.0</td><td>Yes</td><td>Uber, Ola, Zomato (early)</td><td><span class="src"><a href="https://github.com/prometheus/prometheus">github.com/prometheus/prometheus</a></span></td></tr>
+      <tr><td>Alertmanager</td><td>Apache 2.0</td><td>Yes</td><td>Prometheus ecosystem</td><td><span class="src"><a href="https://github.com/prometheus/alertmanager">github.com/prometheus/alertmanager</a></span></td></tr>
+      <tr><td>Grafana</td><td>AGPL-3.0</td><td>Yes</td><td>Uber, Zomato</td><td><span class="src"><a href="https://grafana.com/licensing/">grafana.com/licensing</a> (since v8.0)</span></td></tr>
+      <tr><td>Grafana Loki</td><td>AGPL-3.0</td><td>Yes</td><td>Industry alternative to ELK</td><td><span class="src"><a href="https://grafana.com/licensing/">grafana.com/licensing</a></span></td></tr>
+      <tr><td>Grafana Tempo</td><td>AGPL-3.0</td><td>Yes</td><td>OTel backend</td><td><span class="src"><a href="https://grafana.com/licensing/">grafana.com/licensing</a></span></td></tr>
+      <tr><td>OpenTelemetry</td><td>Apache 2.0</td><td>Yes</td><td>Industry standard</td><td><span class="src"><a href="https://github.com/open-telemetry/opentelemetry-specification">CNCF project</a></span></td></tr>
+      <tr><td>Jaeger</td><td>Apache 2.0</td><td>Yes</td><td>Uber (created it, CNCF graduated)</td><td><span class="src"><a href="https://github.com/jaegertracing/jaeger">github.com/jaegertracing/jaeger</a></span></td></tr>
+      <tr><td>Thanos</td><td>Apache 2.0</td><td>Yes</td><td>Uber corp network</td><td><span class="src"><a href="https://github.com/thanos-io/thanos">github.com/thanos-io/thanos</a></span></td></tr>
+      <tr><td>M3</td><td>Apache 2.0</td><td>Yes</td><td>Uber app-scale metrics</td><td><span class="src"><a href="https://github.com/m3db/m3">github.com/m3db/m3</a></span></td></tr>
+      <tr><td>VictoriaMetrics</td><td>Apache 2.0</td><td>Yes</td><td>Zomato</td><td><span class="src"><a href="https://github.com/VictoriaMetrics/VictoriaMetrics">github.com/VictoriaMetrics</a></span></td></tr>
+      <tr><td>Netflix Atlas</td><td>Apache 2.0</td><td>Yes</td><td>Netflix</td><td><span class="src"><a href="https://github.com/Netflix/atlas">github.com/Netflix/atlas</a></span></td></tr>
+      <tr><td>Spinnaker</td><td>Apache 2.0</td><td>Yes</td><td>Netflix</td><td><span class="src"><a href="https://github.com/spinnaker/spinnaker">github.com/spinnaker/spinnaker</a></span></td></tr>
+      <tr><td>Kubernetes</td><td>Apache 2.0</td><td>Yes</td><td>Uber, industry</td><td><span class="src"><a href="https://github.com/kubernetes/kubernetes">github.com/kubernetes/kubernetes</a></span></td></tr>
+      <tr><td>Bazel</td><td>Apache 2.0</td><td>Yes</td><td>Google (Blaze successor)</td><td><span class="src"><a href="https://github.com/bazelbuild/bazel">github.com/bazelbuild/bazel</a></span></td></tr>
+      <tr><td>Backstage</td><td>Apache 2.0</td><td>Yes</td><td>Spotify → industry IDP</td><td><span class="src"><a href="https://github.com/backstage/backstage">github.com/backstage/backstage</a></span></td></tr>
+      <tr><td>Meta Scribe (archived)</td><td>Apache 2.0</td><td>Archived Jan 2022 — not maintained</td><td>Meta (internal version only now)</td><td><span class="src"><a href="https://github.com/facebookarchive/scribe">github.com/facebookarchive/scribe</a></span></td></tr>
+    </table>
+
+    <h3>Industry tools — paid SaaS or cloud (verified pricing pages)</h3>
+    <table>
+      <tr><th>Tool</th><th>Type</th><th>Typical cost</th><th>Used by</th><th>Source</th></tr>
+      <tr><td>AWS CloudWatch</td><td><span class="tag t-paid">Usage-based</span></td><td>~$0.30/metric/mo · $0.50/GB logs · pay per use</td><td>Amazon</td><td><span class="src"><a href="https://aws.amazon.com/cloudwatch/pricing/">aws.amazon.com/cloudwatch/pricing</a></span></td></tr>
+      <tr><td>AWS EC2 / S3 / Rekognition / SQS</td><td><span class="tag t-paid">Usage-based</span></td><td>Per hour / per GB / per API call</td><td>Netflix, GrubPac</td><td><span class="src"><a href="https://aws.amazon.com/pricing/">aws.amazon.com/pricing</a></span></td></tr>
+      <tr><td>Incident.io</td><td><span class="tag t-paid">SaaS</span></td><td>Free Basic · Team $15/user/mo · Pro $25/user/mo + on-call add-on</td><td>Netflix</td><td><span class="src"><a href="https://incident.io/pricing">incident.io/pricing</a></span></td></tr>
+      <tr><td>PagerDuty</td><td><span class="tag t-paid">SaaS</span></td><td>Free ≤5 users · Professional $21/user/mo · Business $41/user/mo</td><td>Uber</td><td><span class="src"><a href="https://www.pagerduty.com/pricing/">pagerduty.com/pricing</a></span></td></tr>
+      <tr><td>Jira Cloud</td><td><span class="tag t-paid">SaaS</span></td><td>Per user/month (Atlassian tiers)</td><td>Netflix</td><td><span class="src"><a href="https://www.atlassian.com/software/jira/pricing">atlassian.com/jira/pricing</a></span></td></tr>
+      <tr><td>Slack</td><td><span class="tag t-freemium">Freemium</span></td><td>Free plan · Pro ~$7.25/user/mo</td><td>Netflix, Uber, GrubPac</td><td><span class="src"><a href="https://slack.com/pricing">slack.com/pricing</a></span></td></tr>
+      <tr><td>Datadog</td><td><span class="tag t-paid">SaaS</span></td><td>Per host + per GB logs/metrics (no free self-host)</td><td>Ola (APM class)</td><td><span class="src"><a href="https://docs.datadoghq.com/account_management/billing/pricing/">docs.datadoghq.com/billing</a></span></td></tr>
+      <tr><td>New Relic</td><td><span class="tag t-freemium">Freemium</span></td><td>100 GB/mo free · then ~$0.30–0.50/GB ingested</td><td>Ola</td><td><span class="src"><a href="https://newrelic.com/pricing">newrelic.com/pricing</a></span></td></tr>
+      <tr><td>ServiceNow</td><td><span class="tag t-paid">Enterprise</span></td><td>~$4–8/CI/year (ITOM Discovery, negotiated)</td><td>Uber CMDB</td><td><span class="src">Industry licensing guides; not public list price</span></td></tr>
+      <tr><td>Elasticsearch (Elastic)</td><td><span class="tag t-paid">Elastic License 2.0</span></td><td>Source-available — <b>not OSI open source</b></td><td>Uber, Ola ELK stacks</td><td><span class="src"><a href="https://github.com/elastic/elasticsearch/blob/main/licenses/ELASTIC-LICENSE-2.0.txt">Elastic License 2.0</a></span></td></tr>
+      <tr><td>Figma</td><td><span class="tag t-freemium">Freemium</span></td><td>Free Starter · paid Professional+</td><td>Industry</td><td><span class="src"><a href="https://www.figma.com/pricing/">figma.com/pricing</a></span></td></tr>
+      <tr><td>GitHub + Actions</td><td><span class="tag t-freemium">Freemium</span></td><td>Free: 2,000 CI min/mo private · unlimited public repos</td><td>Industry</td><td><span class="src"><a href="https://docs.github.com/en/billing/concepts/product-billing/github-actions">GitHub Actions billing docs</a></span></td></tr>
+    </table>
+
+    <h3>Industry tools — internal / proprietary (cannot adopt)</h3>
+    <table>
+      <tr><th>Tool</th><th>Company</th><th>Why you cannot buy it</th><th>Public evidence</th></tr>
+      <tr><td>Monarch / Borgmon</td><td>Google</td><td>Internal only — not a product</td><td><span class="src"><a href="https://www.vldb.org/pvldb/vol13/p3181-adams.pdf">VLDB 2020 Monarch paper</a></span></td></tr>
+      <tr><td>Borg / Piper</td><td>Google</td><td>Internal scheduler &amp; SCM</td><td>Google SRE Book</td></tr>
+      <tr><td>Dapper</td><td>Google</td><td>Internal tracing (Jaeger is OSS alternative)</td><td>Google research paper</td></tr>
+      <tr><td>ODS / Scuba / current Scribe</td><td>Meta</td><td>Internal metrics &amp; log analytics</td><td><span class="src"><a href="https://engineering.fb.com/2019/10/07/data-infrastructure/scribe/">Meta engineering blog</a></span></td></tr>
+      <tr><td>Galley</td><td>Netflix</td><td>Internal service catalog</td><td>Netflix tech talks (not product)</td></tr>
+      <tr><td>Alert Ingestion App</td><td>Uber</td><td>Internal FastAPI service</td><td>Uber engineering blog</td></tr>
+    </table>
+
+    <h3>GrubPac stack — license &amp; cost (what we actually run)</h3>
+    <table>
+      <tr><th>Tool</th><th>License</th><th>Cost to GrubPac</th><th>GrubPac can use?</th><th>Verified source</th></tr>
+      <tr><td><span class="sw">Prometheus</span></td><td>Apache 2.0 · OSS</td><td>$0 software · EC2 cost only</td><td><span class="tag t-adopt">Use now</span></td><td><span class="src"><a href="https://github.com/prometheus/prometheus">GitHub</a></span></td></tr>
+      <tr><td><span class="sw">Grafana</span> + Loki + Tempo</td><td>AGPL-3.0 · OSS</td><td>$0 software · OK to self-host unmodified</td><td><span class="tag t-adopt">Use now</span></td><td><span class="src"><a href="https://grafana.com/licensing/">Grafana licensing</a></span></td></tr>
+      <tr><td><span class="sw">OpenTelemetry</span></td><td>Apache 2.0 · OSS</td><td>$0</td><td><span class="tag t-adopt">Use now</span></td><td>CNCF</td></tr>
+      <tr><td><span class="sw">OneUptime</span></td><td>Apache 2.0 · OSS</td><td>$0 self-hosted (not MIT — GitHub LICENSE says Apache 2.0)</td><td><span class="tag t-adopt">Use now</span></td><td><span class="src"><a href="https://github.com/OneUptime/oneuptime">GitHub</a></span></td></tr>
+      <tr><td><span class="sw">Plane.so</span> Community</td><td>AGPL-3.0 · OSS</td><td>$0 self-hosted · Cloud paid from $7/seat/mo</td><td><span class="tag t-adopt">Use now — self-host CE</span></td><td><span class="src"><a href="https://github.com/makeplane/plane">GitHub</a> · <a href="https://plane.so/open-source">plane.so/open-source</a></span></td></tr>
+      <tr><td><span class="sw">BookStack</span></td><td>MIT · OSS</td><td>$0</td><td><span class="tag t-adopt">Use now</span></td><td><span class="src"><a href="https://github.com/BookStackApp/BookStack">GitHub</a></span></td></tr>
+      <tr><td><span class="sw">ERPNext</span></td><td>GPL-3.0 · OSS</td><td>$0 software · no fee for internal use</td><td><span class="tag t-adopt">Use now — deployed</span></td><td><span class="src"><a href="https://docs.erpnext.com/docs/user/manual/en/open-source">ERPNext docs</a></span></td></tr>
+      <tr><td><span class="sw">Wazuh</span></td><td>GPL-2.0 · OSS</td><td>$0</td><td><span class="tag t-adopt">Use now</span></td><td><span class="src"><a href="https://github.com/wazuh/wazuh">GitHub</a></span></td></tr>
+      <tr><td><span class="sw">Trivy</span></td><td>Apache 2.0 · OSS</td><td>$0</td><td><span class="tag t-adopt">Use now</span></td><td><span class="src"><a href="https://github.com/aquasecurity/trivy">GitHub</a></span></td></tr>
+      <tr><td><span class="sw">Backstage</span></td><td>Apache 2.0 · OSS</td><td>$0</td><td><span class="tag t-later">Optional later</span></td><td><span class="src"><a href="https://github.com/backstage/backstage">GitHub</a></span></td></tr>
+      <tr><td><span class="sw">GitHub</span> + Actions</td><td>Freemium SaaS</td><td>Free tier: 2,000 min/mo private CI · paid above</td><td><span class="tag t-adopt">Use now</span></td><td><span class="src"><a href="https://github.com/pricing">github.com/pricing</a></span></td></tr>
+      <tr><td><span class="sw">Slack</span></td><td>Freemium SaaS</td><td>Free plan OK for small team · Pro if needed</td><td><span class="tag t-adopt">Use now — chat only</span></td><td><span class="src"><a href="https://slack.com/pricing">slack.com/pricing</a></span></td></tr>
+      <tr><td>Amazon EC2 / S3 / Rekognition / SQS</td><td>Paid cloud</td><td>Pay per hour / GB / API call</td><td><span class="tag t-adopt">Use now — required</span></td><td><span class="src"><a href="https://aws.amazon.com/pricing/">AWS pricing</a></span></td></tr>
+      <tr><td>Incident.io / PagerDuty / Jira / Datadog</td><td>Paid SaaS</td><td>$15–50+/user/mo</td><td><span class="tag t-notnow">Not using now — free tools above instead</span></td><td>Vendor pricing pages above</td></tr>
+      <tr><td><span class="sw sw-build">GrubPac portals</span> + Command Center</td><td>Custom build</td><td>Engineering time</td><td><span class="tag t-build">Build</span></td><td>GrubPac IP</td></tr>
+    </table>
+
+    <div class="info info-green">
+      <p><b>AGPL note:</b> Grafana, Loki, Tempo, and Plane Community use AGPL-3.0. Self-hosting without modifying code is fine for internal company use. If you modify and offer as a network service to external customers, you must share source — consult legal before customizing.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 3: GRUBPAC DECISIONS ═══ -->
+<div class="card" id="grubpac-decisions">
+  <div class="card-head">
+    <h2><span class="sec">3</span> GrubPac Software Choices</h2>
+    <p class="lead">What GrubPac uses for the <b>whole company</b>. “Shared company tools” = monitoring, logs, tasks, and security software that every portal connects to on the same Amazon EC2 server.</p>
+  </div>
+  <div class="card-body">
+    <table>
+      <tr>
+        <th>Job</th>
+        <th>GrubPac software</th>
+        <th>License</th>
+        <th>Cost</th>
+        <th>Where it runs</th>
+        <th>What big companies use instead</th>
+        <th>GrubPac choice</th>
+      </tr>
+      <tr>
+        <td>Hosting</td>
+        <td>Amazon EC2 + Docker</td>
+        <td><span class="tag t-paid">Paid cloud</span></td>
+        <td>~$30–80/mo (instance)</td>
+        <td>AWS</td>
+        <td>Netflix EC2 · Uber K8s</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>Metrics</td>
+        <td><span class="sw">Prometheus</span></td>
+        <td><span class="tag t-oss">OSS</span> Apache 2.0</td>
+        <td>$0 software</td>
+        <td>EC2 Docker</td>
+        <td>Google Monarch · Netflix Atlas · Uber M3</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>Logs</td>
+        <td><span class="sw">Grafana Loki</span> + Alloy</td>
+        <td><span class="tag t-oss">OSS</span> AGPL-3.0</td>
+        <td>$0 software</td>
+        <td>EC2 Docker</td>
+        <td>Meta Scribe · AWS CloudWatch Logs</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>Tracing</td>
+        <td><span class="sw">OpenTelemetry</span> + Tempo</td>
+        <td><span class="tag t-oss">OSS</span></td>
+        <td>$0 software</td>
+        <td>EC2 Docker</td>
+        <td>Uber Jaeger · Google Dapper · AWS X-Ray</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>Dashboards</td>
+        <td><span class="sw">Grafana</span></td>
+        <td><span class="tag t-oss">OSS</span> AGPL-3.0</td>
+        <td>$0 self-host</td>
+        <td>EC2 Docker</td>
+        <td>Grafana at Uber/Zomato</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>Alert routing</td>
+        <td><span class="sw">Alertmanager</span></td>
+        <td><span class="tag t-oss">OSS</span> Apache 2.0</td>
+        <td>$0</td>
+        <td>EC2 Docker</td>
+        <td>Part of Prometheus stack everywhere</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>Incidents &amp; status page</td>
+        <td><span class="sw">OneUptime</span></td>
+        <td><span class="tag t-oss">OSS</span> Apache 2.0</td>
+        <td>$0 self-host</td>
+        <td>EC2 Docker</td>
+        <td>Netflix uses <b>Incident.io</b> (paid) · Uber uses <b>PagerDuty</b> (paid)</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>Team chat (coordination only)</td>
+        <td><span class="sw">Slack</span></td>
+        <td><span class="tag t-freemium">Freemium</span></td>
+        <td>Free tier</td>
+        <td>Slack cloud</td>
+        <td>Used with PagerDuty/Incident.io — <b>not</b> a replacement for them</td>
+        <td><span class="tag t-adopt">Use now</span> for chat only</td>
+      </tr>
+      <tr>
+        <td>Tasks / sprints</td>
+        <td><span class="sw">Plane.so</span></td>
+        <td><span class="tag t-oss">OSS</span> AGPL-3.0</td>
+        <td>$0 self-host</td>
+        <td>EC2</td>
+        <td>Netflix Jira (paid)</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>Documentation</td>
+        <td><span class="sw">BookStack</span></td>
+        <td><span class="tag t-oss">OSS</span> MIT</td>
+        <td>$0</td>
+        <td>EC2 Docker</td>
+        <td>Confluence (paid)</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>CI/CD</td>
+        <td><span class="sw">GitHub Actions</span> + Trivy</td>
+        <td>Freemium + <span class="tag t-oss">OSS</span></td>
+        <td>2,000 free CI min/mo</td>
+        <td>GitHub cloud</td>
+        <td>Netflix Spinnaker (OSS)</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>Security</td>
+        <td><span class="sw">Wazuh</span> + Trivy</td>
+        <td><span class="tag t-oss">OSS</span></td>
+        <td>$0</td>
+        <td>EC2 + CI</td>
+        <td>AWS GuardDuty (paid)</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>HR / Finance / CRM</td>
+        <td><span class="sw">ERPNext</span></td>
+        <td><span class="tag t-oss">OSS</span> GPL-3.0</td>
+        <td>$0</td>
+        <td>EC2 Docker</td>
+        <td>Workday / SAP (paid)</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>Developer portal</td>
+        <td><span class="sw">Backstage</span></td>
+        <td><span class="tag t-oss">OSS</span> Apache 2.0</td>
+        <td>$0</td>
+        <td>EC2 Docker</td>
+        <td>Spotify Backstage (same product)</td>
+        <td><span class="tag t-later">Optional later</span></td>
+      </tr>
+      <tr>
+        <td>Server &amp; device inventory</td>
+        <td><span class="sw">NetBox</span></td>
+        <td><span class="tag t-oss">OSS</span> Apache 2.0</td>
+        <td>$0</td>
+        <td>EC2</td>
+        <td>Uber ServiceNow (paid)</td>
+        <td><span class="tag t-later">Optional later</span></td>
+      </tr>
+      <tr>
+        <td>Source control</td>
+        <td><span class="sw">GitHub</span></td>
+        <td><span class="tag t-freemium">Freemium</span></td>
+        <td>Free tier</td>
+        <td>GitHub cloud</td>
+        <td>Industry standard</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>Design</td>
+        <td><span class="sw">Figma</span></td>
+        <td><span class="tag t-freemium">Freemium</span></td>
+        <td>Free Starter</td>
+        <td>Figma cloud</td>
+        <td>Industry standard</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td>All-in-one monitoring SaaS</td>
+        <td>Datadog / New Relic</td>
+        <td><span class="tag t-paid">Paid</span></td>
+        <td>$15–50+/host or per GB</td>
+        <td>Vendor cloud</td>
+        <td>Ola uses New Relic</td>
+        <td><span class="tag t-notnow">Not using now — Prometheus + Grafana instead</span></td>
+      </tr>
+      <tr>
+        <td>On-call paging SaaS</td>
+        <td>PagerDuty / Incident.io</td>
+        <td><span class="tag t-paid">Paid</span></td>
+        <td>$15–41/user/mo</td>
+        <td>Vendor cloud</td>
+        <td>Netflix Incident.io · Uber PagerDuty</td>
+        <td><span class="tag t-notnow">Not using now — OneUptime + Alertmanager instead</span></td>
+      </tr>
+      <tr>
+        <td>Issue tracker SaaS</td>
+        <td>Jira</td>
+        <td><span class="tag t-paid">Paid</span></td>
+        <td>Per user/month</td>
+        <td>Atlassian cloud</td>
+        <td>Netflix Jira</td>
+        <td><span class="tag t-notnow">Not using now — Plane.so instead</span></td>
+      </tr>
+      <tr>
+        <td>Leadership dashboard</td>
+        <td><span class="sw sw-build">GrubPac Command Center</span></td>
+        <td><span class="tag t-build">Build</span></td>
+        <td>Engineering time</td>
+        <td>EC2 Docker</td>
+        <td>Custom exec boards at every large company</td>
+        <td><span class="tag t-build">Build ourselves</span></td>
+      </tr>
+      <tr>
+        <td>IoT fleet map</td>
+        <td><span class="sw sw-build">GrubAdmin Fleet UI</span></td>
+        <td><span class="tag t-build">Build</span></td>
+        <td>Engineering time</td>
+        <td>EC2 Docker</td>
+        <td>Uber internal portals</td>
+        <td><span class="tag t-build">Build ourselves</span></td>
+      </tr>
+      <tr>
+        <td>Customer &amp; internal portals</td>
+        <td><span class="sw sw-build">GrubData</span> · <span class="sw sw-build">GrubAdmin</span> · future</td>
+        <td><span class="tag t-build">Build</span></td>
+        <td>Engineering time</td>
+        <td>EC2 Docker + AWS APIs</td>
+        <td>Every company builds their own products</td>
+        <td><span class="tag t-build">Build ourselves</span></td>
+      </tr>
+      <tr>
+        <td>Government SLA reports</td>
+        <td><span class="sw sw-build">Govt SLA Reporter</span></td>
+        <td><span class="tag t-build">Build</span></td>
+        <td>Engineering time</td>
+        <td>EC2</td>
+        <td>Contract compliance tools</td>
+        <td><span class="tag t-build">Build ourselves</span></td>
+      </tr>
+    </table>
+    <div class="info info-green">
+      <p><b>How to read “GrubPac choice”:</b> <b>Use now</b> = install and run this software. <b>Build ourselves</b> = custom GrubPac code. <b>Not using now</b> = big companies pay for it, but we use the free alternative in the row above. <b>Optional later</b> = add only when the company outgrows current tools. Licenses: <a href="#license-reference">Section 2</a>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 3: ARCHITECTURE ═══ -->
+<div class="card" id="architecture">
+  <div class="card-head">
+    <h2><span class="sec">4</span> Company Architecture — One View</h2>
+    <p class="lead">How every portal and shared tool connects. <b>All portals are equal</b> — GrubData, GrubAdmin, ERPNext, Command Center, and future products use the same flows. Compact step strips below — no zoom needed.</p>
+  </div>
+  <div class="card-body">
+
+    <div class="info info-green">
+      <p><b>No portal is the center.</b> Shared company tools (monitoring, tasks, docs, security) sit in the middle. Every portal plugs into the same stack on Amazon EC2 Docker.</p>
+    </div>
+
+    <h3>Who opens which portal</h3>
+    <table class="flow-table">
+      <tr><th>Who</th><th>Portals they use</th></tr>
+      <tr><td>Government customers</td><td>Customer-facing portals (GrubData, future products)</td></tr>
+      <tr><td>Internal staff</td><td>GrubAdmin, ERPNext</td></tr>
+      <tr><td>Leadership / on-call</td><td>Command Center</td></tr>
+      <tr><td>Field teams</td><td>GrubAdmin, customer-facing portals</td></tr>
+      <tr><td>Sales</td><td>ERPNext, customer-facing portals (live demos)</td></tr>
+    </table>
+
+    <h3>Monitoring — all portals and Smart Box</h3>
+    <div class="info info-green">
+      <p><b>Three separate paths — do not mix them up:</b></p>
+      <p><b>Metrics</b> (numbers: CPU, errors, latency) → <b>Prometheus</b> collects and stores → alerts fire from Prometheus rules.</p>
+      <p><b>Logs</b> (text lines: app errors, debug output) → <b>Grafana Alloy</b> collects from apps → sends to <b>Loki</b> for storage and search. Loki does not collect — Alloy does.</p>
+      <p><b>Traces</b> (request paths across services) → apps send via <b>OpenTelemetry</b> → <b>Tempo</b> stores them.</p>
+      <p>All three are viewed together in <b>Grafana</b> dashboards. Only Prometheus triggers automatic alerts.</p>
+    </div>
+    <p class="flow-note" style="margin-top:0"><b>Metrics path</b></p>
+    <div class="flow-steps">
+      <span class="flow-step">Smart Box + all portal apps + EC2</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Prometheus collects metrics</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Grafana</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Command Center</span>
+    </div>
+    <p class="flow-note"><b>Traces path</b></p>
+    <div class="flow-steps">
+      <span class="flow-step">All portal apps</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">OpenTelemetry</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Grafana Tempo</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Grafana</span>
+    </div>
+    <p class="flow-note"><b>Logs path</b></p>
+    <div class="flow-steps">
+      <span class="flow-step">All portal apps</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Grafana Alloy collects logs</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Grafana Loki stores logs</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Grafana</span>
+    </div>
+
+    <h3>AWS — only where a portal needs it</h3>
+    <div class="flow-steps">
+      <span class="flow-step">Any portal</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">AWS APIs if required</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">S3 · Rekognition · SQS · PostgreSQL</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">EC2 Docker</span>
+    </div>
+    <p class="flow-note">Not every portal needs AWS. GrubData uses S3 and Rekognition today; other portals add services only when their product requires them.</p>
+
+    <h3>Deploy — any portal code change</h3>
+    <div class="flow-steps">
+      <span class="flow-step">GitHub</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">GitHub Actions</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Trivy</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Docker build</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Amazon ECR</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">EC2 deploy</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">All live portals</span>
+    </div>
+
+    <h3>Alerts — any portal outage</h3>
+    <p class="flow-note" style="margin-top:0">Full step-by-step resolution is in <a href="#workflows">Section 7</a>. Summary:</p>
+    <div class="flow-steps">
+      <span class="flow-step">Smart Box + all portals + EC2</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Prometheus</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Alertmanager</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">OneUptime + Slack + Plane.so</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">On-call investigates</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Fix via GitHub Actions or runbook</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Verify in Grafana</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Close ticket + BookStack postmortem</span>
+    </div>
+
+    <h3>Daily company work</h3>
+    <div class="flow-steps">
+      <span class="flow-step">All departments</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Slack</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-step">Plane.so</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-step">BookStack</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-step">ERPNext</span>
+    </div>
+    <div class="flow-steps">
+      <span class="flow-step">Engineering</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">GitHub</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-step">Figma</span>
+      <span class="flow-arrow">|</span>
+      <span class="flow-step">Leadership</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Grafana</span>
+    </div>
+
+    <h3>Security</h3>
+    <div class="flow-steps">
+      <span class="flow-step">EC2 servers</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Wazuh</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Grafana</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Security team</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">BookStack IR playbook</span>
+    </div>
+    <div class="flow-steps">
+      <span class="flow-step">GitHub Actions</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Trivy</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Block bad deploy</span>
+    </div>
+
+    <h3>Contract SLA reporting</h3>
+    <div class="flow-steps">
+      <span class="flow-step">Prometheus</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step-build">Govt SLA Reporter</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Uptime report</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Government clients</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SECTION 4: PORTALS ═══ -->
+<div class="card" id="portals">
+  <div class="card-head">
+    <h2><span class="sec">5</span> GrubPac Portals &amp; Products</h2>
+    <p class="lead">Equal weight — no portal is the “main” document focus. Status from codebase and team plans only.</p>
+  </div>
+  <div class="card-body">
+    <table>
+      <tr>
+        <th>Product / Portal</th>
+        <th>Status</th>
+        <th>Users</th>
+        <th>Owner dept</th>
+        <th>Hosting</th>
+        <th>Extra AWS services</th>
+        <th>Shared monitoring tools</th>
+      </tr>
+      <tr>
+        <td><b>GrubPac Smart Box</b></td>
+        <td><span class="status s-live">CONFIRMED</span></td>
+        <td>Field drivers, govt fleets</td>
+        <td>IoT &amp; Hardware</td>
+        <td>On-vehicle device</td>
+        <td>—</td>
+        <td>Sends telemetry → Prometheus</td>
+      </tr>
+      <tr>
+        <td><b>GrubData</b></td>
+        <td><span class="status s-live">CONFIRMED</span></td>
+        <td>Government surveillance agencies</td>
+        <td>Engineering + Field Ops</td>
+        <td>EC2 Docker</td>
+        <td>S3, Rekognition, SQS</td>
+        <td>Same shared tools as all portals</td>
+      </tr>
+      <tr>
+        <td><b>GrubAdmin</b></td>
+        <td><span class="status s-ref">REFERENCED</span></td>
+        <td>Internal operations</td>
+        <td>Engineering + HR</td>
+        <td>EC2 Docker</td>
+        <td>—</td>
+        <td>Same shared tools as all portals</td>
+      </tr>
+      <tr>
+        <td><b>ERPNext</b></td>
+        <td><span class="status s-ref">DEPLOYED</span></td>
+        <td>HR, Finance, Sales, Field Ops</td>
+        <td>HR + Finance</td>
+        <td>EC2 Docker</td>
+        <td>—</td>
+        <td>Grafana cost panels; ERPNext for field tickets</td>
+      </tr>
+      <tr>
+        <td><b>Future portal slots</b></td>
+        <td><span class="status s-plan">PLANNED</span></td>
+        <td>Depends on the product — not decided yet</td>
+        <td>Product + Engineering</td>
+        <td>Same EC2 Docker</td>
+        <td>None yet — only if that portal needs extra AWS services</td>
+        <td>Same shared tools — no new monitoring stack per portal</td>
+      </tr>
+      <tr>
+        <td><b>Command Center</b></td>
+        <td><span class="status s-plan">BUILD</span></td>
+        <td>CEO, CTO, on-call</td>
+        <td>Engineering</td>
+        <td>EC2 Docker</td>
+        <td>—</td>
+        <td>Embeds Grafana, OneUptime, fleet panels</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ SECTION 5: DEPARTMENTS ═══ -->
+<div class="card" id="departments">
+  <div class="card-head">
+    <h2><span class="sec">6</span> Department → Software</h2>
+    <p class="lead">One table for the whole company. Detailed per-role flowcharts removed — use Section 2 for tool purpose.</p>
+  </div>
+  <div class="card-body">
+    <table>
+      <tr>
+        <th>Department</th>
+        <th>Primary software</th>
+        <th>What they do with it</th>
+        <th>Portals touched</th>
+      </tr>
+      <tr>
+        <td><b>Executive</b></td>
+        <td>Command Center, Grafana, OneUptime, ERPNext, Slack</td>
+        <td>Company health, incidents, costs on one screen</td>
+        <td>All (read-only via Command Center)</td>
+      </tr>
+      <tr>
+        <td><b>Engineering</b></td>
+        <td>GitHub, GitHub Actions, Prometheus, Grafana, Loki, Tempo, Plane.so, BookStack, Wazuh, Trivy</td>
+        <td>Build, deploy, monitor all portal backends</td>
+        <td>GrubData, GrubAdmin, ERPNext, Command Center, all future</td>
+      </tr>
+      <tr>
+        <td><b>Product</b></td>
+        <td>Plane.so, BookStack, Figma, Grafana (product metrics)</td>
+        <td>Roadmap, specs, design handoff</td>
+        <td>All customer-facing portals</td>
+      </tr>
+      <tr>
+        <td><b>IoT &amp; Hardware</b></td>
+        <td>GrubAdmin fleet, Prometheus, Grafana, GitHub (firmware)</td>
+        <td>Box health, GPS, firmware releases</td>
+        <td>GrubAdmin, device firmware</td>
+      </tr>
+      <tr>
+        <td><b>Field Operations</b></td>
+        <td>ERPNext Projects, GrubAdmin, OneUptime, BookStack runbooks</td>
+        <td>Installations, support, customer status</td>
+        <td>GrubAdmin, customer-facing portals, ERPNext</td>
+      </tr>
+      <tr>
+        <td><b>Security</b></td>
+        <td>Wazuh, Grafana, Loki, Trivy, BookStack IR playbook</td>
+        <td>Threat detection, audits, vuln response</td>
+        <td>All portals + shared monitoring tools</td>
+      </tr>
+      <tr>
+        <td><b>HR</b></td>
+        <td>ERPNext HRMS</td>
+        <td>Attendance, leave, payroll, recruitment</td>
+        <td>ERPNext only</td>
+      </tr>
+      <tr>
+        <td><b>Finance</b></td>
+        <td>ERPNext Finance, Grafana AWS cost panels</td>
+        <td>Invoicing, expenses, cloud spend</td>
+        <td>ERPNext + AWS billing view</td>
+      </tr>
+      <tr>
+        <td><b>Sales</b></td>
+        <td>ERPNext CRM, customer-facing portals (live demos), BookStack</td>
+        <td>Pipeline, live product demos to clients, proposals</td>
+        <td>Customer portals + ERPNext</td>
+      </tr>
+      <tr>
+        <td><b>Data &amp; Analytics</b></td>
+        <td>Grafana, PostgreSQL, DevLake, H3/PostGIS</td>
+        <td>Reports, geo analytics, DORA metrics</td>
+        <td>All portals — company-wide dashboards</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ SECTION 6: WORKFLOWS ═══ -->
+<div class="card" id="workflows">
+  <div class="card-head">
+    <h2><span class="sec">7</span> Incident &amp; On-Call Software — World-Class vs GrubPac</h2>
+    <p class="lead">When something breaks, you need two different things: <b>incident software</b> (pages on-call, tracks the outage, publishes status) and <b>team chat</b> (people talk to each other). Slack is chat only — it is not the best incident tool in the world.</p>
+  </div>
+  <div class="card-body">
+    <h3>Best incident &amp; on-call tools in the industry</h3>
+    <table>
+      <tr>
+        <th>Software</th>
+        <th>Type</th>
+        <th>What it does</th>
+        <th>Typical cost</th>
+        <th>Used by</th>
+        <th>GrubPac</th>
+      </tr>
+      <tr>
+        <td><b>PagerDuty</b></td>
+        <td><span class="tag t-paid">Paid SaaS</span></td>
+        <td>Pages on-call by phone/SMS, escalation schedules, incident timeline</td>
+        <td>Free ≤5 users · $21–41/user/mo</td>
+        <td>Uber, many FAANG-scale teams</td>
+        <td><span class="tag t-notnow">Not using now</span></td>
+      </tr>
+      <tr>
+        <td><b>Incident.io</b></td>
+        <td><span class="tag t-paid">Paid SaaS</span></td>
+        <td>Full incident lifecycle — Slack bot, roles, postmortems, status page</td>
+        <td>Free Basic · $15–25/user/mo</td>
+        <td>Netflix</td>
+        <td><span class="tag t-notnow">Not using now</span></td>
+      </tr>
+      <tr>
+        <td><b>Opsgenie</b> (Atlassian)</td>
+        <td><span class="tag t-paid">Paid SaaS</span></td>
+        <td>On-call rotations, alert routing, mobile app paging</td>
+        <td>Per user/month</td>
+        <td>Many mid-size tech companies</td>
+        <td><span class="tag t-notnow">Not using now</span></td>
+      </tr>
+      <tr>
+        <td><b>OneUptime</b></td>
+        <td><span class="tag t-oss">Open source</span></td>
+        <td>Incidents, status page, on-call schedule, uptime checks — self-hosted</td>
+        <td>$0 software</td>
+        <td>GrubPac choice</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+      <tr>
+        <td><b>Slack</b></td>
+        <td><span class="tag t-freemium">Freemium</span></td>
+        <td>Team chat and coordination during an incident — <b>not</b> paging or status pages</td>
+        <td>Free tier</td>
+        <td>Almost every tech company</td>
+        <td><span class="tag t-adopt">Use now</span> for chat only</td>
+      </tr>
+      <tr>
+        <td><b>Alertmanager</b></td>
+        <td><span class="tag t-oss">Open source</span></td>
+        <td>Routes Prometheus alerts to OneUptime and Slack</td>
+        <td>$0</td>
+        <td>Standard with Prometheus</td>
+        <td><span class="tag t-adopt">Use now</span></td>
+      </tr>
+    </table>
+
+    <div class="info info-orange">
+      <p><b>Why GrubPac uses OneUptime instead of PagerDuty or Incident.io:</b> Same job — track outages, page on-call, show a public status page — but free to self-host on our EC2 server. Slack stays for team chat. When the company grows and needs paid support or mobile paging at scale, PagerDuty or Incident.io are the industry leaders to consider.</p>
+    </div>
+
+    <h3>Full incident flow — from detection to closed ticket</h3>
+    <p class="flow-note" style="margin-top:0">Same flow for every portal outage. <b>Alerts start from Prometheus metrics only.</b> Logs (Loki) and traces (Tempo) are used later to investigate — see Section 4 for all three paths.</p>
+
+    <p class="flow-note"><b>Step 0 — Where data comes from (top of the flow)</b></p>
+    <p class="flow-note"><b>Metrics → Prometheus</b> (this path triggers alerts)</p>
+    <div class="flow-steps">
+      <span class="flow-step">GrubPac Smart Box</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-step">All portal apps</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-step">EC2 server</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Prometheus collects metrics</span>
+    </div>
+    <p class="flow-note"><b>Logs → Alloy → Loki</b> (parallel path — used in Step 4 investigation, not for auto-alerts)</p>
+    <div class="flow-steps">
+      <span class="flow-step">All portal apps write logs</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Grafana Alloy collects</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Grafana Loki stores</span>
+    </div>
+    <p class="flow-note"><b>Smart Box</b> sends GPS, health, connectivity metrics to Prometheus. <b>Portal apps</b> send metrics (errors, latency) to Prometheus and log lines to Alloy. <b>EC2</b> sends CPU, memory, disk metrics to Prometheus. Prometheus checks rules every few seconds — when a metric breaks a limit, Step 1 starts.</p>
+
+    <p class="flow-note"><b>Step 1 — Detect</b></p>
+    <div class="flow-steps">
+      <span class="flow-step">Metric goes bad</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Prometheus alert rule fires</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Alertmanager routes alert</span>
+    </div>
+    <p class="flow-note">Example: portal response time too slow, box offline, EC2 disk full, or error rate above limit — Prometheus compares live metrics to rules and triggers an alert.</p>
+
+    <p class="flow-note"><b>Step 2 — Notify (three places at once)</b></p>
+    <div class="flow-steps">
+      <span class="flow-step">Alertmanager</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">OneUptime opens incident</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-step">Slack notifies team</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-step">Plane.so creates ticket</span>
+    </div>
+    <p class="flow-note">OneUptime = official incident record + public status page + pages on-call. Slack = team talks in a channel. Plane.so = work ticket so nothing is lost.</p>
+
+    <p class="flow-note"><b>Step 3 — After ticket is raised: triage and assign</b></p>
+    <div class="flow-steps">
+      <span class="flow-step">On-call acks in OneUptime</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Plane.so ticket assigned to on-call engineer</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Slack incident channel — team joins</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">BookStack runbook opened</span>
+    </div>
+    <p class="flow-note">P1/P2: Engineering Manager and CTO notified in Slack. P1: Field Ops alerts customers via ERPNext + Slack. Severity table below.</p>
+
+    <p class="flow-note"><b>Step 4 — Investigate root cause</b></p>
+    <div class="flow-steps">
+      <span class="flow-step">On-call opens Grafana</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-step">Loki for logs</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-step">Tempo for traces</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Root cause found</span>
+    </div>
+    <p class="flow-note">Notes go into Plane.so ticket and Slack thread so the whole team sees progress.</p>
+
+    <p class="flow-note"><b>Step 5 — Fix the problem</b></p>
+    <div class="flow-steps">
+      <span class="flow-step">Code bug?</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">GitHub PR</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">GitHub Actions</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">ECR</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">EC2 deploy or rollback</span>
+    </div>
+    <div class="flow-steps">
+      <span class="flow-step">Config or server issue?</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Fix on EC2 using BookStack runbook</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Update Plane.so ticket with what changed</span>
+    </div>
+    <div class="flow-steps">
+      <span class="flow-step">Field or customer issue?</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">ERPNext field ticket</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Field Ops via GrubAdmin + Slack</span>
+    </div>
+
+    <p class="flow-note"><b>Step 6 — Verify fix worked</b></p>
+    <div class="flow-steps">
+      <span class="flow-step">Prometheus metrics back to normal</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Grafana confirms recovery</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">On-call monitors 15 min</span>
+    </div>
+
+    <p class="flow-note"><b>Step 7 — Close incident and ticket</b></p>
+    <div class="flow-steps">
+      <span class="flow-step">OneUptime incident marked resolved</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Status page updated</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Plane.so ticket moved to Done</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Slack — resolved announcement</span>
+    </div>
+
+    <p class="flow-note"><b>Step 8 — After close: postmortem and records</b></p>
+    <div class="flow-steps">
+      <span class="flow-step">BookStack postmortem written</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">OneUptime incident closed</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Govt SLA Reporter logs downtime if contract portal</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Command Center shows green again</span>
+    </div>
+
+    <h3>Where each tool is used in the flow</h3>
+    <table class="flow-table">
+      <tr><th>Source / software</th><th>Role in incident</th><th>When it is used</th></tr>
+      <tr><td><b>GrubPac Smart Box</b></td><td>Sends device metrics to Prometheus</td><td>Step 0 — GPS, box health, connectivity from vehicles</td></tr>
+      <tr><td><b>All portal apps</b></td><td>Send app health metrics to Prometheus</td><td>Step 0 — GrubData, GrubAdmin, ERPNext, Command Center (errors, latency, uptime)</td></tr>
+      <tr><td><b>EC2 server</b></td><td>Sends server metrics to Prometheus</td><td>Step 0 — CPU, memory, disk, Docker container health</td></tr>
+      <tr><td><b>Prometheus</b></td><td>Collects metrics and detects problems</td><td>Step 0 collects · Step 1 fires alert when a rule breaks</td></tr>
+      <tr><td><b>Alertmanager</b></td><td>Routes alert to all channels</td><td>Step 2 — sends to OneUptime, Slack, Plane.so at once</td></tr>
+      <tr><td><b>OneUptime</b></td><td>Official incident + status page</td><td>Opened at start · resolved at Step 7 · closed at Step 8</td></tr>
+      <tr><td><b>Slack</b></td><td>Team coordination chat</td><td>Step 2 notify → Step 3 channel → Step 7 resolved message</td></tr>
+      <tr><td><b>Plane.so</b></td><td>Work ticket — tracks fix to Done</td><td>Auto-created Step 2 · assigned Step 3 · closed Step 7</td></tr>
+      <tr><td><b>BookStack</b></td><td>Runbooks and postmortems</td><td>Step 3 how to fix · Step 8 write what happened</td></tr>
+      <tr><td><b>Grafana Alloy</b></td><td>Collects logs from apps, sends to Loki</td><td>Step 0 logs path · Step 4 investigation</td></tr>
+      <tr><td><b>Grafana Loki</b></td><td>Stores and searches logs</td><td>Step 0 logs path · Step 4 investigation</td></tr>
+      <tr><td><b>Grafana + Tempo</b></td><td>Metrics dashboards and trace search</td><td>Step 4 — find root cause (with Loki logs)</td></tr>
+      <tr><td><b>GitHub + GitHub Actions</b></td><td>Code fix and deploy</td><td>Step 5 — if bug needs a code change</td></tr>
+      <tr><td><b>ERPNext</b></td><td>Field/customer tickets</td><td>Step 5 — if Field Ops must visit customer</td></tr>
+      <tr><td><b>Command Center</b></td><td>Leadership view</td><td>Step 8 — shows portal health back to green</td></tr>
+    </table>
+
+    <h3>Severity — who gets involved</h3>
+    <table class="flow-table">
+      <tr><th>Severity</th><th>Who gets involved</th><th>Target ack time</th></tr>
+      <tr><td>P1 — total outage</td><td>Engineering all-hands, Field Ops notifies customers, CTO/CEO, Security if breach suspected</td><td>5 min</td></tr>
+      <tr><td>P2 — major degradation</td><td>On-call + team lead, OneUptime status page update</td><td>15 min</td></tr>
+      <tr><td>P3 — minor</td><td>On-call only</td><td>1 hour</td></tr>
+      <tr><td>P4 — cosmetic</td><td>Plane.so ticket next sprint</td><td>Next business day</td></tr>
+    </table>
+
+    <h3>Deployment (any portal code change)</h3>
+    <ol style="margin:8px 0 8px 20px;font-size:13px">
+      <li>Developer merges PR on GitHub → GitHub Actions runs lint, tests, Trivy scan</li>
+      <li>Build Docker image → push to Amazon ECR → deploy to EC2 (blue/green)</li>
+      <li>Health check passes → Grafana deploy annotation → monitor error rate 15 min</li>
+      <li>Health check fails → auto-rollback → P2 incident in OneUptime + Plane.so</li>
+    </ol>
+    <p style="font-size:12px;color:#666">Industry parallel: Netflix Spinnaker · Amazon CodePipeline · GrubPac uses GitHub Actions on EC2 Docker today.</p>
+  </div>
+</div>
+
+<!-- ═══ SECTION 8: UNIQUE SOFTWARE LIST ═══ -->
+<div class="card" id="unique-software">
+  <div class="card-head">
+    <h2><span class="sec">8</span> Complete Software List — Every Tool Once</h2>
+    <p class="lead">Master list of all software GrubPac uses, builds, or chose not to use. Each name appears exactly once — no repeats. Section 9 maps job titles to tools from this list.</p>
+  </div>
+  <div class="card-body">
+    <table>
+      <tr>
+        <th>Software</th>
+        <th>What it does</th>
+        <th>License</th>
+        <th>Cost</th>
+        <th>Where it runs</th>
+        <th>GrubPac choice</th>
+      </tr>
+      <tr><td><span class="sw">Amazon EC2</span></td><td>Cloud server hosting all Docker containers</td><td><span class="tag t-paid">Paid cloud</span></td><td>~$30–80/mo</td><td>AWS</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Docker</span></td><td>Runs each portal and tool in isolated containers</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Amazon ECR</span></td><td>Stores Docker images for deployment</td><td><span class="tag t-paid">Paid cloud</span></td><td>Per GB stored</td><td>AWS</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Amazon S3</span></td><td>File and video storage (portals that need it)</td><td><span class="tag t-paid">Paid cloud</span></td><td>Per GB</td><td>AWS</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Amazon Rekognition</span></td><td>Face/object detection (portals that need it)</td><td><span class="tag t-paid">Paid cloud</span></td><td>Per API call</td><td>AWS</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Amazon SQS</span></td><td>Message queue between services</td><td><span class="tag t-paid">Paid cloud</span></td><td>Per request</td><td>AWS</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Prometheus</span></td><td>Collects metrics from all portals and devices</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Grafana Alloy</span></td><td>Collects and ships logs to Loki</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Grafana Loki</span></td><td>Log storage and search</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">OpenTelemetry</span></td><td>Standard for sending trace data from apps</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>In app code + EC2</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Grafana Tempo</span></td><td>Trace storage (request paths across services)</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Grafana</span></td><td>Dashboards and charts for metrics, logs, traces</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Alertmanager</span></td><td>Routes alerts from Prometheus to OneUptime and Slack</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">OneUptime</span></td><td>Incidents, on-call schedule, public status page</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Slack</span></td><td>Team chat during incidents and daily work</td><td><span class="tag t-freemium">Freemium</span></td><td>Free tier</td><td>Slack cloud</td><td><span class="tag t-adopt">Use now — chat only</span></td></tr>
+      <tr><td><span class="sw">Plane.so</span></td><td>Tasks, sprints, bug tracking</td><td><span class="tag t-oss">OSS</span></td><td>$0 self-host</td><td>EC2</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">BookStack</span></td><td>Company wiki, runbooks, postmortems</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">GitHub</span></td><td>Source code repository</td><td><span class="tag t-freemium">Freemium</span></td><td>Free tier</td><td>GitHub cloud</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">GitHub Actions</span></td><td>CI/CD — test, build, deploy on every PR</td><td><span class="tag t-freemium">Freemium</span></td><td>2,000 free min/mo</td><td>GitHub cloud</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Trivy</span></td><td>Scans Docker images for security vulnerabilities</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>GitHub Actions CI</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Wazuh</span></td><td>Security monitoring, intrusion detection</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">ERPNext</span></td><td>HR, payroll, finance, CRM, field project tickets</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">PostgreSQL</span></td><td>Database for portals and analytics</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">Figma</span></td><td>UI/UX design</td><td><span class="tag t-freemium">Freemium</span></td><td>Free Starter</td><td>Figma cloud</td><td><span class="tag t-adopt">Use now</span></td></tr>
+      <tr><td><span class="sw">DevLake</span></td><td>Engineering metrics (DORA, velocity)</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-later">Optional later</span></td></tr>
+      <tr><td><span class="sw">Backstage</span></td><td>Developer portal — service catalog</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2 Docker</td><td><span class="tag t-later">Optional later</span></td></tr>
+      <tr><td><span class="sw">NetBox</span></td><td>Server and device inventory</td><td><span class="tag t-oss">OSS</span></td><td>$0</td><td>EC2</td><td><span class="tag t-later">Optional later</span></td></tr>
+      <tr><td><span class="sw sw-build">GrubData</span></td><td>Government surveillance portal — customer-facing product</td><td><span class="tag t-build">Build</span></td><td>Engineering time</td><td>EC2 + AWS APIs</td><td><span class="tag t-build">Build ourselves</span></td></tr>
+      <tr><td><span class="sw sw-build">GrubAdmin</span></td><td>Internal operations and fleet management portal</td><td><span class="tag t-build">Build</span></td><td>Engineering time</td><td>EC2 Docker</td><td><span class="tag t-build">Build ourselves</span></td></tr>
+      <tr><td><span class="sw sw-build">Command Center</span></td><td>Leadership dashboard — health of all portals on one screen</td><td><span class="tag t-build">Build</span></td><td>Engineering time</td><td>EC2 Docker</td><td><span class="tag t-build">Build ourselves</span></td></tr>
+      <tr><td><span class="sw sw-build">Govt SLA Reporter</span></td><td>Automated government contract uptime reports</td><td><span class="tag t-build">Build</span></td><td>Engineering time</td><td>EC2</td><td><span class="tag t-build">Build ourselves</span></td></tr>
+      <tr><td><span class="sw sw-build">GrubPac Smart Box</span></td><td>On-vehicle IoT device — sends GPS and health data</td><td><span class="tag t-build">Build</span></td><td>Hardware + firmware</td><td>On vehicle</td><td><span class="tag t-build">Build ourselves</span></td></tr>
+      <tr><td>PagerDuty</td><td>Industry-leading on-call paging (paid)</td><td><span class="tag t-paid">Paid</span></td><td>$21–41/user/mo</td><td>Vendor cloud</td><td><span class="tag t-notnow">Not using now — OneUptime instead</span></td></tr>
+      <tr><td>Incident.io</td><td>Industry-leading incident management (paid)</td><td><span class="tag t-paid">Paid</span></td><td>$15–25/user/mo</td><td>Vendor cloud</td><td><span class="tag t-notnow">Not using now — OneUptime instead</span></td></tr>
+      <tr><td>Opsgenie</td><td>On-call rotations and alert routing (paid)</td><td><span class="tag t-paid">Paid</span></td><td>Per user/mo</td><td>Vendor cloud</td><td><span class="tag t-notnow">Not using now — OneUptime instead</span></td></tr>
+      <tr><td>Jira</td><td>Issue and sprint tracking (paid)</td><td><span class="tag t-paid">Paid</span></td><td>Per user/mo</td><td>Atlassian cloud</td><td><span class="tag t-notnow">Not using now — Plane.so instead</span></td></tr>
+      <tr><td>Datadog</td><td>All-in-one monitoring SaaS (paid)</td><td><span class="tag t-paid">Paid</span></td><td>$15–50+/host</td><td>Vendor cloud</td><td><span class="tag t-notnow">Not using now — Prometheus + Grafana instead</span></td></tr>
+      <tr><td>New Relic</td><td>APM and observability SaaS (paid)</td><td><span class="tag t-paid">Paid</span></td><td>Per GB ingested</td><td>Vendor cloud</td><td><span class="tag t-notnow">Not using now — Prometheus + Grafana instead</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ SECTION 9: POSITIONS ═══ -->
+<div class="card" id="positions">
+  <div class="card-head">
+    <h2><span class="sec">9</span> Who Uses Which Software (by Job Title)</h2>
+    <p class="lead">Which tools each role touches daily. Full software names and licenses are in <a href="#unique-software">Section 8</a> — this table does not repeat that list.</p>
+  </div>
+  <div class="card-body">
+    <table>
+      <tr><th>Position</th><th>Department</th><th>Main tools from Section 8</th></tr>
+      <tr><td>CEO / Founder</td><td>Executive</td><td>Command Center, Grafana, OneUptime, ERPNext, Slack</td></tr>
+      <tr><td>CTO</td><td>Executive</td><td>Grafana, Plane.so, DevLake, Wazuh, GitHub, BookStack</td></tr>
+      <tr><td>COO</td><td>Executive</td><td>GrubAdmin, Grafana, ERPNext</td></tr>
+      <tr><td>Backend Developer</td><td>Engineering</td><td>GitHub, Docker, Plane.so, PostgreSQL, OpenTelemetry, Loki, Tempo</td></tr>
+      <tr><td>Frontend Developer</td><td>Engineering</td><td>GitHub, Plane.so, Figma, Grafana</td></tr>
+      <tr><td>DevOps / SRE</td><td>Engineering</td><td>GitHub Actions, Docker, Prometheus, Alloy, Alertmanager, Wazuh, Trivy, OneUptime</td></tr>
+      <tr><td>QA Engineer</td><td>Engineering</td><td>Plane.so, BookStack, staging portals</td></tr>
+      <tr><td>Engineering Manager</td><td>Engineering</td><td>Plane.so, GitHub, Grafana, DevLake, BookStack</td></tr>
+      <tr><td>Product Manager</td><td>Product</td><td>BookStack, Plane.so, ERPNext, customer portals (demos), Grafana</td></tr>
+      <tr><td>IoT Platform Engineer</td><td>IoT</td><td>GrubAdmin, Prometheus, Grafana, GitHub</td></tr>
+      <tr><td>Operations Manager</td><td>Field Ops</td><td>ERPNext, GrubAdmin, Grafana, OneUptime, Govt SLA Reporter</td></tr>
+      <tr><td>Customer Support Engineer</td><td>Field Ops</td><td>ERPNext, GrubAdmin, customer portals, Plane.so, BookStack</td></tr>
+      <tr><td>Security Engineer</td><td>Security</td><td>Wazuh, Grafana, Loki, Trivy, BookStack</td></tr>
+      <tr><td>HR Manager</td><td>HR</td><td>ERPNext, BookStack, Slack</td></tr>
+      <tr><td>Finance Manager</td><td>Finance</td><td>ERPNext, Grafana</td></tr>
+      <tr><td>BD / Sales</td><td>Sales</td><td>ERPNext, customer portals (presentations), BookStack, Grafana</td></tr>
+      <tr><td>Data Analyst</td><td>Data</td><td>Grafana, PostgreSQL, ERPNext</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
