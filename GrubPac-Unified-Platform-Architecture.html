@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrubPac — Unified Platform Architecture Blueprint</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --navy:#0f2744;--blue:#1565c0;--sky:#e3f2fd;--green:#2e7d32;--green-bg:#e8f5e9;
+  --orange:#e65100;--orange-bg:#fff3e0;--red:#c62828;--red-bg:#ffebee;
+  --purple:#6a1b9a;--purple-bg:#f3e5f5;--gray:#546e7a;--border:#dde3ea;
+  --card:#fff;--bg:#f0f3f7;--text:#1a2332;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:14px}
+a{color:var(--blue)}
+.hdr{background:linear-gradient(135deg,#0f2744 0%,#1565c0 55%,#283593 100%);color:#fff;padding:52px 28px 44px;text-align:center}
+.hdr h1{font-size:32px;font-weight:800;margin-bottom:10px;letter-spacing:-.3px}
+.hdr .sub{font-size:15px;opacity:.92;max-width:820px;margin:0 auto 12px}
+.hdr .meta{font-size:11px;opacity:.55;font-family:Consolas,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 20px 80px}
+.toc{background:var(--card);border-radius:14px;padding:22px 26px;margin-bottom:24px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.toc h2{font-size:17px;color:var(--navy);margin-bottom:14px}
+.toc ol{columns:2;column-gap:32px;padding-left:22px;font-size:12px}
+.toc li{margin:5px 0;break-inside:avoid}
+.toc a{color:var(--blue);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.card{background:var(--card);border-radius:14px;margin-bottom:22px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.04);overflow:hidden}
+.card-head{padding:20px 24px 0}
+.card-head h2{font-size:20px;color:var(--navy);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sec-num{display:inline-flex;align-items:center;justify-content:center;background:var(--navy);color:#fff;font-size:11px;font-weight:800;width:30px;height:30px;border-radius:8px;flex-shrink:0}
+.card-head .lead{font-size:13px;color:var(--gray);margin-top:6px;max-width:900px}
+.card-body{padding:12px 24px 24px}
+.card-body h3{font-size:15px;color:var(--blue);margin:18px 0 10px;padding-bottom:4px;border-bottom:2px solid var(--border)}
+.card-body h3:first-child{margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:12px 0}
+@media(max-width:860px){.grid2,.grid3,.toc ol{columns:1;grid-template-columns:1fr}}
+.block{background:#fafbfc;border:1px solid var(--border);border-radius:10px;padding:16px}
+.block h4{font-size:13px;color:var(--navy);margin-bottom:8px}
+.block ul,.block ol{font-size:12px;padding-left:18px;color:#444}
+.block li{margin:3px 0}
+.info{padding:12px 16px;border-radius:10px;font-size:13px;margin:12px 0;border-left:4px solid var(--blue);background:#f7f9fc}
+.info-green{border-color:var(--green);background:var(--green-bg)}
+.info-orange{border-color:var(--orange);background:var(--orange-bg)}
+.info-red{border-color:var(--red);background:var(--red-bg)}
+.info-purple{border-color:var(--purple);background:var(--purple-bg)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+@media(max-width:700px){.compare{grid-template-columns:1fr}}
+.compare-col{border-radius:12px;padding:18px;border:2px solid var(--border)}
+.compare-col.bad{background:#fff5f5;border-color:#ef9a9a}
+.compare-col.good{background:var(--green-bg);border-color:#81c784}
+.compare-col h4{font-size:14px;margin-bottom:10px}
+.compare-col ul{font-size:12px;padding-left:18px}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin:2px}
+.t-high{background:#ffebee;color:#b71c1c}
+.t-med{background:#fff8e1;color:#f57f17}
+.t-low{background:#e8f5e9;color:#2e7d32}
+.t-p1{background:#e3f2fd;color:#0d47a1}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#eef2f7;color:var(--navy);font-size:10px;text-transform:uppercase;letter-spacing:.4px}
+tr:nth-child(even){background:#fafbfc}
+.yes{color:var(--green);font-weight:700}
+.no{color:#bbb}
+.partial{color:var(--orange);font-weight:700}
+.mermaid{margin:14px 0;background:#fff;border-radius:10px;padding:10px 8px;border:1px solid var(--border);text-align:center;overflow:hidden}
+.mermaid svg{display:block;margin:0 auto;transform-origin:top center}
+#s1 .mermaid svg{max-width:100%!important;width:100%!important;height:auto!important}
+.flow-steps{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:10px 0;padding:12px;background:#fafbfc;border:1px solid var(--border);border-radius:10px;font-size:11px}
+.flow-step{background:var(--sky);border:1px solid var(--blue);border-radius:6px;padding:4px 10px;font-weight:600;color:#0d47a1}
+.flow-arrow{color:var(--gray);font-weight:700}
+.reuse-bar{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:12px}
+.reuse-label{width:130px;flex-shrink:0;font-weight:600}
+.reuse-track{flex:1;background:#e0e0e0;border-radius:6px;height:22px;overflow:hidden}
+.reuse-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:700;color:#fff}
+.r100{background:#2e7d32}.r95{background:#388e3c}.r90{background:#43a047}
+.r85{background:#558b2f}.r80{background:#689f38}.r-admin{background:#1565c0}
+.roadmap{display:grid;gap:12px;margin:14px 0}
+.road-item{display:grid;grid-template-columns:100px 1fr auto;gap:14px;align-items:start;padding:14px;background:#fafbfc;border:1px solid var(--border);border-radius:10px}
+@media(max-width:600px){.road-item{grid-template-columns:1fr}}
+.road-phase{font-size:12px;font-weight:800;color:var(--navy)}
+.road-item h4{font-size:13px;color:var(--blue);margin-bottom:4px}
+.road-item p{font-size:12px;color:#555}
+.menu-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
+@media(max-width:760px){.menu-preview{grid-template-columns:1fr}}
+.menu-card{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.menu-card h4{background:var(--navy);color:#fff;padding:10px 14px;font-size:12px}
+.menu-card ul{list-style:none;padding:10px 14px;font-size:12px}
+.menu-card li{padding:5px 0;border-bottom:1px solid #eee}
+.menu-card li:last-child{border:none}
+.menu-card li.off{color:#bbb;text-decoration:line-through}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
+@media(max-width:760px){.kpi-row{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.kpi .num{font-size:28px;font-weight:800;color:var(--blue)}
+.kpi .lbl{font-size:11px;color:var(--gray);margin-top:4px}
+.footer{text-align:center;padding:32px 20px;font-size:11px;color:var(--gray)}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <h1>GrubPac Unified Platform — Architecture Blueprint</h1>
+  <p class="sub">How we design <b>one single platform</b> to replace GrubAdmin, GrubDelivery, GrubMedical, and GrubHospitality — build once, configure everywhere.</p>
+  <p class="meta">Enterprise Architecture Document · portal.grubpac.com · Confidential</p>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#s1">Executive Summary</a></li>
+    <li><a href="#s2">Platform Vision</a></li>
+    <li><a href="#s3">User Thinking Process</a></li>
+    <li><a href="#s4">User Journey</a></li>
+    <li><a href="#s5">Single Login Architecture</a></li>
+    <li><a href="#s6">Multi-Tenancy</a></li>
+    <li><a href="#s7">RBAC Architecture</a></li>
+    <li><a href="#s8">Feature Flag Architecture</a></li>
+    <li><a href="#s9">Dynamic Menu System</a></li>
+    <li><a href="#s10">Shared Core Modules</a></li>
+    <li><a href="#s11">Shared Engines</a></li>
+    <li><a href="#s12">Vertical Configuration</a></li>
+    <li><a href="#s13">Client Management</a></li>
+    <li><a href="#s14">Account Management</a></li>
+    <li><a href="#s15">Database Architecture</a></li>
+    <li><a href="#s16">Frontend Architecture</a></li>
+    <li><a href="#s17">Backend Architecture</a></li>
+    <li><a href="#s18">Reuse Analysis</a></li>
+    <li><a href="#s19">Development Roadmap</a></li>
+    <li><a href="#s20">Final Target Architecture</a></li>
+  </ol>
+</nav>
+
+<!-- SECTION 1 -->
+<section class="card" id="s1">
+  <div class="card-head">
+    <h2><span class="sec-num">1</span> Executive Summary</h2>
+    <p class="lead">Why GrubPac is moving from four separate portals to one unified platform.</p>
+  </div>
+  <div class="card-body">
+    <div class="kpi-row">
+      <div class="kpi"><div class="num">4</div><div class="lbl">Separate portals today</div></div>
+      <div class="kpi"><div class="num">1</div><div class="lbl">Target platform</div></div>
+      <div class="kpi"><div class="num">75–80%</div><div class="lbl">Shared functionality</div></div>
+      <div class="kpi"><div class="num">20–25%</div><div class="lbl">Vertical-specific only</div></div>
+    </div>
+
+    <h3>Current State</h3>
+    <p>GrubPac operates four independent platforms — <b>GrubAdmin</b>, <b>GrubDelivery</b>, <b>GrubMedical</b>, and <b>GrubHospitality</b>. Each has its own frontend, login, deployment, backups, and maintenance cycle.</p>
+
+    <h3>Problems</h3>
+    <div class="grid2">
+      <div class="block"><h4>Cost</h4><ul><li>Higher infrastructure spend (4× hosting)</li><li>Higher maintenance and DevOps effort</li><li>Duplicate backup and monitoring</li></ul></div>
+      <div class="block"><h4>Development</h4><ul><li>Same features built four times</li><li>Same bugs fixed four times</li><li>Same tests written four times</li></ul></div>
+      <div class="block"><h4>Operations</h4><ul><li>Four login experiences for users</li><li>Inconsistent behaviour across portals</li><li>Slower rollout of new features</li></ul></div>
+      <div class="block"><h4>Business Risk</h4><ul><li>Harder to onboard new verticals</li><li>Knowledge split across codebases</li><li>No single view of a client account</li></ul></div>
+    </div>
+
+    <h3>Why Change</h3>
+    <p>Analysis shows <b>75%–80% of functionality is identical</b> across all four portals. Only <b>20%–25%</b> is vertical-specific (labels, menus, and a handful of features). Maintaining four codebases for mostly shared logic is not sustainable.</p>
+
+    <h3>Benefits of One Platform</h3>
+    <ul>
+      <li><b>One codebase</b> — fix once, deploy everywhere</li>
+      <li><b>One login</b> — portal.grubpac.com for all users</li>
+      <li><b>One deployment</b> — single release pipeline</li>
+      <li><b>One backup strategy</b> — simpler disaster recovery</li>
+      <li><b>Faster verticals</b> — new industries added by configuration, not new apps</li>
+    </ul>
+
+    <h3>Current vs Target Architecture</h3>
+    <div class="compare">
+      <div class="compare-col bad">
+        <h4>❌ Current — Four Portals</h4>
+        <ul>
+          <li>GrubAdmin — separate app</li>
+          <li>GrubDelivery — separate app</li>
+          <li>GrubMedical — separate app</li>
+          <li>GrubHospitality — separate app</li>
+          <li>4 frontends · 4 logins · 4 deployments</li>
+        </ul>
+      </div>
+      <div class="compare-col good">
+        <h4>✅ Target — One Platform</h4>
+        <ul>
+          <li>portal.grubpac.com — single entry</li>
+          <li>RBAC + Multi-Tenancy + Feature Flags</li>
+          <li>Shared engines configured per vertical</li>
+          <li>1 frontend · 1 login · 1 deployment</li>
+        </ul>
+      </div>
+    </div>
+    <pre class="mermaid">
+flowchart LR
+    subgraph CURRENT["Current"]
+        A1[GrubAdmin]
+        A2[GrubDelivery]
+        A3[GrubMedical]
+        A4[GrubHospitality]
+    end
+    subgraph TARGET["Target"]
+        P[Single Platform portal.grubpac.com]
+        P --> RBAC[RBAC]
+        P --> MT[Multi-Tenancy]
+        P --> FF[Feature Flags]
+        P --> SE[Shared Engines]
+    end
+    CURRENT -.->|Replace| TARGET
+    </pre>
+  </div>
+</section>
+
+<!-- SECTION 2 -->
+<section class="card" id="s2">
+  <div class="card-head">
+    <h2><span class="sec-num">2</span> Platform Vision</h2>
+    <p class="lead">Build once. Configure everywhere. One platform serves Admin, Delivery, Medical, Hospitality, and future verticals.</p>
+  </div>
+  <div class="card-body">
+    <div class="info info-green"><b>Core principle:</b> We write shared code once. Vertical differences are handled by configuration — roles, feature flags, and labels — not by separate applications.</div>
+    <pre class="mermaid">
+flowchart TB
+    subgraph TODAY["Today — 4 Portals"]
+        GA[GrubAdmin]
+        GD[GrubDelivery]
+        GM[GrubMedical]
+        GH[GrubHospitality]
+    end
+    subgraph TOMORROW["Target — Single Platform"]
+        PORTAL[portal.grubpac.com]
+        PORTAL --> AUTH[Authentication]
+        PORTAL --> TENANT[Multi-Tenancy]
+        PORTAL --> ROLE[RBAC]
+        PORTAL --> FEAT[Feature Flags]
+        PORTAL --> CORE[Shared Core Modules]
+        PORTAL --> ENG[Shared Engines]
+        ENG --> V1[Admin Config]
+        ENG --> V2[Delivery Config]
+        ENG --> V3[Medical Config]
+        ENG --> V4[Hospitality Config]
+        ENG --> V5[Future Verticals]
+    end
+    TODAY ==> TOMORROW
+    </pre>
+    <div class="grid3">
+      <div class="block"><h4>RBAC</h4><p>Controls who sees what — menus, screens, buttons, APIs, and data.</p></div>
+      <div class="block"><h4>Multi-Tenancy</h4><p>Every client is isolated. All data scoped by tenant_id.</p></div>
+      <div class="block"><h4>Feature Flags</h4><p>Same code, different visibility per vertical and client.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3 -->
+<section class="card" id="s3">
+  <div class="card-head">
+    <h2><span class="sec-num">3</span> User Thinking Process</h2>
+    <p class="lead">System design starts with the user — not the database.</p>
+  </div>
+  <div class="card-body">
+    <p>When a team lead designs this platform, they think top-down:</p>
+    <div class="flow-steps">
+      <span class="flow-step">User</span><span class="flow-arrow">↓</span>
+      <span class="flow-step">Role</span><span class="flow-arrow">↓</span>
+      <span class="flow-step">Workflow</span><span class="flow-arrow">↓</span>
+      <span class="flow-step">Features</span><span class="flow-arrow">↓</span>
+      <span class="flow-step">Modules</span><span class="flow-arrow">↓</span>
+      <span class="flow-step">Permissions</span><span class="flow-arrow">↓</span>
+      <span class="flow-step">Platform</span>
+    </div>
+    <pre class="mermaid">
+flowchart TB
+    U[Who is the user?] --> R[What is their role?]
+    R --> W[What workflow do they follow?]
+    W --> F[What features do they need?]
+    F --> M[Which modules power those features?]
+    M --> P[What permissions are required?]
+    P --> PL[How does the platform deliver this?]
+    </pre>
+    <div class="info"><b>Example:</b> A Delivery Manager needs to track GrubPacs at restaurants. User → Manager role → Tracking workflow → Tracking + Maps features → GrubPacs Engine + Groups Engine → Read/Update permissions → Dynamic menu shows only Delivery items.</div>
+  </div>
+</section>
+
+<!-- SECTION 4 -->
+<section class="card" id="s4">
+  <div class="card-head">
+    <h2><span class="sec-num">4</span> User Journey</h2>
+    <p class="lead">Complete lifecycle from client creation to daily platform use.</p>
+  </div>
+  <div class="card-body">
+    <div class="flow-steps">
+      <span class="flow-step">Create Client</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Assign Vertical</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Create User</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Assign Role</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Assign Group</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Assign GrubPac</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Enable Features</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Login</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Use Platform</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Logs &amp; Audit</span>
+    </div>
+    <pre class="mermaid">
+flowchart TB
+    C1[Admin creates client tenant] --> C2[Assign vertical: Delivery / Medical / Hospitality]
+    C2 --> C3[Create employee users]
+    C3 --> C4[Assign role: Manager / Operator / Viewer]
+    C4 --> C5[Assign to group: Restaurant / Department / Floor]
+    C5 --> C6[Assign GrubPac boxes to group]
+    C6 --> C7[Enable feature flags for tenant]
+    C7 --> C8[User logs in at portal.grubpac.com]
+    C8 --> C9[Platform renders dynamic UI]
+    C9 --> C10[All actions logged to audit]
+    </pre>
+    <table>
+      <tr><th>Step</th><th>Who does it</th><th>Outcome</th></tr>
+      <tr><td>Create Client</td><td>Super Admin / Admin</td><td>New tenant with unique tenant_id</td></tr>
+      <tr><td>Assign Vertical</td><td>Admin</td><td>Feature set and labels configured</td></tr>
+      <tr><td>Create User</td><td>Admin / Manager</td><td>Employee account created</td></tr>
+      <tr><td>Assign Role</td><td>Admin</td><td>Permissions applied</td></tr>
+      <tr><td>Assign Group</td><td>Manager</td><td>User linked to Restaurant / Department / Floor</td></tr>
+      <tr><td>Assign GrubPac</td><td>Manager / Admin</td><td>Box linked to group and tenant</td></tr>
+      <tr><td>Enable Features</td><td>Admin</td><td>Tracking, Camera, GrubLock etc. toggled</td></tr>
+      <tr><td>Login</td><td>End user</td><td>Single sign-on, tenant resolved</td></tr>
+      <tr><td>Use Platform</td><td>End user</td><td>Dynamic dashboard and workflows</td></tr>
+      <tr><td>Logs &amp; Audit</td><td>System</td><td>Every action recorded</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 5 -->
+<section class="card" id="s5">
+  <div class="card-head">
+    <h2><span class="sec-num">5</span> Single Login Architecture</h2>
+    <p class="lead">One URL. One login. Every vertical.</p>
+  </div>
+  <div class="card-body">
+    <div class="info info-purple"><b>Entry point:</b> <code>portal.grubpac.com</code> — all users, all verticals, all clients.</div>
+    <div class="flow-steps">
+      <span class="flow-step">User Login</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Authentication</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Tenant Identification</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Role Loading</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Permission Loading</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Feature Loading</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Dynamic UI Generation</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Dashboard</span>
+    </div>
+    <pre class="mermaid">
+sequenceDiagram
+    actor User
+    participant Portal as portal.grubpac.com
+    participant Auth as Auth Service
+    participant Tenant as Tenant Service
+    participant RBAC as RBAC Service
+    participant Feature as Feature Service
+    participant UI as Frontend
+
+    User->>Portal: Enter email + password / OTP
+    Portal->>Auth: Authenticate
+    Auth-->>Portal: JWT + user_id
+    Portal->>Tenant: Resolve tenant_id
+    Tenant-->>Portal: Tenant config + vertical
+    Portal->>RBAC: Load roles + permissions
+    RBAC-->>Portal: Permission set
+    Portal->>Feature: Load feature flags
+    Feature-->>Portal: Enabled features
+    Portal->>UI: Build dynamic menu + screens
+    UI-->>User: Personalised dashboard
+    </pre>
+  </div>
+</section>
+
+<!-- SECTION 6 -->
+<section class="card" id="s6">
+  <div class="card-head">
+    <h2><span class="sec-num">6</span> Multi-Tenancy</h2>
+    <p class="lead">Every client is a tenant. Data never crosses tenant boundaries.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TB
+    T[Tenant — one client organisation]
+    T --> E[Employees]
+    T --> G[Groups]
+    T --> GP[GrubPacs]
+    T --> S[Settings]
+    T --> F[Features]
+    T --> SUP[Support / FAQs]
+    T --> L[Logs &amp; Audit]
+    </pre>
+    <div class="grid2">
+      <div class="block">
+        <h4>tenant_id</h4>
+        <p>Every database row for a client carries <code>tenant_id</code>. Every API request validates tenant context. Users can only access data within their tenant.</p>
+      </div>
+      <div class="block">
+        <h4>Data Separation</h4>
+        <ul>
+          <li>Row-level isolation by tenant_id</li>
+          <li>API middleware enforces tenant scope</li>
+          <li>Admin impersonation is logged and audited</li>
+          <li>No shared data between clients</li>
+        </ul>
+      </div>
+    </div>
+    <div class="info info-orange"><b>Tenant isolation rule:</b> A Delivery client in Mumbai cannot see a Medical client in Delhi. Even on the same platform, they are completely separate.</div>
+  </div>
+</section>
+
+<!-- SECTION 7 -->
+<section class="card" id="s7">
+  <div class="card-head">
+    <h2><span class="sec-num">7</span> RBAC Architecture</h2>
+    <p class="lead">Role-based access controls every menu, screen, button, API, and data record.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TB
+    SA[Super Admin] --> AD[Admin]
+    AD --> VO[Vertical Owner]
+    VO --> MG[Manager]
+    MG --> OP[Operator]
+    OP --> VW[Viewer]
+    </pre>
+    <table>
+      <tr>
+        <th>Permission</th>
+        <th>Super Admin</th>
+        <th>Admin</th>
+        <th>Vertical Owner</th>
+        <th>Manager</th>
+        <th>Operator</th>
+        <th>Viewer</th>
+      </tr>
+      <tr><td>Create</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="partial">Own scope</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Read</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>Update</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="partial">Own scope</td><td class="partial">Limited</td><td class="no">—</td></tr>
+      <tr><td>Delete</td><td class="yes">✓</td><td class="yes">✓</td><td class="partial">Own vertical</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Assign</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Transfer</td><td class="yes">✓</td><td class="yes">✓</td><td class="partial">Own scope</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Suspend</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="partial">Own scope</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Activate</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Export</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="partial">Own scope</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>Manage Roles</td><td class="yes">✓</td><td class="yes">✓</td><td class="partial">Own vertical</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+    </table>
+    <div class="info">RBAC controls: <b>Menus</b> (what appears in sidebar) · <b>Screens</b> (which pages load) · <b>Buttons</b> (create, delete, export) · <b>APIs</b> (backend enforcement) · <b>Data</b> (row-level scope)</div>
+  </div>
+</section>
+
+<!-- SECTION 8 -->
+<section class="card" id="s8">
+  <div class="card-head">
+    <h2><span class="sec-num">8</span> Feature Flag Architecture</h2>
+    <p class="lead">Same code. Different visibility per vertical and client.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart LR
+    FE[Feature Engine] --> T[Tracking]
+    FE --> CAM[Camera]
+    FE --> GL[GrubLock]
+    FE --> SUP[Support]
+    FE --> EMP[Employees]
+    FE --> GRP[Groups]
+    FE --> CLI[Clients]
+    FE --> REP[Reports]
+    </pre>
+    <div class="info info-green"><b>Same code. Different visibility.</b> Features are toggled per tenant and vertical. Disabled features are hidden from UI and blocked at API level.</div>
+    <table>
+      <tr><th>Feature</th><th>Delivery</th><th>Medical</th><th>Hospitality</th><th>Admin</th></tr>
+      <tr><td>Tracking</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>Camera</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>GrubLock</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>Employees</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>Groups</td><td class="yes">Restaurants</td><td class="yes">Departments</td><td class="yes">Floors</td><td class="yes">✓</td></tr>
+      <tr><td>Support</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">CRUD</td></tr>
+      <tr><td>Clients</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>Reports</td><td class="yes">✓</td><td class="yes">✓</td><td class="partial">Limited</td><td class="yes">✓</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 9 -->
+<section class="card" id="s9">
+  <div class="card-head">
+    <h2><span class="sec-num">9</span> Dynamic Menu System</h2>
+    <p class="lead">Menus are generated at login — not hardcoded per portal.</p>
+  </div>
+  <div class="card-body">
+    <div class="menu-preview">
+      <div class="menu-card">
+        <h4>Delivery User Menu</h4>
+        <ul>
+          <li>Dashboard</li><li>Tracking</li><li>Camera</li><li>GrubLock</li>
+          <li>Restaurants</li><li>Maps</li><li>Employees</li><li>Support</li><li>Settings</li>
+        </ul>
+      </div>
+      <div class="menu-card">
+        <h4>Medical User Menu</h4>
+        <ul>
+          <li>Dashboard</li><li>Tracking</li><li>Camera</li><li>GrubLock</li>
+          <li>Departments</li><li>Employees</li><li>Support</li><li>Settings</li>
+          <li class="off">Maps</li><li class="off">Restaurants</li>
+        </ul>
+      </div>
+      <div class="menu-card">
+        <h4>Hospitality User Menu</h4>
+        <ul>
+          <li>Dashboard</li><li>Floors</li><li>GrubPacs</li><li>Support</li><li>Settings</li>
+          <li class="off">Tracking</li><li class="off">Camera</li><li class="off">GrubLock</li><li class="off">Employees</li>
+        </ul>
+      </div>
+    </div>
+    <pre class="mermaid">
+flowchart LR
+  LOGIN[User Login] --> RBAC[RBAC Check]
+  RBAC --> FLAGS[Feature Flags]
+  FLAGS --> MENU[Menu Builder]
+  MENU --> UI[Render Sidebar]
+    </pre>
+    <p>Menu items = intersection of <b>role permissions</b> AND <b>enabled feature flags</b> AND <b>vertical configuration</b>.</p>
+  </div>
+</section>
+
+<!-- SECTION 10 -->
+<section class="card" id="s10">
+  <div class="card-head">
+    <h2><span class="sec-num">10</span> Shared Core Modules</h2>
+    <p class="lead">100% reused across all verticals — built once, never duplicated.</p>
+  </div>
+  <div class="card-body">
+    <div class="grid2">
+      <div class="block"><h4>Authentication <span class="tag t-p1">100% reuse</span></h4><ul><li>Login</li><li>OTP</li><li>Profile</li><li>Delete Account</li></ul></div>
+      <div class="block"><h4>Notifications <span class="tag t-p1">100% reuse</span></h4><ul><li>List</li><li>Dismiss</li><li>Mark Read</li></ul></div>
+      <div class="block"><h4>System Logs <span class="tag t-p1">100% reuse</span></h4><ul><li>Search</li><li>Filter</li><li>Export</li></ul></div>
+      <div class="block"><h4>Search Engine <span class="tag t-p1">100% reuse</span></h4><ul><li>Global Search</li><li>Tenant Search</li></ul></div>
+      <div class="block"><h4>RBAC <span class="tag t-p1">100% reuse</span></h4><ul><li>Roles</li><li>Permissions</li></ul></div>
+      <div class="block"><h4>Account Management <span class="tag t-p1">100% reuse</span></h4><ul><li>Multi-Tenant</li><li>Client ID</li></ul></div>
+      <div class="block"><h4>Feature Flags <span class="tag t-p1">100% reuse</span></h4><ul><li>UI Control</li><li>Module Visibility</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 11 -->
+<section class="card" id="s11">
+  <div class="card-head">
+    <h2><span class="sec-num">11</span> Shared Engines</h2>
+    <p class="lead">Business logic engines shared across verticals — configured, not rewritten.</p>
+  </div>
+  <div class="card-body">
+
+    <h3>Engine 1 — GrubPacs Engine</h3>
+    <p>Create · Assign · Activate · Monitor · Suspend · Reactivate · Transfer · Delete</p>
+    <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Created
+    Created --> Assigned: Assign to group
+    Assigned --> Active: Activate
+    Active --> Suspended: Suspend
+    Suspended --> Active: Reactivate
+    Active --> Transferred: Transfer
+    Transferred --> Active: Activate
+    Active --> Deleted: Delete
+    Suspended --> Deleted: Delete
+    </pre>
+
+    <h3>Engine 2 — Employee Engine</h3>
+    <p>Create · Assign Role · Assign Group · Activate · Manage · Suspend · Reactivate · Delete</p>
+
+    <h3>Engine 3 — Groups Engine</h3>
+    <p>One engine. Different labels per vertical.</p>
+    <pre class="mermaid">
+flowchart LR
+    GE[Groups Engine] --> D[Delivery = Restaurant]
+    GE --> M[Medical = Department]
+    GE --> H[Hospitality = Floor]
+    </pre>
+
+    <h3>Engine 4 — Support Engine</h3>
+    <p>Admin owns content (FAQs, guides). All other verticals consume content. Producer → Consumer model.</p>
+    <pre class="mermaid">
+flowchart LR
+    ADMIN[Admin creates FAQs] --> DB[(Support Content)]
+    DB --> DEL[Delivery reads]
+    DB --> MED[Medical reads]
+    DB --> HOS[Hospitality reads]
+    </pre>
+
+    <h3>Engine 5 — GrubLock Engine</h3>
+    <p>View Boxes · Lock · Unlock · Emergency Unlock — enabled for <b>Delivery</b> and <b>Medical</b> only.</p>
+  </div>
+</section>
+
+<!-- SECTION 12 -->
+<section class="card" id="s12">
+  <div class="card-head">
+    <h2><span class="sec-num">12</span> Vertical Configuration</h2>
+    <p class="lead">What each vertical can do — configured on the same platform.</p>
+  </div>
+  <div class="card-body">
+    <div class="grid2">
+      <div class="block">
+        <h4>Admin</h4>
+        <ul>
+          <li>Add / Delete Box</li><li>Assign Client</li><li>Remove Assignment</li>
+          <li>Clients management</li><li>Roles management</li>
+          <li>Support FAQ CRUD</li><li>Account Impersonation</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h4>Delivery</h4>
+        <ul>
+          <li>Tracking · Camera · GrubLock</li><li>Restaurants · Maps · Address</li>
+          <li>Manager Assignment</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h4>Medical</h4>
+        <ul>
+          <li>Tracking · Camera · GrubLock</li>
+          <li>Departments · Department Management</li>
+        </ul>
+      </div>
+      <div class="block">
+        <h4>Hospitality</h4>
+        <ul>
+          <li>Limited Settings</li><li>Floors</li><li>GrubPacs</li>
+          <li class="off" style="list-style:none;color:#999">✗ No Tracking · ✗ No Camera · ✗ No Employees</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 13 -->
+<section class="card" id="s13">
+  <div class="card-head">
+    <h2><span class="sec-num">13</span> Client Management</h2>
+    <p class="lead">Full lifecycle for managing client tenants on the platform.</p>
+  </div>
+  <div class="card-body">
+    <div class="flow-steps">
+      <span class="flow-step">Create Client</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Assign Vertical</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Assign GrubPacs</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Manage Resources</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Access Account</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Review Logs</span>
+    </div>
+    <table>
+      <tr><th>Connected Entities</th><th>Actions Available</th></tr>
+      <tr>
+        <td>Employees · GrubPacs · Settings · FAQs · Logs</td>
+        <td>Add · Configure · Suspend · Reactivate · Transfer Ownership · Audit · Export · Delete</td>
+      </tr>
+    </table>
+    <div class="info info-red"><b>⚠ Risk warning:</b> Delete Client and Transfer Ownership are irreversible high-risk actions. They require Super Admin approval, full audit logging, and mandatory confirmation step. All associated employees, boxes, and historical logs are affected.</div>
+  </div>
+</section>
+
+<!-- SECTION 14 -->
+<section class="card" id="s14">
+  <div class="card-head">
+    <h2><span class="sec-num">14</span> Account Management</h2>
+    <p class="lead">User account lifecycle and ownership transfer.</p>
+  </div>
+  <div class="card-body">
+    <div class="flow-steps">
+      <span class="flow-step">Register</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Login</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Profile Management</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Transfer Ownership</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Delete Account</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Logout</span>
+    </div>
+    <h3>Ownership Transfer Types</h3>
+    <table>
+      <tr><th>Type</th><th>What transfers</th><th>Risk Level</th><th>Approval</th></tr>
+      <tr><td>Selected Boxes</td><td>Specific GrubPacs only</td><td><span class="tag t-med">Medium</span></td><td>Manager + Admin</td></tr>
+      <tr><td>All Boxes</td><td>Every GrubPac in account</td><td><span class="tag t-high">High</span></td><td>Admin</td></tr>
+      <tr><td>Complete Account</td><td>Employees, Departments, Restaurants, Floors, Settings, Historical Logs, Ownership Metadata</td><td><span class="tag t-high">Critical</span></td><td>Super Admin + written confirmation</td></tr>
+    </table>
+    <pre class="mermaid">
+flowchart TB
+    REQ[Transfer Request] --> REV{Review scope}
+    REV -->|Selected Boxes| MGR[Manager approves]
+    REV -->|All Boxes| ADM[Admin approves]
+    REV -->|Complete Account| SA[Super Admin approves]
+    MGR --> EXEC[Execute transfer]
+    ADM --> EXEC
+    SA --> EXEC
+    EXEC --> AUDIT[Audit log entry]
+    </pre>
+  </div>
+</section>
+
+<!-- SECTION 15 -->
+<section class="card" id="s15">
+  <div class="card-head">
+    <h2><span class="sec-num">15</span> Database Architecture</h2>
+    <p class="lead">Single database. All tables scoped by tenant_id.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+erDiagram
+    tenants ||--o{ users : has
+    tenants ||--o{ groups : has
+    tenants ||--o{ employees : has
+    tenants ||--o{ grubpacs : has
+    tenants ||--o{ feature_flags : has
+    tenants ||--o{ notifications : has
+    tenants ||--o{ audit_logs : has
+    users ||--o{ roles : assigned
+    roles ||--o{ role_permissions : has
+    permissions ||--o{ role_permissions : has
+    groups ||--o{ employees : contains
+    groups ||--o{ grubpacs : contains
+    tenants ||--o{ clients : manages
+    users ||--o{ audit_logs : generates
+    </pre>
+    <table>
+      <tr><th>Table</th><th>Purpose</th><th>Scoped by tenant_id</th></tr>
+      <tr><td>tenants</td><td>Client organisations</td><td>— (root table)</td></tr>
+      <tr><td>users</td><td>Login accounts</td><td class="yes">✓</td></tr>
+      <tr><td>roles</td><td>Role definitions</td><td class="yes">✓</td></tr>
+      <tr><td>permissions</td><td>Permission definitions</td><td>Global + tenant override</td></tr>
+      <tr><td>role_permissions</td><td>Role ↔ Permission mapping</td><td class="yes">✓</td></tr>
+      <tr><td>feature_flags</td><td>Per-tenant feature toggles</td><td class="yes">✓</td></tr>
+      <tr><td>groups</td><td>Restaurants / Departments / Floors</td><td class="yes">✓</td></tr>
+      <tr><td>employees</td><td>Staff records</td><td class="yes">✓</td></tr>
+      <tr><td>grubpacs</td><td>Box devices</td><td class="yes">✓</td></tr>
+      <tr><td>clients</td><td>Admin-managed client records</td><td class="yes">✓</td></tr>
+      <tr><td>notifications</td><td>User notifications</td><td class="yes">✓</td></tr>
+      <tr><td>audit_logs</td><td>All system actions</td><td class="yes">✓</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 16 -->
+<section class="card" id="s16">
+  <div class="card-head">
+    <h2><span class="sec-num">16</span> Frontend Architecture</h2>
+    <p class="lead">One frontend application. Dynamic rendering based on role and features.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TB
+    APP[Single Frontend App portal.grubpac.com]
+    APP --> DASH[Dashboard]
+    APP --> AUTH[Authentication]
+    APP --> EMP[Employees]
+    APP --> GRP[Groups]
+    APP --> GP[GrubPacs]
+    APP --> SUP[Support]
+    APP --> CLI[Clients]
+    APP --> SET[Settings]
+    APP --> LOG[Logs]
+    APP --> REP[Reports]
+    AUTH --> DYN[Dynamic Renderer]
+    DYN --> MENU[Menu from RBAC + Flags]
+    DYN --> PAGE[Page from Permissions]
+    </pre>
+    <div class="info">The frontend never hardcodes vertical menus. At login, it receives a <b>menu config JSON</b> from the backend and renders only allowed modules.</div>
+  </div>
+</section>
+
+<!-- SECTION 17 -->
+<section class="card" id="s17">
+  <div class="card-head">
+    <h2><span class="sec-num">17</span> Backend Architecture</h2>
+    <p class="lead">Single backend. Every request passes through auth, tenant, role, and feature validation.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TB
+    subgraph SERVICES["Backend Services"]
+        S1[Auth Service]
+        S2[Tenant Service]
+        S3[RBAC Service]
+        S4[Feature Service]
+        S5[Employee Service]
+        S6[Groups Service]
+        S7[GrubPacs Service]
+        S8[Support Service]
+        S9[Notification Service]
+        S10[Audit Service]
+    end
+    API[API Gateway] --> S1 & S2 & S3 & S4 & S5 & S6 & S7 & S8 & S9 & S10
+    </pre>
+    <h3>Request Flow</h3>
+    <div class="flow-steps">
+      <span class="flow-step">Request</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Auth</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Tenant Validation</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Role Validation</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Feature Validation</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Business Logic</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Audit Logging</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Response</span>
+    </div>
+    <pre class="mermaid">
+sequenceDiagram
+    participant C as Client
+    participant G as API Gateway
+    participant A as Auth
+    participant T as Tenant
+    participant R as RBAC
+    participant F as Feature
+    participant B as Business Service
+    participant L as Audit
+
+    C->>G: API Request + JWT
+    G->>A: Validate token
+    A-->>G: user_id
+    G->>T: Validate tenant_id
+    T-->>G: tenant OK
+    G->>R: Check permission
+    R-->>G: allowed
+    G->>F: Check feature flag
+    F-->>G: enabled
+    G->>B: Execute logic
+    B->>L: Log action
+    B-->>G: Result
+    G-->>C: Response
+    </pre>
+  </div>
+</section>
+
+<!-- SECTION 18 -->
+<section class="card" id="s18">
+  <div class="card-head">
+    <h2><span class="sec-num">18</span> Reuse Analysis</h2>
+    <p class="lead">Exact reuse percentages driving the one-platform decision.</p>
+  </div>
+  <div class="card-body">
+    <div class="reuse-bar"><span class="reuse-label">Authentication</span><div class="reuse-track"><div class="reuse-fill r100" style="width:100%">100%</div></div></div>
+    <div class="reuse-bar"><span class="reuse-label">Notifications</span><div class="reuse-track"><div class="reuse-fill r100" style="width:100%">100%</div></div></div>
+    <div class="reuse-bar"><span class="reuse-label">Logs</span><div class="reuse-track"><div class="reuse-fill r100" style="width:100%">100%</div></div></div>
+    <div class="reuse-bar"><span class="reuse-label">Search</span><div class="reuse-track"><div class="reuse-fill r100" style="width:100%">100%</div></div></div>
+    <div class="reuse-bar"><span class="reuse-label">GrubLock</span><div class="reuse-track"><div class="reuse-fill r95" style="width:95%">95%</div></div></div>
+    <div class="reuse-bar"><span class="reuse-label">Support</span><div class="reuse-track"><div class="reuse-fill r90" style="width:90%">90%</div></div></div>
+    <div class="reuse-bar"><span class="reuse-label">Employees</span><div class="reuse-track"><div class="reuse-fill r85" style="width:85%">85%</div></div></div>
+    <div class="reuse-bar"><span class="reuse-label">Groups</span><div class="reuse-track"><div class="reuse-fill r85" style="width:85%">85%</div></div></div>
+    <div class="reuse-bar"><span class="reuse-label">GrubPacs</span><div class="reuse-track"><div class="reuse-fill r80" style="width:80%">80%</div></div></div>
+    <div class="reuse-bar"><span class="reuse-label">Clients</span><div class="reuse-track"><div class="reuse-fill r-admin" style="width:40%">Admin only</div></div></div>
+    <pre class="mermaid">
+xychart-beta
+    title "Module Reuse %"
+    x-axis ["Auth","Notify","Logs","Search","GrubLock","Support","Employees","Groups","GrubPacs"]
+    y-axis "Reuse %" 0 --> 100
+    bar [100,100,100,100,95,90,85,85,80]
+    </pre>
+    <div class="info info-green"><b>Conclusion:</b> Building one platform and configuring vertical differences saves approximately <b>75–80% development effort</b> compared to maintaining four separate portals.</div>
+  </div>
+</section>
+
+<!-- SECTION 19 -->
+<section class="card" id="s19">
+  <div class="card-head">
+    <h2><span class="sec-num">19</span> Development Roadmap</h2>
+    <p class="lead">Phased delivery — foundation first, vertical features last.</p>
+  </div>
+  <div class="card-body">
+    <div class="roadmap">
+      <div class="road-item"><div class="road-phase">P1</div><div><h4>Foundation</h4><p>Auth · Notifications · Logs · Search</p></div><span class="tag t-high">High</span></div>
+      <div class="road-item"><div class="road-phase">P2</div><div><h4>RBAC</h4><p>Roles · Permissions · Menu builder</p></div><span class="tag t-high">High</span></div>
+      <div class="road-item"><div class="road-phase">P3</div><div><h4>GrubPacs Engine</h4><p>Create · Assign · Activate · Monitor · Lifecycle</p></div><span class="tag t-high">High</span></div>
+      <div class="road-item"><div class="road-phase">P4</div><div><h4>Employees Engine</h4><p>Create · Role · Group · Lifecycle</p></div><span class="tag t-med">Medium</span></div>
+      <div class="road-item"><div class="road-phase">P5</div><div><h4>Groups Engine</h4><p>Restaurant / Department / Floor labels</p></div><span class="tag t-med">Medium</span></div>
+      <div class="road-item"><div class="road-phase">P6</div><div><h4>Support Engine</h4><p>Admin CRUD · Consumer read model</p></div><span class="tag t-low">Low</span></div>
+      <div class="road-item"><div class="road-phase">P7</div><div><h4>GrubLock Engine</h4><p>Lock · Unlock · Emergency Unlock</p></div><span class="tag t-med">Medium</span></div>
+      <div class="road-item"><div class="road-phase">P8</div><div><h4>Clients Module</h4><p>Admin client management · Impersonation</p></div><span class="tag t-med">Medium</span></div>
+      <div class="road-item"><div class="road-phase">P9</div><div><h4>Vertical Features</h4><p>Delivery · Medical · Hospitality configurations</p></div><span class="tag t-high">High</span></div>
+    </div>
+    <pre class="mermaid">
+gantt
+    title Development Roadmap
+    dateFormat YYYY-MM
+    section Foundation
+    P1 Auth Logs Search       :p1, 2026-01, 3M
+    P2 RBAC                   :p2, after p1, 2M
+    section Engines
+    P3 GrubPacs               :p3, after p2, 3M
+    P4 Employees              :p4, after p3, 2M
+    P5 Groups                 :p5, after p4, 2M
+    P6 Support                :p6, after p5, 2M
+    P7 GrubLock               :p7, after p3, 2M
+    section Go Live
+    P8 Clients                :p8, after p6, 2M
+    P9 Vertical Features      :p9, after p8, 3M
+    </pre>
+  </div>
+</section>
+
+<!-- SECTION 20 -->
+<section class="card" id="s20">
+  <div class="card-head">
+    <h2><span class="sec-num">20</span> Final Target Architecture</h2>
+    <p class="lead">The complete ecosystem — one platform replacing four portals.</p>
+  </div>
+  <div class="card-body">
+    <pre class="mermaid">
+flowchart TB
+    subgraph USERS["Users"]
+        U1[Admin Staff]
+        U2[Delivery Users]
+        U3[Medical Users]
+        U4[Hospitality Users]
+    end
+
+    subgraph PLATFORM["Single Platform — portal.grubpac.com"]
+        direction TB
+        LOGIN[Single Login]
+        LOGIN --> MT[Multi-Tenancy]
+        LOGIN --> RBAC[RBAC]
+        LOGIN --> FF[Feature Flags]
+
+        subgraph CORE["Shared Core — 100% reuse"]
+            C1[Authentication]
+            C2[Notifications]
+            C3[System Logs]
+            C4[Search]
+            C5[Account Mgmt]
+        end
+
+        subgraph ENGINES["Shared Engines"]
+            E1[GrubPacs Engine]
+            E2[Employee Engine]
+            E3[Groups Engine]
+            E4[Support Engine]
+            E5[GrubLock Engine]
+        end
+
+        subgraph VERT["Vertical Configurations"]
+            V1[Admin]
+            V2[Delivery]
+            V3[Medical]
+            V4[Hospitality]
+            V5[Future Verticals]
+        end
+
+        MT --> CORE
+        RBAC --> CORE
+        FF --> ENGINES
+        ENGINES --> VERT
+    end
+
+    subgraph INFRA["Single Infrastructure"]
+        FE[Single Frontend]
+        BE[Single Backend]
+        DB[(Single Database)]
+        DEP[Single Deployment]
+        BAK[Single Backup Strategy]
+    end
+
+    USERS --> LOGIN
+    PLATFORM --> FE
+    FE --> BE
+    BE --> DB
+    BE --> DEP
+    DB --> BAK
+    </pre>
+
+    <div class="grid3">
+      <div class="block"><h4>One Frontend</h4><p>Dynamic UI per role, tenant, and vertical.</p></div>
+      <div class="block"><h4>One Backend</h4><p>10 services behind one API gateway.</p></div>
+      <div class="block"><h4>One Database</h4><p>All tables scoped by tenant_id.</p></div>
+      <div class="block"><h4>One Deployment</h4><p>Single CI/CD pipeline to production.</p></div>
+      <div class="block"><h4>One Backup</h4><p>Unified disaster recovery strategy.</p></div>
+      <div class="block"><h4>One Login</h4><p>portal.grubpac.com for everyone.</p></div>
+    </div>
+
+    <div class="info info-green">
+      <b>Final outcome:</b> GrubAdmin, GrubDelivery, GrubMedical, and GrubHospitality are retired. All users, all verticals, all clients operate on one platform — configured, not duplicated.
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer class="footer">
+  GrubPac Technologies — Unified Platform Architecture Blueprint · Confidential · portal.grubpac.com
+</footer>
+
+<script>
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  securityLevel: 'loose',
+  flowchart: { curve: 'basis', padding: 8, nodeSpacing: 24, rankSpacing: 22, htmlLabels: true, useMaxWidth: true },
+  sequence: { useMaxWidth: true, diagramMarginX: 8, diagramMarginY: 8, actorMargin: 36, messageMargin: 28 },
+  gantt: { useMaxWidth: true, barHeight: 18, barGap: 6, topPadding: 36 },
+  er: { useMaxWidth: true },
+  themeVariables: {
+    primaryColor: '#e3f2fd',
+    primaryTextColor: '#1a2332',
+    primaryBorderColor: '#1565c0',
+    lineColor: '#546e7a',
+    fontSize: '10px'
+  }
+});
+
+/* Shrink only diagrams that exceed standard view — Section 1 stays as-is */
+function fitOversizedDiagrams() {
+  var maxH = 260;
+  document.querySelectorAll('pre.mermaid').forEach(function(box) {
+    if (box.closest('#s1')) return;
+    var svg = box.querySelector('svg');
+    if (!svg) return;
+    svg.style.transform = '';
+    svg.style.width = '';
+    svg.style.height = '';
+    box.style.height = '';
+    var containerW = box.clientWidth || 900;
+    var w = svg.getBoundingClientRect().width;
+    var h = svg.getBoundingClientRect().height;
+    if (!w || !h) {
+      w = parseFloat(svg.getAttribute('width')) || w;
+      h = parseFloat(svg.getAttribute('height')) || h;
+    }
+    if (!w || !h) return;
+    var scale = Math.min(1, (containerW - 16) / w, maxH / h);
+    if (scale < 0.92) {
+      svg.style.transform = 'scale(' + scale + ')';
+      svg.style.transformOrigin = 'top center';
+      box.style.height = Math.ceil(h * scale + 10) + 'px';
+    } else {
+      svg.style.maxWidth = '100%';
+      svg.style.width = '100%';
+      svg.style.height = 'auto';
+    }
+  });
+}
+
+mermaid.run({ querySelector: '.mermaid' }).then(function() {
+  fitOversizedDiagrams();
+  setTimeout(fitOversizedDiagrams, 300);
+});
+
+var resizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(fitOversizedDiagrams, 150);
+});
+</script>
+</body>
+</html>
