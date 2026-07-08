@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrubPac API Documentation — Architecture &amp; Flow</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --navy:#0f2744;--blue:#1565c0;--sky:#e3f2fd;--green:#2e7d32;--green-bg:#e8f5e9;
+  --orange:#e65100;--orange-bg:#fff3e0;--purple:#6a1b9a;--purple-bg:#f3e5f5;
+  --gray:#546e7a;--border:#dde3ea;--card:#fff;--bg:#f0f3f7;--text:#1a2332;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;font-size:14px}
+.hdr{background:linear-gradient(135deg,#0f2744 0%,#1565c0 55%,#283593 100%);color:#fff;padding:44px 24px 36px;text-align:center}
+.hdr h1{font-size:28px;font-weight:800;margin-bottom:8px}
+.hdr .sub{font-size:14px;opacity:.92;max-width:820px;margin:0 auto}
+.hdr .meta{font-size:11px;opacity:.55;margin-top:10px;font-family:Consolas,monospace}
+.wrap{max-width:960px;margin:0 auto;padding:24px 18px 60px}
+.card{background:var(--card);border-radius:14px;margin-bottom:20px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.04);overflow:hidden}
+.card-head{padding:18px 22px 0}
+.card-head h2{font-size:18px;color:var(--navy);margin-bottom:4px}
+.card-head p{font-size:13px;color:var(--gray)}
+.card-body{padding:10px 22px 22px}
+.info{padding:12px 16px;border-radius:10px;font-size:13px;margin:12px 0;border-left:4px solid var(--blue);background:#f7f9fc}
+.info-green{border-color:var(--green);background:var(--green-bg)}
+.info-orange{border-color:var(--orange);background:var(--orange-bg)}
+.info-purple{border-color:var(--purple);background:var(--purple-bg)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+th,td{border:1px solid var(--border);padding:10px 12px;text-align:left;vertical-align:top}
+th{background:#eef2f7;color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+tr:nth-child(even){background:#fafbfc}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap}
+.t-local{background:#e3f2fd;color:#0d47a1}
+.t-hosted{background:#f3e5f5;color:#6a1b9a}
+.t-git{background:#e8f5e9;color:#2e7d32}
+.t-new{background:#fff3e0;color:#e65100}
+.rec{background:var(--green-bg);border:2px solid #81c784;border-radius:12px;padding:16px 18px;margin:14px 0}
+.rec h3{font-size:15px;color:var(--green);margin-bottom:8px}
+.rec p,.rec li{font-size:13px;color:#333}
+.rec ul{padding-left:20px;margin-top:6px}
+.steps{display:grid;gap:10px;margin:14px 0}
+.step{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:start;padding:14px;background:#fafbfc;border:1px solid var(--border);border-radius:10px}
+.step-num{background:var(--navy);color:#fff;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+.step h4{font-size:14px;color:var(--blue);margin-bottom:4px}
+.step p{font-size:12px;color:#555}
+.step .where{font-size:11px;color:var(--gray);margin-top:4px;font-family:Consolas,monospace}
+.mock{border:2px solid var(--border);border-radius:12px;overflow:hidden;margin:16px 0;font-size:11px}
+.mock-top{background:var(--navy);color:#fff;padding:10px 14px;font-weight:700;font-size:12px}
+.mock-body{display:grid;grid-template-columns:170px 1fr 185px;min-height:240px}
+.mock-left{background:#f5f7fa;border-right:1px solid var(--border);padding:10px}
+.mock-mid{padding:12px;border-right:1px solid var(--border)}
+.mock-right{background:#1e1e2e;color:#a9b7c6;padding:12px;font-family:Consolas,monospace;font-size:10px;line-height:1.5}
+.mock-nav{padding:5px 8px;margin:3px 0;border-radius:4px;color:#555;font-size:10.5px}
+.mock-nav.grp{font-weight:700;color:var(--navy);margin-top:6px;background:none}
+.mock-nav.active{background:var(--sky);color:var(--blue);font-weight:700}
+.mock-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.mock-field{background:#f7f9fc;border:1px solid var(--border);border-radius:6px;padding:8px;margin:6px 0;font-size:11px}
+.mock-label{color:var(--gray);font-size:10px;text-transform:uppercase;margin-bottom:2px}
+.tree-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+@media(max-width:760px){.tree-grid{grid-template-columns:1fr}}
+.tree-block{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.tree-head{padding:10px 14px;font-size:12px;font-weight:700;color:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tree-head.local{background:#1565c0}
+.tree-head.docs{background:#2e7d32}
+.tree{background:#1e1e2e;color:#d4d4d4;padding:14px 16px;font-family:Consolas,monospace;font-size:11px;line-height:1.75;overflow-x:auto}
+.tree .dir{color:#4fc3f7}.tree .file{color:#ce9178}.tree .comment{color:#6a9955}.tree .new{color:#dcdcaa}
+.mermaid{margin:14px 0;background:#fff;border-radius:10px;padding:16px 10px;border:1px solid var(--border);text-align:center;overflow-x:auto}
+.mermaid svg{max-width:100%}
+.zone-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+@media(max-width:700px){.zone-row,.mock-body{grid-template-columns:1fr}.mock-right{display:none}}
+.zone{border-radius:12px;padding:16px;border:2px solid}
+.zone-local{border-color:#90caf9;background:#e3f2fd}
+.zone-hosted{border-color:#ce93d8;background:#f3e5f5}
+.zone h3{font-size:14px;margin-bottom:10px}
+.zone ul{font-size:12px;padding-left:18px;color:#333}
+.zone li{margin:5px 0}
+.footer{text-align:center;padding:24px;font-size:11px;color:var(--gray)}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <h1>GrubPac API Documentation — Architecture &amp; Flow</h1>
+  <p class="sub">Where files live (local Git repos vs hosted websites), real folder structure aligned to GrubAdmin-Backend, and the end-to-end update flow on every release.</p>
+  <p class="meta">GrubAdmin-Backend · GrubPac-API-Docs · docs.grubpac.com · Internal Reference</p>
+</header>
+
+<div class="wrap">
+
+<!-- 1 -->
+<div class="card" id="where">
+  <div class="card-head">
+    <h2>1. What Lives Where</h2>
+    <p>Three separate places — local repositories, the API server, and the documentation website.</p>
+  </div>
+  <div class="card-body">
+
+    <div class="zone-row">
+      <div class="zone zone-local">
+        <h3>Local — Git repositories (your machine / GitHub)</h3>
+        <ul>
+          <li><b>GrubAdmin-Backend</b> — API source code + generated OpenAPI specs</li>
+          <li><b>GrubPac-API-Docs</b> — documentation portal content (guides, portal config)</li>
+          <li><b>GrubDelivery-Frontend</b> — delivery portal UI (consumes APIs; does not host docs)</li>
+        </ul>
+      </div>
+      <div class="zone zone-hosted">
+        <h3>Hosted — live servers (cloud / production)</h3>
+        <ul>
+          <li><b>api.grubpac.com</b> — running GrubAdmin-Backend (<code>/api/v1/*</code>)</li>
+          <li><b>docs.grubpac.com</b> — documentation website (Mintlify / Redocly)</li>
+          <li><b>delivery.grubpac.com</b> — running GrubDelivery-Frontend</li>
+        </ul>
+      </div>
+    </div>
+
+    <table>
+      <tr>
+        <th>Item</th>
+        <th>Location</th>
+        <th>URL / path</th>
+        <th>Purpose</th>
+      </tr>
+      <tr>
+        <td>API handlers, validators, DB logic</td>
+        <td><span class="tag t-git">Git — local</span></td>
+        <td><code>GrubAdmin-Backend/src/</code></td>
+        <td>Backend implementation</td>
+      </tr>
+      <tr>
+        <td>OpenAPI specification files</td>
+        <td><span class="tag t-git">Git — local</span></td>
+        <td><code>GrubAdmin-Backend/openapi/</code> <span class="tag t-new">to be added</span></td>
+        <td>Machine-readable API contract; generated from code</td>
+      </tr>
+      <tr>
+        <td>Integration guides, changelog</td>
+        <td><span class="tag t-git">Git — local</span></td>
+        <td><code>GrubPac-API-Docs/guides/</code> <span class="tag t-new">new repo</span></td>
+        <td>Human-written documentation pages</td>
+      </tr>
+      <tr>
+        <td>Postman collection</td>
+        <td><span class="tag t-git">Git — local</span></td>
+        <td><code>GrubAdmin-Backend/postman/</code></td>
+        <td>QA / dev testing; auto-exported from OpenAPI in CI</td>
+      </tr>
+      <tr>
+        <td>API Reference pages</td>
+        <td><span class="tag t-hosted">Hosted website</span></td>
+        <td><code>docs.grubpac.com/reference/*</code></td>
+        <td>Auto-generated from OpenAPI — not stored as hand-written files</td>
+      </tr>
+      <tr>
+        <td>Guide pages on portal</td>
+        <td><span class="tag t-hosted">Hosted website</span></td>
+        <td><code>docs.grubpac.com/guides/*</code></td>
+        <td>Rendered from <code>GrubPac-API-Docs</code> MDX files on publish</td>
+      </tr>
+      <tr>
+        <td>Live API endpoints</td>
+        <td><span class="tag t-hosted">Hosted server</span></td>
+        <td><code>api.grubpac.com/api/v1/*</code></td>
+        <td>Deployed GrubAdmin-Backend — what apps actually call</td>
+      </tr>
+      <tr>
+        <td>Delivery portal UI</td>
+        <td><span class="tag t-hosted">Hosted server</span></td>
+        <td><code>delivery.grubpac.com</code></td>
+        <td>GrubDelivery-Frontend — proxies to API; separate from docs site</td>
+      </tr>
+    </table>
+
+    <div class="info">
+      <b>Key distinction:</b> The documentation <b>website</b> (<code>docs.grubpac.com</code>) is not inside GrubAdmin-Backend or GrubDelivery-Frontend.
+      It is a separate hosted portal built from the <code>GrubPac-API-Docs</code> Git repo + synced OpenAPI files.
+    </div>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="card" id="structure">
+  <div class="card-head">
+    <h2>2. Folder Structure — Local Repositories</h2>
+    <p>Real layout today (GrubAdmin-Backend) and proposed additions for API documentation.</p>
+  </div>
+  <div class="card-body">
+    <div class="tree-grid">
+      <div class="tree-block">
+        <div class="tree-head local">GrubAdmin-Backend <span class="tag t-local" style="background:rgba(255,255,255,.2);color:#fff">existing + proposed</span></div>
+        <pre class="tree"><span class="dir">GrubAdmin-Backend/</span>
+├── <span class="dir">src/</span>
+│   ├── <span class="file">app.ts</span>                    <span class="comment"># basePath: /api/v1</span>
+│   ├── <span class="dir">modules/</span>
+│   │   ├── <span class="dir">common/</span>               <span class="comment"># health, config, permissions</span>
+│   │   ├── <span class="dir">admin/</span>                <span class="comment"># clients, roles, FAQ, boxes</span>
+│   │   ├── <span class="dir">delivery/</span>             <span class="comment"># restaurant, employee, grubpac</span>
+│   │   ├── <span class="dir">delivery-mobile/</span>
+│   │   ├── <span class="dir">medical/</span>
+│   │   ├── <span class="dir">hospitality/</span>
+│   │   └── <span class="dir">simulator/</span>
+│   ├── <span class="dir">middlewares/</span>              <span class="comment"># auth guards per vertical</span>
+│   ├── <span class="dir">db/</span>
+│   └── <span class="dir">types/api/</span>                <span class="comment"># APIResponse envelope</span>
+├── <span class="dir">prisma/</span>
+├── <span class="dir">openapi/</span>                      <span class="new"># TO BE ADDED — generated specs</span>
+│   ├── <span class="dir">schemas/</span>
+│   │   └── <span class="file">common.yaml</span>           <span class="comment"># APIResponse, pagination, errors</span>
+│   ├── <span class="file">common.openapi.yaml</span>
+│   ├── <span class="file">admin.openapi.yaml</span>
+│   ├── <span class="file">delivery.openapi.yaml</span>
+│   ├── <span class="file">delivery-mobile.openapi.yaml</span>
+│   ├── <span class="file">medical.openapi.yaml</span>
+│   ├── <span class="file">hospitality.openapi.yaml</span>
+│   ├── <span class="file">simulator.openapi.yaml</span>
+│   └── <span class="file">openapi.bundle.yaml</span>     <span class="comment"># merged — CI output</span>
+├── <span class="dir">postman/</span>
+│   └── <span class="file">grubpac-api.collection.json</span>  <span class="comment"># CI-exported from OpenAPI</span>
+└── <span class="file">package.json</span></pre>
+      </div>
+      <div class="tree-block">
+        <div class="tree-head docs">GrubPac-API-Docs <span class="tag t-new" style="background:rgba(255,255,255,.2);color:#fff">new repo</span></div>
+        <pre class="tree"><span class="dir">GrubPac-API-Docs/</span>
+├── <span class="file">mint.json</span>                       <span class="comment"># Mintlify portal configuration</span>
+├── <span class="dir">guides/</span>                         <span class="comment"># authored — team writes these</span>
+│   ├── <span class="file">getting-started.mdx</span>
+│   ├── <span class="file">authentication.mdx</span>        <span class="comment"># JWT per vertical</span>
+│   ├── <span class="file">environments.mdx</span>          <span class="comment"># dev / staging / prod URLs</span>
+│   └── <span class="file">error-codes.mdx</span>
+├── <span class="dir">changelog/</span>
+│   └── <span class="file">releases.mdx</span>
+├── <span class="dir">openapi/</span>                        <span class="comment"># synced from GrubAdmin-Backend CI</span>
+│   └── <span class="file">openapi.bundle.yaml</span>
+└── <span class="dir">assets/</span>                         <span class="comment"># logos, diagrams</span></pre>
+      </div>
+    </div>
+
+    <div class="info info-orange">
+      <b>GrubDelivery-Frontend</b> stays unchanged for documentation purposes. It remains a consumer of
+      <code>api.grubpac.com/api/v1/delivery/*</code> via its proxy. API docs are not embedded in the frontend repo.
+    </div>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="card" id="portal-structure">
+  <div class="card-head">
+    <h2>3. Documentation Website Structure</h2>
+    <p>What appears on <code>docs.grubpac.com</code> — mapped to GrubAdmin-Backend API modules.</p>
+  </div>
+  <div class="card-body">
+    <pre class="tree" style="background:#fafbfc;color:#333;border:1px solid var(--border)"><span class="dir">docs.grubpac.com/</span>                              <span class="comment"># HOSTED — Mintlify / Redocly</span>
+├── <span class="dir">Getting Started/</span>                             <span class="comment"># from GrubPac-API-Docs/guides/</span>
+│   ├── Overview
+│   ├── Environments
+│   ├── Authentication
+│   └── Error codes
+├── <span class="dir">API Reference/</span>                               <span class="comment"># AUTO-GENERATED from openapi.bundle.yaml</span>
+│   ├── <span class="dir">Common</span>          →  /api/v1/common/*
+│   ├── <span class="dir">Admin</span>           →  /api/v1/admin/*
+│   ├── <span class="dir">Delivery</span>        →  /api/v1/delivery/*
+│   │   ├── auth
+│   │   ├── account
+│   │   ├── restaurant
+│   │   ├── employee
+│   │   ├── grubpac / grublock
+│   │   ├── notification
+│   │   ├── support
+│   │   └── logs
+│   ├── <span class="dir">Delivery Mobile</span> →  /api/v1/delivery-mobile/*
+│   ├── <span class="dir">Medical</span>         →  /api/v1/medical/*
+│   ├── <span class="dir">Hospitality</span>     →  /api/v1/hospitality/*
+│   └── <span class="dir">Simulator</span>       →  /api/v1/simulator/*
+├── <span class="dir">Changelog/</span>
+└── <span class="dir">Downloads/</span>
+    └── Postman collection</pre>
+
+    <table>
+      <tr><th>Portal section</th><th>Source</th><th>Stored in</th></tr>
+      <tr><td>Getting Started / Guides</td><td>Written by team</td><td><code>GrubPac-API-Docs/guides/*.mdx</code> (Git)</td></tr>
+      <tr><td>API Reference (all endpoints)</td><td>Generated from OpenAPI</td><td>Rendered on <code>docs.grubpac.com</code> only</td></tr>
+      <tr><td>Changelog</td><td>Written per release</td><td><code>GrubPac-API-Docs/changelog/</code> (Git)</td></tr>
+      <tr><td>Postman download</td><td>Exported in CI</td><td><code>GrubAdmin-Backend/postman/</code> → linked from portal</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 4 -->
+<div class="card" id="flow">
+  <div class="card-head">
+    <h2>4. End-to-End Flow — Every Time APIs Change</h2>
+    <p>What happens on each code change, from local development to live documentation and API.</p>
+  </div>
+  <div class="card-body">
+
+    <div class="mermaid">
+flowchart TB
+    subgraph LOCAL["LOCAL — Git repositories"]
+        A["Developer edits\nGrubAdmin-Backend\nhandlers / validators"]
+        B["PR review & merge\nto main branch"]
+        C["GrubPac-API-Docs\nguides / changelog edits"]
+    end
+
+    subgraph CI["CI/CD — runs on merge"]
+        D["Generate OpenAPI specs\nhono-openapi → openapi/*.yaml"]
+        E["Bundle → openapi.bundle.yaml\nExport Postman collection"]
+        F["Sync bundle to\nGrubPac-API-Docs repo"]
+        G["Deploy GrubAdmin-Backend\nto API server"]
+    end
+
+    subgraph HOSTED["HOSTED — live services"]
+        H["api.grubpac.com\n/api/v1/*"]
+        I["docs.grubpac.com\nMintlify rebuilds portal"]
+        J["delivery.grubpac.com\nGrubDelivery-Frontend"]
+    end
+
+    subgraph USERS["Consumers"]
+        K["Engineers / QA\nread docs, use Postman"]
+        L["Frontend / mobile\ncall live APIs"]
+    end
+
+    A --> B
+    B --> D --> E --> F
+    B --> G
+    C --> I
+    F --> I
+    G --> H
+    I --> K
+    H --> L
+    J -->|"proxy /api/v1/*"| H
+    K -->|"test against"| H
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h4>Developer changes API code</h4>
+          <p>Modify handlers or Zod validators in GrubAdmin-Backend. Run locally against dev API server.</p>
+          <div class="where">LOCAL → GrubAdmin-Backend/src/modules/</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h4>Pull request merged to main</h4>
+          <p>Code review complete. CI pipeline triggers on merge.</p>
+          <div class="where">GitHub → GrubAdmin-Backend</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <h4>CI generates OpenAPI specification</h4>
+          <p>hono-openapi reads routes and Zod schemas. Outputs per-module YAML files and a merged bundle.</p>
+          <div class="where">CI → GrubAdmin-Backend/openapi/</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <h4>CI syncs spec to docs repository</h4>
+          <p>openapi.bundle.yaml and Postman collection pushed to GrubPac-API-Docs (or same pipeline artifact).</p>
+          <div class="where">CI → GrubPac-API-Docs/openapi/</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div>
+          <h4>CI deploys backend to API server</h4>
+          <p>Existing deployment pipeline publishes new API behaviour to production/staging.</p>
+          <div class="where">HOSTED → api.grubpac.com</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div>
+          <h4>Documentation portal rebuilds automatically</h4>
+          <p>Mintlify / Redocly detects Git change in GrubPac-API-Docs. API Reference pages regenerate from the new OpenAPI bundle.</p>
+          <div class="where">HOSTED → docs.grubpac.com</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">7</div>
+        <div>
+          <h4>Teams consume updated documentation and APIs</h4>
+          <p>Engineers and QA use docs.grubpac.com and Postman. GrubDelivery-Frontend and mobile clients call the updated api.grubpac.com endpoints.</p>
+          <div class="where">docs.grubpac.com + api.grubpac.com + delivery.grubpac.com</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info info-green">
+      After initial setup, steps 3–6 run automatically on every merge. No manual doc updates for endpoint reference pages.
+      Guide pages (auth, environments) are updated only when the team edits <code>GrubPac-API-Docs/guides/</code>.
+    </div>
+  </div>
+</div>
+
+<!-- 5 -->
+<div class="card" id="look">
+  <div class="card-head">
+    <h2>5. Portal Preview — Delivery Module</h2>
+    <p>How a reference page on <code>docs.grubpac.com</code> will render (auto-generated from OpenAPI).</p>
+  </div>
+  <div class="card-body">
+    <div class="mock">
+      <div class="mock-top">docs.grubpac.com — API Reference › Delivery › Auth</div>
+      <div class="mock-body">
+        <div class="mock-left">
+          <div style="font-weight:700;color:var(--navy);margin-bottom:8px;font-size:11px">API REFERENCE</div>
+          <div class="mock-nav grp">Delivery</div>
+          <div class="mock-nav active">POST Login</div>
+          <div class="mock-nav">GET Account</div>
+          <div class="mock-nav">GET Restaurants</div>
+          <div class="mock-nav">POST Employee</div>
+          <div class="mock-nav">GET GrubPac</div>
+          <div class="mock-nav">PATCH GrubLock</div>
+          <div class="mock-nav grp">Admin</div>
+          <div class="mock-nav grp">Medical</div>
+          <div class="mock-nav grp">Hospitality</div>
+        </div>
+        <div class="mock-mid">
+          <div class="mock-title">POST /api/v1/delivery/auth/login</div>
+          <p style="font-size:11px;color:#555;margin-bottom:10px">Authenticate delivery manager or driver. Returns JWT bearer token.</p>
+          <div class="mock-field">
+            <div class="mock-label">Request body</div>
+            email: string (required)<br>
+            password: string (required)
+          </div>
+          <div class="mock-field">
+            <div class="mock-label">Response 200</div>
+            success: boolean<br>
+            data: { token, user, role }
+          </div>
+          <div class="mock-field">
+            <div class="mock-label">Auth header (subsequent calls)</div>
+            Authorization: Bearer &lt;token&gt;
+          </div>
+        </div>
+        <div class="mock-right">
+<span style="color:#c586c0">POST</span> https://api.grubpac.com/api/v1/delivery/auth/login
+<span style="color:#6a9955">// Request</span>
+{
+  <span style="color:#9cdcfe">"email"</span>: <span style="color:#ce9178">"manager@example.com"</span>,
+  <span style="color:#9cdcfe">"password"</span>: <span style="color:#ce9178">"********"</span>
+}
+
+<span style="color:#6a9955">// Response</span>
+{
+  <span style="color:#9cdcfe">"success"</span>: <span style="color:#569cd6">true</span>,
+  <span style="color:#9cdcfe">"data"</span>: {
+    <span style="color:#9cdcfe">"token"</span>: <span style="color:#ce9178">"eyJhbG..."</span>
+  }
+}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 -->
+<div class="card" id="tools">
+  <div class="card-head">
+    <h2>6. Tooling</h2>
+    <p>Stack mapped to each layer of the architecture above.</p>
+  </div>
+  <div class="card-body">
+    <table>
+      <tr><th>Tool</th><th>Layer</th><th>Role</th></tr>
+      <tr><td><b>OpenAPI 3.1</b></td><td>GrubAdmin-Backend / Git</td><td>Canonical API contract format</td></tr>
+      <tr><td><b>hono-openapi</b></td><td>GrubAdmin-Backend / CI</td><td>Generate specs from Hono routes + Zod validators</td></tr>
+      <tr><td><b>Mintlify</b> or <b>Redocly</b></td><td>docs.grubpac.com</td><td>Host portal; render reference from OpenAPI; publish guides from MDX</td></tr>
+      <tr><td><b>Postman</b></td><td>Download from portal</td><td>QA and integration testing; exported from OpenAPI in CI</td></tr>
+      <tr><td><b>GitHub Actions</b></td><td>CI/CD</td><td>Generate spec, sync repos, deploy API, trigger portal rebuild</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 7 -->
+<div class="card" id="summary">
+  <div class="card-head">
+    <h2>7. Decision Summary</h2>
+  </div>
+  <div class="card-body">
+    <table>
+      <tr><th>Decision</th><th>Recommendation</th></tr>
+      <tr><td>API code repository</td><td>GrubAdmin-Backend (existing)</td></tr>
+      <tr><td>Docs content repository</td><td>GrubPac-API-Docs (new, separate Git repo)</td></tr>
+      <tr><td>OpenAPI spec location</td><td><code>GrubAdmin-Backend/openapi/</code> — one file per API module</td></tr>
+      <tr><td>Documentation website</td><td><code>docs.grubpac.com</code> — Mintlify or Redocly</td></tr>
+      <tr><td>Live API server</td><td><code>api.grubpac.com</code> — deployed GrubAdmin-Backend</td></tr>
+      <tr><td>Frontend (not docs)</td><td><code>delivery.grubpac.com</code> — GrubDelivery-Frontend</td></tr>
+      <tr><td>Update model</td><td>CI generates OpenAPI on merge → syncs to docs repo → portal rebuilds automatically</td></tr>
+      <tr><td>Rollout</td><td>Start with <b>delivery</b> module OpenAPI, then expand to remaining modules</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<footer class="footer">
+  GrubPac API Documentation — Architecture &amp; Flow · Internal Reference
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', flowchart: { curve: 'basis' } });
+</script>
+</body>
+</html>
