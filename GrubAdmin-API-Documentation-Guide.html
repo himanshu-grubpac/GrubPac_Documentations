@@ -76,6 +76,15 @@ tr:nth-child(even){background:#fafbfc}
 .zone h3{font-size:14px;margin-bottom:10px}
 .zone ul{font-size:12px;padding-left:18px;color:#333}
 .zone li{margin:5px 0}
+.pipeline{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:16px 0;padding:16px;background:#fafbfc;border:1px solid var(--border);border-radius:10px}
+.pipe-box{background:#fff;border:2px solid var(--blue);border-radius:8px;padding:10px 14px;text-align:center;min-width:120px}
+.pipe-box.mid{border-color:var(--orange);background:var(--orange-bg)}
+.pipe-box h4{font-size:11px;color:var(--navy);margin-bottom:2px}
+.pipe-box p{font-size:10px;color:var(--gray)}
+.pipe-arrow{color:var(--gray);font-weight:700;font-size:16px}
+.yes{color:var(--green);font-weight:700}
+.no{color:#c62828;font-weight:700}
+.sub-h{font-size:15px;color:var(--blue);margin:20px 0 10px}
 .footer{text-align:center;padding:24px;font-size:11px;color:var(--gray)}
 </style>
 </head>
@@ -480,9 +489,220 @@ flowchart TB
 </div>
 
 <!-- 7 -->
+<div class="card" id="openapi">
+  <div class="card-head">
+    <h2>7. OpenAPI — What It Is and What We Use</h2>
+    <p>OpenAPI is not a separate product. It is the standard file format that sits between backend code and the documentation website.</p>
+  </div>
+  <div class="card-body">
+    <p style="font-size:13px;color:#444;margin-bottom:12px">
+      OpenAPI is a <b>machine-readable API contract</b> — a YAML or JSON file that describes every endpoint, request field,
+      response schema, and authentication rule in a structured format that tools can read and render automatically.
+    </p>
+
+    <div class="pipeline">
+      <div class="pipe-box">
+        <h4>GrubAdmin-Backend</h4>
+        <p>Hono routes + Zod validators</p>
+      </div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-box">
+        <h4>hono-openapi</h4>
+        <p>CI / build step</p>
+      </div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-box mid">
+        <h4>OpenAPI YAML</h4>
+        <p>openapi/*.yaml</p>
+      </div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-box">
+        <h4>Mintlify / Redocly</h4>
+        <p>Reads YAML file</p>
+      </div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-box">
+        <h4>docs.grubpac.com</h4>
+        <p>Live API Reference</p>
+      </div>
+    </div>
+
+    <h3 class="sub-h">Three things we use from OpenAPI</h3>
+    <table>
+      <tr>
+        <th>#</th>
+        <th>What</th>
+        <th>What it means</th>
+        <th>Where</th>
+      </tr>
+      <tr>
+        <td><b>1</b></td>
+        <td><b>OpenAPI 3.1</b><br><small>the format</small></td>
+        <td>The standard type of file we store — <code>.yaml</code> or <code>.json</code> describing all API details</td>
+        <td><code>GrubAdmin-Backend/openapi/</code></td>
+      </tr>
+      <tr>
+        <td><b>2</b></td>
+        <td><b>hono-openapi</b><br><small>the generator</small></td>
+        <td>Reads Hono routes and Zod validators and auto-writes the YAML files. Endpoints are not typed by hand.</td>
+        <td>GrubAdmin-Backend codebase + CI</td>
+      </tr>
+      <tr>
+        <td><b>3</b></td>
+        <td><b>Mintlify / Redocly</b><br><small>the reader</small></td>
+        <td>Reads the OpenAPI file and builds the documentation website with navigation, search, and code samples</td>
+        <td><code>docs.grubpac.com</code></td>
+      </tr>
+    </table>
+
+    <h3 class="sub-h">Who interacts with OpenAPI</h3>
+    <table>
+      <tr><th>Role</th><th>Interaction</th><th>Opens YAML directly?</th></tr>
+      <tr><td>Backend developer</td><td>Writes handlers and Zod validators as today; generator updates YAML on build</td><td class="no">No</td></tr>
+      <tr><td>CI pipeline</td><td>Bundles YAML files, exports Postman, syncs to GrubPac-API-Docs</td><td class="yes">Yes (automated)</td></tr>
+      <tr><td>Docs platform</td><td>Reads YAML, renders API Reference pages on docs.grubpac.com</td><td class="yes">Yes (automated)</td></tr>
+      <tr><td>Frontend / QA / new hires</td><td>Reads docs.grubpac.com and Postman collection</td><td class="no">No</td></tr>
+    </table>
+
+    <div class="info">
+      <b>OpenAPI is not a running server.</b> It does not replace GrubAdmin-Backend. It is the blueprint file that the documentation platform reads to build and maintain the API Reference section.
+    </div>
+  </div>
+</div>
+
+<!-- 8 -->
+<div class="card" id="enterprise">
+  <div class="card-head">
+    <h2>8. Enterprise Alignment</h2>
+    <p>How this approach compares to API documentation programs at Stripe, Microsoft, Uber, and comparable platforms.</p>
+  </div>
+  <div class="card-body">
+
+    <h3 class="sub-h">Standard enterprise pattern vs our plan</h3>
+    <table>
+      <tr>
+        <th>Layer</th>
+        <th>Enterprise standard</th>
+        <th>Our plan</th>
+        <th>Aligned?</th>
+      </tr>
+      <tr>
+        <td>API contract</td>
+        <td>Machine-readable spec (OpenAPI) as single source of truth</td>
+        <td>OpenAPI 3.1 YAML in Git</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>API Reference docs</td>
+        <td>Auto-generated from spec — not maintained in Word or Excel</td>
+        <td>hono-openapi → YAML → Mintlify / Redocly</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Developer portal</td>
+        <td>Hosted site with search, access control, versioning</td>
+        <td>docs.grubpac.com</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Integration guides</td>
+        <td>Human-written pages for auth, environments, workflows</td>
+        <td>GrubPac-API-Docs/guides/</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>CI/CD sync</td>
+        <td>Spec regenerated on every merge; docs stay in sync with deployed API</td>
+        <td>GitHub Actions on merge to main</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Testing artefact</td>
+        <td>Postman collection or equivalent exported from OpenAPI</td>
+        <td>postman/grubpac-api.collection.json</td>
+        <td class="yes">Yes</td>
+      </tr>
+    </table>
+
+    <h3 class="sub-h">Where large enterprises differ (normal variation)</h3>
+    <table>
+      <tr>
+        <th>Area</th>
+        <th>Large enterprise</th>
+        <th>Our setup</th>
+        <th>Impact</th>
+      </tr>
+      <tr>
+        <td>Portal platform</td>
+        <td>Often Redocly, Backstage, or custom internal portal</td>
+        <td>Mintlify or Redocly</td>
+        <td>Same category of tool; ours is appropriate at our scale</td>
+      </tr>
+      <tr>
+        <td>Spec generation</td>
+        <td>Built into framework (.NET OpenAPI, Google protobuf + transcoding)</td>
+        <td>hono-openapi from Hono + Zod</td>
+        <td>Same principle — framework-native generation</td>
+      </tr>
+      <tr>
+        <td>Repository layout</td>
+        <td>Monorepo or separate docs repo depending on org</td>
+        <td>Separate GrubPac-API-Docs repo</td>
+        <td>Valid and common; keeps docs lifecycle independent</td>
+      </tr>
+      <tr>
+        <td>Audience</td>
+        <td>Often external partners plus internal teams</td>
+        <td>Internal portal (SSO)</td>
+        <td>Simpler access model; same documentation architecture</td>
+      </tr>
+      <tr>
+        <td>Reference examples</td>
+        <td>Stripe, Microsoft, Uber publish OpenAPI in GitHub</td>
+        <td>We publish OpenAPI in GrubAdmin-Backend Git</td>
+        <td>Identical pattern</td>
+      </tr>
+    </table>
+
+    <h3 class="sub-h">What top enterprises do not do</h3>
+    <table>
+      <tr><th>Anti-pattern</th><th>Why it fails at scale</th><th>Our approach</th></tr>
+      <tr>
+        <td>Hand-write hundreds of endpoints in Word / Excel</td>
+        <td>Docs diverge from deployed API within weeks</td>
+        <td class="yes">Auto-generated from code via hono-openapi</td>
+      </tr>
+      <tr>
+        <td>No machine-readable spec</td>
+        <td>No automated portal, no reliable Postman export, no CI validation</td>
+        <td class="yes">OpenAPI 3.1 as canonical contract</td>
+      </tr>
+      <tr>
+        <td>Swagger UI as the entire documentation program</td>
+        <td>Functional but insufficient for search, guides, SSO, changelog</td>
+        <td class="yes">Full portal via Mintlify / Redocly</td>
+      </tr>
+      <tr>
+        <td>Manual doc updates after each API release</td>
+        <td>Human error; reference pages fall behind production</td>
+        <td class="yes">CI regenerates spec and triggers portal rebuild on merge</td>
+      </tr>
+    </table>
+
+    <div class="rec">
+      <h3>Conclusion</h3>
+      <p>
+        The architecture in this document — <b>OpenAPI file (auto-generated) → CI → developer portal</b> — is the industry standard.
+        Tool names differ between organisations; the pattern does not. Our plan is aligned with how Stripe, Microsoft, Uber, and comparable platforms structure API documentation programs.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- 9 -->
 <div class="card" id="summary">
   <div class="card-head">
-    <h2>7. Decision Summary</h2>
+    <h2>9. Decision Summary</h2>
   </div>
   <div class="card-body">
     <table>
