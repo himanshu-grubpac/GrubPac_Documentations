@@ -36,6 +36,8 @@ tr:nth-child(even){background:#fafbfc}
 .t-hosted{background:#f3e5f5;color:#6a1b9a}
 .t-git{background:#e8f5e9;color:#2e7d32}
 .t-new{background:#fff3e0;color:#e65100}
+.t-auto{background:#e8f5e9;color:#2e7d32}
+.t-manual{background:#fff8e1;color:#f57f17}
 .rec{background:var(--green-bg);border:2px solid #81c784;border-radius:12px;padding:16px 18px;margin:14px 0}
 .rec h3{font-size:15px;color:var(--green);margin-bottom:8px}
 .rec p,.rec li{font-size:13px;color:#333}
@@ -129,62 +131,159 @@ tr:nth-child(even){background:#fafbfc}
       <tr>
         <th>Item</th>
         <th>Location</th>
+        <th>Platform / host</th>
         <th>URL / path</th>
+        <th>Auto / manual</th>
         <th>Purpose</th>
       </tr>
       <tr>
         <td>API handlers, validators, DB logic</td>
         <td><span class="tag t-git">Git — local</span></td>
+        <td>GitHub repo</td>
         <td><code>GrubAdmin-Backend/src/</code></td>
-        <td>Backend implementation</td>
+        <td><span class="tag t-manual">Manual</span></td>
+        <td>Backend implementation — written by developers</td>
       </tr>
       <tr>
         <td>OpenAPI specification files</td>
         <td><span class="tag t-git">Git — local</span></td>
+        <td>GitHub repo + CI</td>
         <td><code>GrubAdmin-Backend/openapi/</code> <span class="tag t-new">to be added</span></td>
-        <td>Machine-readable API contract; generated from code</td>
+        <td><span class="tag t-auto">Automatic</span></td>
+        <td>Generated from code by hono-openapi on each build / merge</td>
       </tr>
       <tr>
-        <td>Integration guides, changelog</td>
+        <td>Integration guides</td>
         <td><span class="tag t-git">Git — local</span></td>
+        <td>GitHub repo</td>
         <td><code>GrubPac-API-Docs/guides/</code> <span class="tag t-new">new repo</span></td>
-        <td>Human-written documentation pages</td>
+        <td><span class="tag t-manual">Manual</span></td>
+        <td>Auth, environments, workflows — team writes MDX files</td>
+      </tr>
+      <tr>
+        <td>Changelog</td>
+        <td><span class="tag t-git">Git — local</span></td>
+        <td>GitHub repo</td>
+        <td><code>GrubPac-API-Docs/changelog/</code></td>
+        <td><span class="tag t-manual">Manual</span></td>
+        <td>Release notes — team writes per release</td>
       </tr>
       <tr>
         <td>Postman collection</td>
         <td><span class="tag t-git">Git — local</span></td>
+        <td>GitHub repo + CI</td>
         <td><code>GrubAdmin-Backend/postman/</code></td>
-        <td>QA / dev testing; auto-exported from OpenAPI in CI</td>
+        <td><span class="tag t-auto">Automatic</span></td>
+        <td>Exported from OpenAPI in CI; team does not build requests by hand</td>
       </tr>
       <tr>
         <td>API Reference pages</td>
         <td><span class="tag t-hosted">Hosted website</span></td>
+        <td><b>Mintlify</b> or <b>Redocly</b><br><small>SaaS docs platform</small></td>
         <td><code>docs.grubpac.com/reference/*</code></td>
-        <td>Auto-generated from OpenAPI — not stored as hand-written files</td>
+        <td><span class="tag t-auto">Automatic</span></td>
+        <td>Portal reads OpenAPI and builds all endpoint pages on publish — no hand-written reference HTML</td>
       </tr>
       <tr>
         <td>Guide pages on portal</td>
         <td><span class="tag t-hosted">Hosted website</span></td>
+        <td><b>Mintlify</b> or <b>Redocly</b><br><small>SaaS docs platform</small></td>
         <td><code>docs.grubpac.com/guides/*</code></td>
-        <td>Rendered from <code>GrubPac-API-Docs</code> MDX files on publish</td>
+        <td><span class="tag t-manual">Manual</span> → published automatically</td>
+        <td>Content written in Git; platform renders MDX to live pages on sync</td>
+      </tr>
+      <tr>
+        <td>Portal navigation &amp; search</td>
+        <td><span class="tag t-hosted">Hosted website</span></td>
+        <td><b>Mintlify</b> or <b>Redocly</b></td>
+        <td><code>docs.grubpac.com</code></td>
+        <td><span class="tag t-auto">Automatic</span></td>
+        <td>Built by docs platform from OpenAPI + portal config (<code>mint.json</code>)</td>
       </tr>
       <tr>
         <td>Live API endpoints</td>
         <td><span class="tag t-hosted">Hosted server</span></td>
+        <td>Cloud VM / deployment server<br><small>not the docs platform</small></td>
         <td><code>api.grubpac.com/api/v1/*</code></td>
-        <td>Deployed GrubAdmin-Backend — what apps actually call</td>
+        <td><span class="tag t-manual">Manual</span> deploy</td>
+        <td>Running GrubAdmin-Backend — what apps call; deployed via existing CI/CD</td>
       </tr>
       <tr>
         <td>Delivery portal UI</td>
         <td><span class="tag t-hosted">Hosted server</span></td>
+        <td>Frontend hosting<br><small>e.g. Vercel / nginx / VM</small></td>
         <td><code>delivery.grubpac.com</code></td>
-        <td>GrubDelivery-Frontend — proxies to API; separate from docs site</td>
+        <td><span class="tag t-manual">Manual</span> deploy</td>
+        <td>GrubDelivery-Frontend — separate from docs; proxies to API server</td>
       </tr>
     </table>
 
+    <h3 class="sub-h">Automatic vs manual — complete breakdown</h3>
+    <table>
+      <tr>
+        <th>Content</th>
+        <th>Who creates it</th>
+        <th>Where it lives</th>
+        <th>Appears on hosted site?</th>
+      </tr>
+      <tr>
+        <td>Every API endpoint page (methods, paths, schemas, examples)</td>
+        <td><span class="tag t-auto">Automatic</span> — from OpenAPI via Mintlify / Redocly</td>
+        <td><code>docs.grubpac.com</code> API Reference</td>
+        <td class="yes">Yes — rebuilt on every OpenAPI sync</td>
+      </tr>
+      <tr>
+        <td>Left navigation for API modules (Admin, Delivery, Medical, etc.)</td>
+        <td><span class="tag t-auto">Automatic</span> — from OpenAPI structure</td>
+        <td><code>docs.grubpac.com</code></td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Request / response code samples in reference</td>
+        <td><span class="tag t-auto">Automatic</span> — from OpenAPI schemas</td>
+        <td><code>docs.grubpac.com</code> API Reference</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Postman collection file</td>
+        <td><span class="tag t-auto">Automatic</span> — CI export from OpenAPI</td>
+        <td>Git + download link on portal</td>
+        <td class="yes">Yes — link on docs site</td>
+      </tr>
+      <tr>
+        <td>Getting Started, Authentication, Environments guides</td>
+        <td><span class="tag t-manual">Manual</span> — team writes MDX</td>
+        <td><code>GrubPac-API-Docs/guides/</code></td>
+        <td class="yes">Yes — after Git sync to Mintlify / Redocly</td>
+      </tr>
+      <tr>
+        <td>Changelog / release notes</td>
+        <td><span class="tag t-manual">Manual</span> — team writes per release</td>
+        <td><code>GrubPac-API-Docs/changelog/</code></td>
+        <td class="yes">Yes — after Git sync</td>
+      </tr>
+      <tr>
+        <td>Portal branding, SSO, access control config</td>
+        <td><span class="tag t-manual">Manual</span> — one-time setup in Mintlify / Redocly</td>
+        <td>Platform dashboard + <code>mint.json</code></td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Backend API behaviour (actual running APIs)</td>
+        <td><span class="tag t-manual">Manual</span> — developer code + deploy</td>
+        <td><code>api.grubpac.com</code></td>
+        <td class="no">No — this is the API server, not documentation</td>
+      </tr>
+    </table>
+
+    <div class="info info-purple">
+      <b>What “hosted website” means:</b> <code>docs.grubpac.com</code> is <b>not</b> stored inside GrubAdmin-Backend or GrubDelivery-Frontend.
+      It runs on a <b>documentation platform</b> (<b>Mintlify</b> or <b>Redocly</b>) — a hosted SaaS that connects to the <code>GrubPac-API-Docs</code> Git repo,
+      reads the OpenAPI file, and publishes the live documentation site. API Reference pages are created automatically on that platform; guide pages are written in Git and rendered on publish.
+    </div>
+
     <div class="info">
-      <b>Key distinction:</b> The documentation <b>website</b> (<code>docs.grubpac.com</code>) is not inside GrubAdmin-Backend or GrubDelivery-Frontend.
-      It is a separate hosted portal built from the <code>GrubPac-API-Docs</code> Git repo + synced OpenAPI files.
+      <b>Key distinction:</b> The documentation website is a separate hosted service. GrubPac-API-Docs (Git) is the source; Mintlify / Redocly is the host that turns it into <code>docs.grubpac.com</code>.
     </div>
   </div>
 </div>
@@ -287,11 +386,12 @@ tr:nth-child(even){background:#fafbfc}
     └── Postman collection</pre>
 
     <table>
-      <tr><th>Portal section</th><th>Source</th><th>Stored in</th></tr>
-      <tr><td>Getting Started / Guides</td><td>Written by team</td><td><code>GrubPac-API-Docs/guides/*.mdx</code> (Git)</td></tr>
-      <tr><td>API Reference (all endpoints)</td><td>Generated from OpenAPI</td><td>Rendered on <code>docs.grubpac.com</code> only</td></tr>
-      <tr><td>Changelog</td><td>Written per release</td><td><code>GrubPac-API-Docs/changelog/</code> (Git)</td></tr>
-      <tr><td>Postman download</td><td>Exported in CI</td><td><code>GrubAdmin-Backend/postman/</code> → linked from portal</td></tr>
+      <tr><th>Portal section</th><th>Auto / manual</th><th>Source</th><th>On docs.grubpac.com</th></tr>
+      <tr><td>API Reference (all endpoints)</td><td><span class="tag t-auto">Automatic</span></td><td>OpenAPI bundle → Mintlify / Redocly</td><td>Built automatically on every spec sync</td></tr>
+      <tr><td>Getting Started / Guides</td><td><span class="tag t-manual">Manual</span></td><td><code>GrubPac-API-Docs/guides/*.mdx</code></td><td>Published when Git repo syncs to platform</td></tr>
+      <tr><td>Changelog</td><td><span class="tag t-manual">Manual</span></td><td><code>GrubPac-API-Docs/changelog/</code></td><td>Published when Git repo syncs to platform</td></tr>
+      <tr><td>Postman download</td><td><span class="tag t-auto">Automatic</span></td><td>CI export from OpenAPI</td><td>Download link on portal</td></tr>
+      <tr><td>Search &amp; navigation</td><td><span class="tag t-auto">Automatic</span></td><td>Mintlify / Redocly from OpenAPI + config</td><td>Always up to date with spec</td></tr>
     </table>
   </div>
 </div>
